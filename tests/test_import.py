@@ -2,5 +2,5 @@
 
 
 def test_import():
-    import python_template.logging
-    import python_template.utils
+    import lammps_utils.logging
+    import lammps_utils.utils

@@ -1,18 +1,18 @@
-# python-template
+# lammps-utils
 
 <!-- badges -->
-[![CI](https://github.com/yu9824/python-template/actions/workflows/CI.yml/badge.svg)](https://github.com/yu9824/python-template/actions/workflows/CI.yml)
-[![docs](https://github.com/yu9824/python-template/actions/workflows/docs.yml/badge.svg)](https://github.com/yu9824/python-template/actions/workflows/docs.yml)
-[![release-pypi](https://github.com/yu9824/python-template/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/yu9824/python-template/actions/workflows/release-pypi.yml)
+[![CI](https://github.com/yu9824/lammps-utils/actions/workflows/CI.yml/badge.svg)](https://github.com/yu9824/lammps-utils/actions/workflows/CI.yml)
+[![docs](https://github.com/yu9824/lammps-utils/actions/workflows/docs.yml/badge.svg)](https://github.com/yu9824/lammps-utils/actions/workflows/docs.yml)
+[![release-pypi](https://github.com/yu9824/lammps-utils/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/yu9824/lammps-utils/actions/workflows/release-pypi.yml)
 
 <!--
-[![python_badge](https://img.shields.io/pypi/pyversions/python-template)](https://pypi.org/project/python-template/)
-[![license_badge](https://img.shields.io/pypi/l/python-template)](https://pypi.org/project/python-template/)
-[![PyPI version](https://badge.fury.io/py/python-template.svg)](https://pypi.org/project/python-template/)
-[![Downloads](https://static.pepy.tech/badge/python-template)](https://pepy.tech/project/python-template)
+[![python_badge](https://img.shields.io/pypi/pyversions/lammps-utils)](https://pypi.org/project/lammps-utils/)
+[![license_badge](https://img.shields.io/pypi/l/lammps-utils)](https://pypi.org/project/lammps-utils/)
+[![PyPI version](https://badge.fury.io/py/lammps-utils.svg)](https://pypi.org/project/lammps-utils/)
+[![Downloads](https://static.pepy.tech/badge/lammps-utils)](https://pepy.tech/project/lammps-utils)
 
-[![Conda Version](https://img.shields.io/conda/vn/conda-forge/python-template.svg)](https://anaconda.org/conda-forge/python-template)
-[![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/python-template.svg)](https://anaconda.org/conda-forge/python-template)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/lammps-utils.svg)](https://anaconda.org/conda-forge/lammps-utils)
+[![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/lammps-utils.svg)](https://anaconda.org/conda-forge/lammps-utils)
 -->
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
