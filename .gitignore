@@ -1,5 +1,10 @@
 # custom
 docs/
+examples/*
+!examples/*.ipynb
+!examples/eq3.data
+!examples/eq3.xtc
+!examples/eq3.in
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
