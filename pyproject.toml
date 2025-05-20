@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lammps-utils"
 dynamic = ["version"]
-dependencies = []
-requires-python = ">= 3.8"
+dependencies = ["numpy", "pandas", "rdkit"]
+requires-python = ">= 3.9"
 authors = [{ name = "yu9824" }]
 maintainers = [{ name = "yu9824" }]
 description = ""
@@ -17,7 +17,6 @@ keywords = []
 # https://pypi.org/classifiers/
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
