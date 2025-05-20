@@ -1,4 +1,4 @@
-# lammps-utils
+# LAMMPS-UTILS
 
 <!-- badges -->
 [![CI](https://github.com/yu9824/lammps-utils/actions/workflows/CI.yml/badge.svg)](https://github.com/yu9824/lammps-utils/actions/workflows/CI.yml)
@@ -18,3 +18,9 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://github.com/python/mypy)
 <!-- /badges -->
+
+## Install
+
+```bash
+pip install git+https://github.com/yu9824/lammps-utils.git
+```
