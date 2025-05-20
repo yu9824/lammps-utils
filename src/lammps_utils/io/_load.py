@@ -241,7 +241,13 @@ def load_data(
 def load_data(
     filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
     return_cell_bounds: bool = False,
-) -> pd.DataFrame:
+) -> Union[
+    pd.DataFrame,
+    tuple[
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+]:
     """
     Load atom data from a LAMMPS data file or a file-like object into a DataFrame.
 
@@ -252,8 +258,10 @@ def load_data(
 
     Returns
     -------
-    pd.DataFrame
-        A DataFrame containing the atom data, with columns for ID, type, x, y, z, and symbol.
+    Union[pd.DataFrame, tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]]
+        If return_cell_bounds is False, returns a DataFrame containing the atom data.
+        - A DataFrame containing the atom data, with columns for ID, type, x, y, z, and symbol.
+
 
     Raises
     ------
