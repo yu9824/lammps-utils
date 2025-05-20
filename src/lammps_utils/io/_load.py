@@ -443,10 +443,10 @@ def load_data(
     ]
         A DataFrame containing atom data, or a tuple of DataFrames and cell bounds
         if requested.
-    If `return_bond_info` is True, a tuple of two DataFrames (atom and bond data)
-        is returned. If `return_cell_bounds` is True, a tuple of three elements
+    If 'return_bond_info' is True, a tuple of two DataFrames (atom and bond data)
+        is returned. If 'return_cell_bounds' is True, a tuple of three elements
         (atom DataFrame, bond DataFrame, and cell bounds) is returned.
-    If both `return_bond_info` and `return_cell_bounds` are True, a tuple of
+    If both 'return_bond_info' and 'return_cell_bounds' are True, a tuple of
         three elements (atom DataFrame, bond DataFrame, and cell bounds) is returned.
     If both are False, only the atom DataFrame is returned.
 
