@@ -428,27 +428,18 @@ def load_data(
 
     Returns
     -------
-    Union[
-        pd.DataFrame,
-        tuple[pd.DataFrame, pd.DataFrame],
-        tuple[
-            pd.DataFrame,
-            tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
-        ],
-        tuple[
-            pd.DataFrame,
-            pd.DataFrame,
-            tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
-        ],
-    ]
+    Union[pd.DataFrame,tuple[pd.DataFrame, pd.DataFrame],
+    tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],
+    tuple[pd.DataFrame,pd.DataFrame,tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]]
+
         A DataFrame containing atom data, or a tuple of DataFrames and cell bounds
-        if requested.
-    If 'return_bond_info' is True, a tuple of two DataFrames (atom and bond data)
-        is returned. If 'return_cell_bounds' is True, a tuple of three elements
-        (atom DataFrame, bond DataFrame, and cell bounds) is returned.
-    If both 'return_bond_info' and 'return_cell_bounds' are True, a tuple of
-        three elements (atom DataFrame, bond DataFrame, and cell bounds) is returned.
-    If both are False, only the atom DataFrame is returned.
+            if requested.
+        If 'return_bond_info' is True, a tuple of two DataFrames (atom and bond data)
+            is returned. If 'return_cell_bounds' is True, a tuple of three elements
+            (atom DataFrame, bond DataFrame, and cell bounds) is returned.
+        If both 'return_bond_info' and 'return_cell_bounds' are True, a tuple of
+            three elements (atom DataFrame, bond DataFrame, and cell bounds) is returned.
+        If both are False, only the atom DataFrame is returned.
 
     """
     content = _read_data_or_buffer(filepath_data_or_buffer)
