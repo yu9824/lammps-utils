@@ -1,6 +1,11 @@
 from rdkit import Chem
 
-__all__ = ("N_ELEMENTS", "MAP_ELEMENT_MASSES", "COLS_DATA_DTYPE")
+__all__ = (
+    "N_ELEMENTS",
+    "MAP_ELEMENT_MASSES",
+    "COLS_ATOMS_LAMMPS_DATA_DTYPE",
+    "COLS_BONDS_LAMMPS_DATA_DTYPE",
+)
 
 N_ELEMENTS = 118
 """The number of elements in the periodic table. The last element is Oganesson (Og)."""
@@ -12,7 +17,7 @@ MAP_ELEMENT_MASSES: dict[str, float] = {
 }
 """A dictionary mapping element symbols to their atomic masses in amu (g/mol)."""
 
-COLS_DATA_DTYPE = {
+COLS_ATOMS_LAMMPS_DATA_DTYPE = {
     "id": int,
     "mol": int,
     "type": int,
@@ -22,3 +27,10 @@ COLS_DATA_DTYPE = {
     "z": float,
 }
 """A dictionary mapping column names to their data types in the LAMMPS data file."""
+
+COLS_BONDS_LAMMPS_DATA_DTYPE = {
+    "id": int,
+    "type": int,
+    "atom1": int,
+    "atom2": int,
+}
