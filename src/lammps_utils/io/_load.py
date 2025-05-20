@@ -6,10 +6,15 @@ from typing import Literal, Union, overload
 
 import pandas as pd
 
-from lammps_utils.constants import COLS_DATA_DTYPE, MAP_ELEMENT_MASSES
+from lammps_utils.constants import (
+    COLS_ATOMS_LAMMPS_DATA_DTYPE,
+    COLS_BONDS_LAMMPS_DATA_DTYPE,
+    MAP_ELEMENT_MASSES,
+)
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
+PATTERN_N_BONDS = r"\s*(\d+)\s*bonds\s*\n"
 
 
 def _read_data_or_buffer(
@@ -112,6 +117,37 @@ def get_n_atom_types(
     else:
         raise ValueError(
             f"Could not find number of atom types in {filepath_data_or_buffer}. "
+            f"Make sure the file is a valid LAMMPS data file."
+        )
+
+
+def get_n_bonds(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+) -> int:
+    """
+    Get the number of bonds from a LAMMPS data file or a file-like object.
+
+    Parameters
+    ----------
+    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+        The file path or file-like object to read.
+
+    Returns
+    -------
+    int
+        The number of bonds in the LAMMPS data file.
+
+    Raises
+    ------
+    ValueError
+        If the number of bonds cannot be found in the file.
+    """
+    content = _read_data_or_buffer(filepath_data_or_buffer)
+    if _result_n_bonds := re.search(PATTERN_N_BONDS, content):
+        return int(_result_n_bonds.group(1))
+    else:
+        raise ValueError(
+            f"Could not find number of bonds in {filepath_data_or_buffer}. "
             f"Make sure the file is a valid LAMMPS data file."
         )
 
@@ -221,29 +257,60 @@ def get_cell_bounds(
     return cell_bounds
 
 
-@overload
-def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
-    return_cell_bounds: Literal[False] = False,
-) -> pd.DataFrame: ...
-
-
-@overload
-def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
-    return_cell_bounds: Literal[True] = True,
-) -> tuple[
-    pd.DataFrame,
-    tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
-]: ...
-
-
-def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
-    return_cell_bounds: bool = False,
+def _get_bond_dataframe(
+    filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
 ) -> pd.DataFrame:
     """
-    Load atom data from a LAMMPS data file or a file-like object into a DataFrame.
+    Get the bond DataFrame from a LAMMPS data file or a file-like object.
+
+    Parameters
+    ----------
+    filepath_data_or_buffer : Union[os.PathLike, str, io.TextIOBase]
+        The file path or file-like object to read.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing bond data with columns for id, type, atom1, and atom2.
+
+    Raises
+    ------
+    ValueError
+        If the bond data cannot be found in the file.
+    """
+    content = _read_data_or_buffer(filepath_data_or_buffer)
+
+    n_bonds = get_n_bonds(io.StringIO(content))
+    if _result_bonds := re.search(
+        r"\s*Bonds.*?\n(" + r"\s*\d+\s+\d+\s+\d+\s+\d+.*\n" * n_bonds + r")",
+        content,
+    ):
+        return (
+            (
+                pd.read_table(
+                    io.StringIO(_result_bonds.group(1)),
+                    sep="\\s+",
+                    header=None,
+                )
+                .rename(
+                    columns=dict(
+                        enumerate(COLS_BONDS_LAMMPS_DATA_DTYPE.keys())
+                    )
+                )
+                .astype(COLS_BONDS_LAMMPS_DATA_DTYPE)
+            )
+            .set_index("id")
+            .sort_index()
+        )
+    else:
+        raise ValueError("Could not find bond data in the file.")
+
+
+def _get_atom_dataframe(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+) -> pd.DataFrame:
+    """
+    Get the atom DataFrame from a LAMMPS data file or a file-like object.
 
     Parameters
     ----------
@@ -253,7 +320,8 @@ def load_data(
     Returns
     -------
     pd.DataFrame
-        A DataFrame containing the atom data, with columns for ID, type, x, y, z, and symbol.
+        A DataFrame containing atom data with columns for id, mol, type, charge,
+        x, y, z, and symbol.
 
     Raises
     ------
@@ -272,13 +340,15 @@ def load_data(
         + r")",
         content,
     ):
-        _df_data = (
+        _df_atoms = (
             pd.read_table(
                 io.StringIO(_result_atoms.group(1)), header=None, sep="\\s+"
             )
-            .iloc[:, : len(COLS_DATA_DTYPE)]
-            .rename(columns=dict(enumerate(COLS_DATA_DTYPE.keys())))
-            .astype(COLS_DATA_DTYPE)
+            .iloc[:, : len(COLS_ATOMS_LAMMPS_DATA_DTYPE)]
+            .rename(
+                columns=dict(enumerate(COLS_ATOMS_LAMMPS_DATA_DTYPE.keys()))
+            )
+            .astype(COLS_ATOMS_LAMMPS_DATA_DTYPE)
         )
     else:
         raise ValueError(
@@ -286,12 +356,112 @@ def load_data(
             f"Make sure the file is a valid LAMMPS data file."
         )
 
-    assert _df_data["type"].max() == get_n_atom_types(io.StringIO(content))
-    _df_data["symbol"] = _df_data["type"].replace(atom_type_symbols)
+    assert _df_atoms["type"].max() == get_n_atom_types(io.StringIO(content))
+    _df_atoms["symbol"] = _df_atoms["type"].replace(atom_type_symbols)
 
-    _df_data.set_index("id", inplace=True)
-    _df_data.sort_index(inplace=True)
+    _df_atoms.set_index("id", inplace=True)
+    _df_atoms.sort_index(inplace=True)
+    return _df_atoms
+
+
+@overload
+def load_data(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    return_bond_info: Literal[False] = False,
+    return_cell_bounds: Literal[False] = False,
+) -> pd.DataFrame: ...
+
+
+@overload
+def load_data(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    return_bond_info: Literal[False] = False,
+    return_cell_bounds: Literal[True] = True,
+) -> tuple[
+    pd.DataFrame,
+    tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+]: ...
+@overload
+def load_data(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    return_bond_info: Literal[True] = True,
+    return_cell_bounds: Literal[False] = False,
+) -> tuple[pd.DataFrame, pd.DataFrame]: ...
+
+
+@overload
+def load_data(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    return_bond_info: Literal[True] = True,
+    return_cell_bounds: Literal[True] = True,
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+]: ...
+
+
+def load_data(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    return_bond_info: bool = False,
+    return_cell_bounds: bool = False,
+) -> Union[
+    pd.DataFrame,
+    tuple[pd.DataFrame, pd.DataFrame],
+    tuple[
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+    tuple[
+        pd.DataFrame,
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+]:
+    """
+    Load atom data from a LAMMPS data file or a file-like object into a DataFrame.
+
+    Parameters
+    ----------
+    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+        The file path or file-like object to read.
+
+    Returns
+    -------
+    Union[
+        pd.DataFrame,
+        tuple[pd.DataFrame, pd.DataFrame],
+        tuple[
+            pd.DataFrame,
+            tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        ],
+        tuple[
+            pd.DataFrame,
+            pd.DataFrame,
+            tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        ],
+    ]
+        A DataFrame containing atom data, or a tuple of DataFrames and cell bounds
+        if requested.
+    If `return_bond_info` is True, a tuple of two DataFrames (atom and bond data)
+        is returned. If `return_cell_bounds` is True, a tuple of three elements
+        (atom DataFrame, bond DataFrame, and cell bounds) is returned.
+    If both `return_bond_info` and `return_cell_bounds` are True, a tuple of
+        three elements (atom DataFrame, bond DataFrame, and cell bounds) is returned.
+    If both are False, only the atom DataFrame is returned.
+
+    """
+    content = _read_data_or_buffer(filepath_data_or_buffer)
+
+    _list_out = [_get_atom_dataframe(io.StringIO(content))]
+
+    if return_bond_info:
+        _list_out.append(_get_bond_dataframe(io.StringIO(content)))
+
     if return_cell_bounds:
-        return _df_data, get_cell_bounds(io.StringIO(content))
+        _list_out.append(get_cell_bounds(io.StringIO(content)))
+
+    if len(_list_out) > 1:
+        return tuple(_list_out)
     else:
-        return _df_data
+        return _list_out[0]
