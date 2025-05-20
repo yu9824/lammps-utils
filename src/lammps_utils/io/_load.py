@@ -10,6 +10,7 @@ from lammps_utils.constants import COLS_DATA_DTYPE, MAP_ELEMENT_MASSES
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
+PATTERN_N_BONDS = r"\s*(\d+)\s*bonds\s*\n"
 
 
 def _read_data_or_buffer(
@@ -112,6 +113,19 @@ def get_n_atom_types(
     else:
         raise ValueError(
             f"Could not find number of atom types in {filepath_data_or_buffer}. "
+            f"Make sure the file is a valid LAMMPS data file."
+        )
+
+
+def get_n_bonds(
+    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+) -> int:
+    content = _read_data_or_buffer(filepath_data_or_buffer)
+    if _result_n_bonds := re.search(PATTERN_N_BONDS, content):
+        return int(_result_n_bonds.group(1))
+    else:
+        raise ValueError(
+            f"Could not find number of bonds in {filepath_data_or_buffer}. "
             f"Make sure the file is a valid LAMMPS data file."
         )
 
