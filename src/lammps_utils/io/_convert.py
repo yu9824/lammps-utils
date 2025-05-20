@@ -27,6 +27,27 @@ def data2gro(
     filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
     filepath_gro: Optional[Union[str, os.PathLike]] = None,
 ) -> Union[str, None]:
+    """
+    Convert LAMMPS data file to GROMACS gro file.
+
+    Parameters
+    ----------
+    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+        file path or buffer of LAMMPS data file
+
+    filepath_gro : Optional[Union[str, os.PathLike]], optional
+        file path of GROMACS gro file, by default None
+
+    Returns
+    -------
+    Union[str, None]
+        GROMACS gro file content if filepath_gro is None, otherwise None
+
+    Raises
+    ------
+    FileNotFoundError
+        If the directory of filepath_gro does not exist
+    """
     if filepath_gro is not None:
         filepath_gro = Path(filepath_gro)
         if not filepath_gro.parent.is_dir():
