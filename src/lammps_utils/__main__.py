@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from lammps_utils import __version__
-from lammps_utils.io._convert import data2gro
+from lammps_utils.io._convert import data2gro, data2pdb
 from lammps_utils.logging import get_child_logger
 
 _logger = get_child_logger(__name__)
@@ -27,10 +27,25 @@ def _data2gro_cli(
     _logger.info(f"Converting '{filepath_data}' to '{filepath_gro}'")
 
 
+def _data2pdb_cli(
+    args: argparse.Namespace,
+) -> None:
+    filepath_data: Path = args.input
+    filepath_pdb: Optional[Path] = getattr(args, "output", None)
+
+    if filepath_pdb is None:
+        filepath_pdb = filepath_data.with_suffix(".pdb")
+
+    data2pdb(filepath_data, filepath_pdb)
+    _logger.info(f"Converting '{filepath_data}' to '{filepath_pdb}'")
+
+
 def main(cli_args: Sequence[str], prog: Optional[str] = None) -> None:
     parser = argparse.ArgumentParser(prog=prog, description="LAMMPS utils CLI")
     # subcommand
     subparsers = parser.add_subparsers(dest="command")
+
+    # data2gro
     data2gro_parser = subparsers.add_parser(
         "data2gro",
         help="Convert LAMMPS data file to GROMACS gro file",
@@ -48,6 +63,25 @@ def main(cli_args: Sequence[str], prog: Optional[str] = None) -> None:
         help="Output GROMACS gro file or file-like object",
     )
     data2gro_parser.set_defaults(func=_data2gro_cli)
+
+    # data2pdb
+    data2pdb_parser = subparsers.add_parser(
+        "data2pdb",
+        help="Convert LAMMPS data file to pdb file",
+    )
+    data2pdb_parser.add_argument(
+        "input",
+        type=Path,
+        help="Input LAMMPS data file or file-like object",
+    )
+    data2pdb_parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
+        help="Output pdb file or file-like object",
+    )
+    data2pdb_parser.set_defaults(func=_data2pdb_cli)
 
     parser.add_argument(
         "-v",
