@@ -3,9 +3,9 @@ from numpy.typing import ArrayLike
 from rdkit import Chem
 
 
-def _apply_minimum_image_convention(
+def _make_conformer_whole(
     conformer: Chem.rdchem.Conformer, cell_size: ArrayLike
-) -> None:
+):
     """
     Applies the minimum image convention to a conformer's atom positions
     to ensure continuity across periodic boundary conditions.
@@ -59,5 +59,5 @@ def fix_molecule_periodic_boundary(
     mol = Chem.Mol(mol)  # make a copy to avoid modifying the original
     conf = mol.GetConformer(confId)
 
-    _apply_minimum_image_convention(conf, np.asarray(cell_size))
+    _make_conformer_whole(conf, np.asarray(cell_size))
     return mol
