@@ -391,7 +391,7 @@ def _get_atom_dataframe(
     _df_atoms.sort_index(inplace=True)
 
     if make_molecule_whole:
-        return _make_molecule_whole(
+        _df_atoms = _make_molecule_whole(
             _df_atoms,
             cell_size=tuple(
                 map(
@@ -400,8 +400,8 @@ def _get_atom_dataframe(
                 )
             ),
         )
-    else:
-        return _df_atoms
+
+    return _df_atoms
 
 
 @overload

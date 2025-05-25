@@ -42,6 +42,7 @@ def MolFromLAMMPSData(
     )
 
     rwmol = Chem.RWMol()
+    df_atoms.sort_index(inplace=True)
     offset = df_atoms.index[0].item()
     rwmol.SetIntProp("offset", offset)
     for atom_id, _sr_atom in df_atoms.iterrows():
@@ -51,7 +52,7 @@ def MolFromLAMMPSData(
     dict_bond_type: dict[int, Chem.rdchem.BondType] = dict()
     for bond_type, df_each_bond in df_bonds.groupby("type"):
         # display(df_each_bond.loc[:, ["atom1", "atom2"]])
-        distance = np.sqrt(
+        distances = np.sqrt(
             np.sum(
                 np.square(
                     df_atoms.loc[
@@ -71,7 +72,7 @@ def MolFromLAMMPSData(
             ].tolist()
         )
         dict_bond_type[bond_type] = get_bond_order(
-            symbols, np.mean(distance).item()
+            symbols, np.mean(distances).item()
         )
 
     for bond_id, _sr_bond in df_bonds.iterrows():

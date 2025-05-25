@@ -14,6 +14,7 @@ from ._load import (
     get_n_bonds,
     load_data,
 )
+from ._rdkit import MolFromLAMMPSData
 
 __all__ = (
     "data2gro",
@@ -25,4 +26,5 @@ __all__ = (
     "get_n_bonds",
     "get_n_atom_types",
     "get_atom_type_masses",
+    "MolFromLAMMPSData",
 )
