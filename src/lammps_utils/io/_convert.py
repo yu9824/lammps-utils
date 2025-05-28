@@ -6,7 +6,7 @@ from typing import Literal, Optional, Union, overload
 import numpy as np
 
 from lammps_utils import __version__
-from lammps_utils.io._load import _read_data_or_buffer, get_n_atoms, load_data
+from lammps_utils.io._load import _read_file_or_buffer, get_n_atoms, load_data
 
 
 @overload
@@ -53,7 +53,7 @@ def data2gro(
         if not filepath_gro.parent.is_dir():
             raise FileNotFoundError
 
-    content_data = _read_data_or_buffer(filepath_data_or_buffer)
+    content_data = _read_file_or_buffer(filepath_data_or_buffer)
 
     df_atoms, cell_bounds = load_data(
         io.StringIO(content_data), return_cell_bounds=True

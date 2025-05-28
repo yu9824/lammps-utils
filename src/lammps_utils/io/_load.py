@@ -19,8 +19,8 @@ PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
 PATTERN_N_BONDS = r"\s*(\d+)\s*bonds\s*\n"
 
 
-def _read_data_or_buffer(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+def _read_file_or_buffer(
+    filepath_or_dump: Union[str, os.PathLike, io.TextIOBase],
 ) -> str:
     """
     Read a LAMMPS data file or a file-like object and return its content as a string.
@@ -29,7 +29,7 @@ def _read_data_or_buffer(
 
     Parameters
     ----------
-    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+    filepath_or_dump : Union[str, os.PathLike, io.TextIOBase]
         The file path or file-like object to read.
 
     Returns
@@ -44,20 +44,18 @@ def _read_data_or_buffer(
     TypeError
         If the input is neither a string, os.PathLike, nor a file-like object.
     """
-    if isinstance(filepath_data_or_buffer, (str, os.PathLike)):
-        filepath_data_or_buffer = Path(filepath_data_or_buffer)
-        if not filepath_data_or_buffer.is_file():
-            raise FileNotFoundError(
-                f"File {filepath_data_or_buffer} does not exist."
-            )
+    if isinstance(filepath_or_dump, (str, os.PathLike)):
+        filepath_or_dump = Path(filepath_or_dump)
+        if not filepath_or_dump.is_file():
+            raise FileNotFoundError(f"File {filepath_or_dump} does not exist.")
 
-        with open(filepath_data_or_buffer, mode="r") as f:
+        with open(filepath_or_dump, mode="r") as f:
             return f.read()
-    elif isinstance(filepath_data_or_buffer, io.TextIOBase):
-        return filepath_data_or_buffer.read()
+    elif isinstance(filepath_or_dump, io.TextIOBase):
+        return filepath_or_dump.read()
     else:
         raise TypeError(
-            f"Expected str, os.PathLike or io.TextIOBase, got {type(filepath_data_or_buffer)}"
+            f"Expected str, os.PathLike or io.TextIOBase, got {type(filepath_or_dump)}"
         )
 
 
@@ -82,7 +80,7 @@ def get_n_atoms(
     ValueError
         If the number of atoms cannot be found in the file.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
     if _result_n_atoms := re.search(PATTERN_N_ATOMS, content):
         return int(_result_n_atoms.group(1))
     else:
@@ -113,7 +111,7 @@ def get_n_atom_types(
     ValueError
         If the number of atom types cannot be found in the file.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
     if _result_n_atom_types := re.search(PATTERN_N_ATOM_TYPES, content):
         return int(_result_n_atom_types.group(1))
     else:
@@ -144,7 +142,7 @@ def get_n_bonds(
     ValueError
         If the number of bonds cannot be found in the file.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
     if _result_n_bonds := re.search(PATTERN_N_BONDS, content):
         return int(_result_n_bonds.group(1))
     else:
@@ -175,7 +173,7 @@ def get_atom_type_masses(
     ValueError
         If the atom type masses cannot be found in the file.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
     n_atom_types = get_n_atom_types(io.StringIO(content))
     if _result_masses := re.search(
         r"\s*Masses.*\n\s*" + r"(\d+)\s+([\d\.]+).*\n\s*" * n_atom_types,
@@ -236,7 +234,7 @@ def get_cell_bounds(
     tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
         A tuple containing the cell limits for x, y, and z axes.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
 
     _list_cell_bounds: list[tuple[float, float]] = []
     for x in ("x", "y", "z"):
@@ -280,7 +278,7 @@ def _get_bond_dataframe(
     ValueError
         If the bond data cannot be found in the file.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
 
     n_bonds = get_n_bonds(io.StringIO(content))
     if _result_bonds := re.search(
@@ -356,7 +354,7 @@ def _get_atom_dataframe(
     ValueError
         If the atom data cannot be found in the file.
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
 
     n_atoms = get_n_atoms(io.StringIO(content))
     atom_type_symbols = get_atom_type_symbols(io.StringIO(content))
@@ -487,7 +485,7 @@ def load_data(
         If both are False, only the atom DataFrame is returned.
 
     """
-    content = _read_data_or_buffer(filepath_data_or_buffer)
+    content = _read_file_or_buffer(filepath_data_or_buffer)
 
     _list_out = [
         _get_atom_dataframe(
