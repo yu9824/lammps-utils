@@ -13,7 +13,6 @@ _logger = get_child_logger(__name__)
 
 def MolFromLAMMPSData(
     filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
-    make_molecule_whole: bool = False,
 ) -> Chem.rdchem.Mol:
     """
     Constructs an RDKit Mol object from a LAMMPS data file or buffer.
@@ -38,7 +37,7 @@ def MolFromLAMMPSData(
 
     df_atoms, df_bonds = load_data(
         filepath_data_or_buffer,
-        make_molecule_whole=make_molecule_whole,
+        make_molecule_whole=True,
         return_bond_info=True,
     )
 
@@ -47,8 +46,9 @@ def MolFromLAMMPSData(
     offset = df_atoms.index[0].item()
     rwmol.SetIntProp("offset", offset)
     for atom_id, _sr_atom in df_atoms.iterrows():
-        rwmol.AddAtom(Chem.Atom(_sr_atom["symbol"]))
-        rwmol.SetIntProp("id", atom_id)
+        atom = Chem.Atom(_sr_atom["symbol"])
+        atom.SetIntProp("id", atom_id)
+        rwmol.AddAtom(atom)
 
     dict_bond_type: dict[int, Chem.rdchem.BondType] = dict()
     for bond_type, df_each_bond in df_bonds.groupby("type"):
