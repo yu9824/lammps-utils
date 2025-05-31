@@ -5,16 +5,15 @@ import re
 from pathlib import Path
 from typing import Literal, Optional, Union, overload
 
-import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from numpy.typing import ArrayLike
 
 from lammps_utils.constants import (
     COLS_ATOMS_LAMMPS_DATA_DTYPE,
     COLS_BONDS_LAMMPS_DATA_DTYPE,
     MAP_ELEMENT_MASSES,
 )
+from lammps_utils.graph._pbc import unwrap_molecule_positions
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
@@ -336,34 +335,8 @@ def _get_bond_dataframe(
         raise ValueError("Could not find bond data in the file.")
 
 
-def _make_molecule_whole(
-    df_atoms: pd.DataFrame, cell_size: ArrayLike
-) -> pd.DataFrame:
-    df_atoms_new = df_atoms.copy()
-    cell_size = np.asarray(cell_size)
-    XYZ_COLS = ["x", "y", "z"]
-
-    for mol_id, group in df_atoms.groupby("mol"):
-        idx = group.index
-        coords = group[XYZ_COLS].to_numpy()
-
-        # 相対変位を計算（基準はひとつ前の原子）
-        deltas = np.diff(coords, axis=0)
-        deltas -= cell_size * np.round(deltas / cell_size)  # 最小画像法補正
-
-        # 絶対座標に再構成（基準はcoords[0]）
-        new_coords = np.vstack(
-            [coords[0], coords[0] + np.cumsum(deltas, axis=0)]
-        )
-
-        df_atoms_new.loc[idx, XYZ_COLS] = new_coords
-
-    return df_atoms_new
-
-
 def _get_atom_dataframe(
     filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
-    make_molecule_whole: bool = False,
 ) -> pd.DataFrame:
     """
     Get the atom DataFrame from a LAMMPS data file or a file-like object.
@@ -417,17 +390,6 @@ def _get_atom_dataframe(
 
     _df_atoms.set_index("id", inplace=True)
     _df_atoms.sort_index(inplace=True)
-
-    if make_molecule_whole:
-        _df_atoms = _make_molecule_whole(
-            _df_atoms,
-            cell_size=tuple(
-                map(
-                    lambda x: x[1] - x[0],
-                    get_cell_bounds(io.StringIO(content)),
-                )
-            ),
-        )
 
     return _df_atoms
 
@@ -517,17 +479,25 @@ def load_data(
     """
     content = _read_file_or_buffer(filepath_data_or_buffer)
 
-    _list_out = [
-        _get_atom_dataframe(
-            io.StringIO(content), make_molecule_whole=make_molecule_whole
-        )
-    ]
+    _df_atoms = _get_atom_dataframe(io.StringIO(content))
 
+    if return_bond_info or make_molecule_whole:
+        _df_bonds = _get_bond_dataframe(io.StringIO(content))
+
+    if return_cell_bounds or make_molecule_whole:
+        _cell_bounds = get_cell_bounds(io.StringIO(content))
+
+    if make_molecule_whole:
+        _df_atoms = unwrap_molecule_positions(
+            df_atoms=_df_atoms, df_bonds=_df_bonds, cell_bounds=_cell_bounds
+        )
+
+    _list_out = [_df_atoms]
     if return_bond_info:
-        _list_out.append(_get_bond_dataframe(io.StringIO(content)))
+        _list_out.append(_df_bonds)
 
     if return_cell_bounds:
-        _list_out.append(get_cell_bounds(io.StringIO(content)))
+        _list_out.append(_cell_bounds)
 
     if len(_list_out) > 1:
         return tuple(_list_out)
