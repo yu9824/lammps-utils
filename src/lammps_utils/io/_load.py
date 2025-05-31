@@ -719,6 +719,31 @@ def _load_timestep_chunk(
         )
 
 
+@overload
+def load_dump(
+    filepath_dump: Union[os.PathLike, str],
+    buffer_size: int = 10 * 1024 * 1024,
+    return_cell_bounds: Literal[False] = False,
+    n_jobs: Optional[int] = None,
+) -> tuple[tuple[int, pd.DataFrame], ...]: ...
+
+
+@overload
+def load_dump(
+    filepath_dump: Union[os.PathLike, str],
+    buffer_size: int = 10 * 1024 * 1024,
+    return_cell_bounds: Literal[True] = True,
+    n_jobs: Optional[int] = None,
+) -> tuple[
+    tuple[
+        int,
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+    ...,
+]: ...
+
+
 def load_dump(
     filepath_dump: Union[os.PathLike, str],
     buffer_size: int = 10 * 1024 * 1024,
@@ -759,12 +784,11 @@ def load_dump(
         )
     )
 
-    return sum(
+    return tuple(
         Parallel(n_jobs=n_jobs)(
             delayed(_load_timestep_chunk)(
                 filepath_dump, index_step, offsets, return_cell_bounds
             )
             for index_step in range(len(offsets))
         ),
-        start=tuple(),
     )
