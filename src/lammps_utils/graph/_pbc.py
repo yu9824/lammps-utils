@@ -53,7 +53,7 @@ def unwrap_molecule_positions(
     graph.add_edges_from(df_bonds[["atom1", "atom2"]].values)
 
     # Prepare a new DataFrame for adjusted coordinates
-    df_atoms_new = df_atoms.loc[:, COLS_XYZ].copy()
+    df_atoms_new = df_atoms.copy()
 
     # Process each connected component (i.e., molecule or fragment)
     for component in nx.connected_components(graph):
