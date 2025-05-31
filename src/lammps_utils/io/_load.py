@@ -678,7 +678,7 @@ def _find_timestep_offsets(
     filepath_dump: Union[os.PathLike, str],
     index: int,
     buffer_size: int = 10 * 1024 * 1024,
-):
+) -> tuple[int, ...]:
     filepath_dump = Path(filepath_dump)
 
     start = index * (buffer_size - OVERWRAP)
@@ -697,7 +697,14 @@ def _load_timestep_chunk(
     index_step: int,
     offsets: tuple[int, ...],
     return_cell_bounds: bool = False,
-):
+) -> Union[
+    tuple[
+        int,
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+    tuple[int, pd.DataFrame],
+]:
     with open(filepath_dump, mode="rb") as f:
         f.seek(offsets[index_step])
         return _parse_dump_timestep(
@@ -717,7 +724,19 @@ def load_dump(
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: bool = False,
     n_jobs: Optional[int] = None,
-):
+) -> Union[
+    tuple[
+        tuple[
+            int,
+            pd.DataFrame,
+            tuple[
+                tuple[float, float], tuple[float, float], tuple[float, float]
+            ],
+        ],
+        ...,
+    ],
+    tuple[tuple[int, pd.DataFrame], ...],
+]:
     filepath_dump = Path(filepath_dump)
     if not filepath_dump.is_file():
         raise FileNotFoundError(filepath_dump)
