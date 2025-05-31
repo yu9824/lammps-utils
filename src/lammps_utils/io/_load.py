@@ -337,15 +337,15 @@ def _get_bond_dataframe(
 
 
 def _make_molecule_whole(
-    df: pd.DataFrame, cell_size: ArrayLike
+    df_atoms: pd.DataFrame, cell_size: ArrayLike
 ) -> pd.DataFrame:
-    df_new = df.copy()
+    df_atoms_new = df_atoms.copy()
     cell_size = np.asarray(cell_size)
-    xyz_cols = ["x", "y", "z"]
+    XYZ_COLS = ["x", "y", "z"]
 
-    for mol_id, group in df.groupby("mol"):
+    for mol_id, group in df_atoms.groupby("mol"):
         idx = group.index
-        coords = group[xyz_cols].to_numpy()
+        coords = group[XYZ_COLS].to_numpy()
 
         # 相対変位を計算（基準はひとつ前の原子）
         deltas = np.diff(coords, axis=0)
@@ -356,9 +356,9 @@ def _make_molecule_whole(
             [coords[0], coords[0] + np.cumsum(deltas, axis=0)]
         )
 
-        df_new.loc[idx, xyz_cols] = new_coords
+        df_atoms_new.loc[idx, XYZ_COLS] = new_coords
 
-    return df_new
+    return df_atoms_new
 
 
 def _get_atom_dataframe(
