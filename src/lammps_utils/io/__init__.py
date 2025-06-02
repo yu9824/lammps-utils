@@ -14,6 +14,7 @@ from ._load import (
     get_n_bonds,
     load_data,
     load_dump,
+    unwrap_molecule_df_under_pbc,
 )
 from ._rdkit import MolFromLAMMPSData
 
@@ -29,4 +30,5 @@ __all__ = (
     "get_atom_type_masses",
     "MolFromLAMMPSData",
     "load_dump",
+    "unwrap_molecule_df_under_pbc",
 )

@@ -544,29 +544,53 @@ def load_data(
     ],
 ]:
     """
-    Load atom data from a LAMMPS data file or a file-like object into a DataFrame.
+    Load atom (and optionally bond and cell) data from a LAMMPS data file into a DataFrame.
+
+    This function supports file paths and file-like objects and optionally reconstructs molecules
+    by unwrapping coordinates under periodic boundary conditions.
 
     Parameters
     ----------
-    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase, io.BufferedIOBase]
-        The file path or file-like object to read.
+    filepath_data_or_buffer : str or os.PathLike or io.TextIOBase or io.BufferedIOBase
+        The path to a LAMMPS data file, or a file-like object containing the data.
+
+    make_molecule_whole : bool, default=False
+        If True, unwraps atomic coordinates using bond connectivity and periodic cell bounds
+        so that molecules are made whole (not split across periodic boundaries).
+
+    return_bond_info : bool, default=False
+        If True, returns an additional DataFrame containing bond information.
+
+    return_cell_bounds : bool, default=False
+        If True, returns the simulation cell bounds as a tuple of 3 (min, max) pairs for x, y, z.
 
     Returns
     -------
-    Union[pd.DataFrame,tuple[pd.DataFrame, pd.DataFrame],
-    tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],
-    tuple[pd.DataFrame,pd.DataFrame,tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]]
+    Union[pd.DataFrame,
+        tuple[pd.DataFrame, pd.DataFrame],
+        tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],
+        tuple[pd.DataFrame, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]
+    ]
 
-        A DataFrame containing atom data, or a tuple of DataFrames and cell bounds
-            if requested.
-        If 'return_bond_info' is True, a tuple of two DataFrames (atom and bond data)
-            is returned. If 'return_cell_bounds' is True, a tuple of three elements
-            (atom DataFrame, bond DataFrame, and cell bounds) is returned.
-        If both 'return_bond_info' and 'return_cell_bounds' are True, a tuple of
-            three elements (atom DataFrame, bond DataFrame, and cell bounds) is returned.
-        If both are False, only the atom DataFrame is returned.
+        The atom DataFrame is always returned. Depending on the flags:
 
+        - If `return_bond_info` is True, bond DataFrame is included.
+        - If `return_cell_bounds` is True, simulation box bounds are included.
+        - If both flags are True, all three values are returned as a tuple:
+          (atom DataFrame, bond DataFrame, cell bounds).
+
+    Raises
+    ------
+    AssertionError
+        If required components (like conformers) are missing when `make_molecule_whole` is True.
+
+    Notes
+    -----
+    This function assumes the input file is in LAMMPS data format with sections for atoms,
+    bonds, and box bounds. If `make_molecule_whole` is enabled, bond and box information
+    are automatically parsed regardless of the other flags.
     """
+
     content = _read_file_or_buffer(filepath_data_or_buffer)
 
     _df_atoms = _get_atom_dataframe(io.StringIO(content))
