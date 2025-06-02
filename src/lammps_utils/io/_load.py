@@ -569,7 +569,9 @@ def load_data(
     Union[pd.DataFrame,
         tuple[pd.DataFrame, pd.DataFrame],
         tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],
-        tuple[pd.DataFrame, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]]
+        tuple[pd.DataFrame, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]
+    ]
+
         The atom DataFrame is always returned. Depending on the flags:
 
         - If `return_bond_info` is True, bond DataFrame is included.
