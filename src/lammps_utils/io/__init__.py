@@ -13,6 +13,7 @@ from ._load import (
     get_n_atoms,
     get_n_bonds,
     load_data,
+    load_dump,
 )
 from ._rdkit import MolFromLAMMPSData
 
@@ -27,4 +28,5 @@ __all__ = (
     "get_n_atom_types",
     "get_atom_type_masses",
     "MolFromLAMMPSData",
+    "load_dump",
 )

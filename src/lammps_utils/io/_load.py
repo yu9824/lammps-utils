@@ -5,20 +5,26 @@ import re
 from pathlib import Path
 from typing import Literal, Optional, Union, overload
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from numpy.typing import ArrayLike
 
 from lammps_utils.constants import (
     COLS_ATOMS_LAMMPS_DATA_DTYPE,
     COLS_BONDS_LAMMPS_DATA_DTYPE,
     MAP_ELEMENT_MASSES,
 )
+from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
 PATTERN_N_BONDS = r"\s*(\d+)\s*bonds\s*\n"
+COLS_XYZ = ["x", "y", "z"]
+"""Coordinate column labels
+
+``["x", "y", "z"]``
+"""
 
 
 @overload
@@ -90,7 +96,9 @@ def _read_file_or_buffer(
 
 
 def get_n_atoms(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> int:
     """
     Get the number of atoms from a LAMMPS data file or a file-like object.
@@ -121,7 +129,9 @@ def get_n_atoms(
 
 
 def get_n_atom_types(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> int:
     """
     Get the number of atom types from a LAMMPS data file or a file-like object.
@@ -152,7 +162,9 @@ def get_n_atom_types(
 
 
 def get_n_bonds(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> int:
     """
     Get the number of bonds from a LAMMPS data file or a file-like object.
@@ -183,7 +195,9 @@ def get_n_bonds(
 
 
 def get_atom_type_masses(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> dict[int, float]:
     """
     Get the masses of atom types from a LAMMPS data file or a file-like object.
@@ -223,7 +237,9 @@ def get_atom_type_masses(
 
 
 def get_atom_type_symbols(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> dict[int, str]:
     """
     Get the symbols of atom types from a LAMMPS data file or a file-like object.
@@ -249,7 +265,9 @@ def get_atom_type_symbols(
 
 
 def get_cell_bounds(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> tuple[tuple[float, float], tuple[float, float], tuple[float, float]]:
     """
     Get the cell limits from a LAMMPS data file or a file-like object.
@@ -288,7 +306,9 @@ def get_cell_bounds(
 
 
 def _get_bond_dataframe(
-    filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        os.PathLike, str, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> pd.DataFrame:
     """
     Get the bond DataFrame from a LAMMPS data file or a file-like object.
@@ -336,34 +356,10 @@ def _get_bond_dataframe(
         raise ValueError("Could not find bond data in the file.")
 
 
-def _make_molecule_whole(
-    df: pd.DataFrame, cell_size: ArrayLike
-) -> pd.DataFrame:
-    df_new = df.copy()
-    cell_size = np.asarray(cell_size)
-    xyz_cols = ["x", "y", "z"]
-
-    for mol_id, group in df.groupby("mol"):
-        idx = group.index
-        coords = group[xyz_cols].to_numpy()
-
-        # 相対変位を計算（基準はひとつ前の原子）
-        deltas = np.diff(coords, axis=0)
-        deltas -= cell_size * np.round(deltas / cell_size)  # 最小画像法補正
-
-        # 絶対座標に再構成（基準はcoords[0]）
-        new_coords = np.vstack(
-            [coords[0], coords[0] + np.cumsum(deltas, axis=0)]
-        )
-
-        df_new.loc[idx, xyz_cols] = new_coords
-
-    return df_new
-
-
 def _get_atom_dataframe(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
-    make_molecule_whole: bool = False,
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> pd.DataFrame:
     """
     Get the atom DataFrame from a LAMMPS data file or a file-like object.
@@ -418,18 +414,66 @@ def _get_atom_dataframe(
     _df_atoms.set_index("id", inplace=True)
     _df_atoms.sort_index(inplace=True)
 
-    if make_molecule_whole:
-        _df_atoms = _make_molecule_whole(
-            _df_atoms,
-            cell_size=tuple(
-                map(
-                    lambda x: x[1] - x[0],
-                    get_cell_bounds(io.StringIO(content)),
-                )
-            ),
-        )
-
     return _df_atoms
+
+
+def unwrap_molecule_df_under_pbc(
+    df_atoms: pd.DataFrame,
+    df_bonds: pd.DataFrame,
+    cell_bounds: tuple[
+        tuple[float, float], tuple[float, float], tuple[float, float]
+    ],
+) -> pd.DataFrame:
+    """
+    Adjust atomic coordinates to make the molecule whole under periodic boundary conditions (PBC).
+    This function shifts atoms so that bonded atoms appear spatially close, avoiding discontinuities across cell edges.
+
+    Parameters
+    ----------
+    df_atoms : pd.DataFrame
+        DataFrame containing atomic coordinates. Must include columns "x", "y", and "z".
+    df_bonds : pd.DataFrame
+        DataFrame defining atomic bonds, with columns "atom1" and "atom2" containing atom indices.
+    cell_bounds : tuple of tuple of float
+        Bounds of the periodic cell along each axis. Format: ((xmin, xmax), (ymin, ymax), (zmin, zmax)).
+
+    Returns
+    -------
+    pd.DataFrame
+        A new DataFrame with adjusted atomic coordinates that are spatially continuous across the cell.
+    """
+
+    # Ensure all coordinate columns have the same dtype
+    st_dtypes = set(df_atoms.dtypes[COLS_XYZ])
+    assert len(st_dtypes) == 1, (
+        "Columns x, y, and z must have the same data type"
+    )
+    dtype = st_dtypes.pop()
+
+    # Compute cell size in each direction
+    cell_size = np.array(
+        [bound[1] - bound[0] for bound in cell_bounds],
+        dtype=dtype,
+    )
+
+    edges = (
+        df_bonds[["atom1", "atom2"]]
+        .apply(lambda col: df_atoms.index.get_indexer_for(col), axis=0)
+        .values
+    )
+
+    # Build bond graph
+    graph = nx.Graph()
+    graph.add_edges_from(edges)
+
+    # Prepare a new DataFrame for adjusted coordinates
+    df_atoms_new = df_atoms.copy()
+
+    df_atoms_new.loc[:, COLS_XYZ] = unwrap_molecule_under_pbc(
+        graph, df_atoms.loc[:, COLS_XYZ].values, cell_size=cell_size
+    )
+
+    return df_atoms_new
 
 
 @overload
@@ -443,7 +487,9 @@ def load_data(
 
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[False] = False,
     return_cell_bounds: Literal[True] = True,
@@ -453,7 +499,9 @@ def load_data(
 ]: ...
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[True] = True,
     return_cell_bounds: Literal[False] = False,
@@ -462,7 +510,9 @@ def load_data(
 
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[True] = True,
     return_cell_bounds: Literal[True] = True,
@@ -474,7 +524,9 @@ def load_data(
 
 
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: bool = False,
     return_cell_bounds: bool = False,
@@ -496,7 +548,7 @@ def load_data(
 
     Parameters
     ----------
-    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase, io.BufferedIOBase]
         The file path or file-like object to read.
 
     Returns
@@ -517,17 +569,25 @@ def load_data(
     """
     content = _read_file_or_buffer(filepath_data_or_buffer)
 
-    _list_out = [
-        _get_atom_dataframe(
-            io.StringIO(content), make_molecule_whole=make_molecule_whole
-        )
-    ]
+    _df_atoms = _get_atom_dataframe(io.StringIO(content))
 
+    if return_bond_info or make_molecule_whole:
+        _df_bonds = _get_bond_dataframe(io.StringIO(content))
+
+    if return_cell_bounds or make_molecule_whole:
+        _cell_bounds = get_cell_bounds(io.StringIO(content))
+
+    if make_molecule_whole:
+        _df_atoms = unwrap_molecule_df_under_pbc(
+            df_atoms=_df_atoms, df_bonds=_df_bonds, cell_bounds=_cell_bounds
+        )
+
+    _list_out = [_df_atoms]
     if return_bond_info:
-        _list_out.append(_get_bond_dataframe(io.StringIO(content)))
+        _list_out.append(_df_bonds)
 
     if return_cell_bounds:
-        _list_out.append(get_cell_bounds(io.StringIO(content)))
+        _list_out.append(_cell_bounds)
 
     if len(_list_out) > 1:
         return tuple(_list_out)
@@ -665,6 +725,18 @@ def _parse_dump_timestep(
     else:
         raise ValueError("Failed to find ATOMS section in the dump file.")
 
+    for idx_axis, axis in enumerate(("x", "y", "z")):
+        if axis in df.columns:
+            continue
+
+        col = f"{axis}s"
+        if col in df.columns:
+            df.loc[:, axis] = (
+                df.loc[:, col]
+                * (cell_bounds[idx_axis][1] - cell_bounds[idx_axis][0])
+                + cell_bounds[idx_axis][0]
+            )
+
     if return_cell_bounds:
         return (timestep, df, cell_bounds)
     else:
@@ -678,7 +750,7 @@ def _find_timestep_offsets(
     filepath_dump: Union[os.PathLike, str],
     index: int,
     buffer_size: int = 10 * 1024 * 1024,
-):
+) -> tuple[int, ...]:
     filepath_dump = Path(filepath_dump)
 
     start = index * (buffer_size - OVERWRAP)
@@ -697,7 +769,14 @@ def _load_timestep_chunk(
     index_step: int,
     offsets: tuple[int, ...],
     return_cell_bounds: bool = False,
-):
+) -> Union[
+    tuple[
+        int,
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+    tuple[int, pd.DataFrame],
+]:
     with open(filepath_dump, mode="rb") as f:
         f.seek(offsets[index_step])
         return _parse_dump_timestep(
@@ -712,12 +791,78 @@ def _load_timestep_chunk(
         )
 
 
+@overload
+def load_dump(
+    filepath_dump: Union[os.PathLike, str],
+    buffer_size: int = 10 * 1024 * 1024,
+    return_cell_bounds: Literal[False] = False,
+    n_jobs: Optional[int] = None,
+) -> tuple[tuple[int, pd.DataFrame], ...]: ...
+
+
+@overload
+def load_dump(
+    filepath_dump: Union[os.PathLike, str],
+    buffer_size: int = 10 * 1024 * 1024,
+    return_cell_bounds: Literal[True] = True,
+    n_jobs: Optional[int] = None,
+) -> tuple[
+    tuple[
+        int,
+        pd.DataFrame,
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    ],
+    ...,
+]: ...
+
+
 def load_dump(
     filepath_dump: Union[os.PathLike, str],
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: bool = False,
     n_jobs: Optional[int] = None,
-):
+) -> Union[
+    tuple[
+        tuple[
+            int,
+            pd.DataFrame,
+            tuple[
+                tuple[float, float], tuple[float, float], tuple[float, float]
+            ],
+        ],
+        ...,
+    ],
+    tuple[tuple[int, pd.DataFrame], ...],
+]:
+    """
+    Load and parse a LAMMPS dump file into structured timestep data.
+
+    Parameters
+    ----------
+    filepath_dump : Union[os.PathLike, str]
+        Path to the LAMMPS dump file to be loaded.
+    buffer_size : int, optional
+        Size of the buffer to use when scanning the file for timestep offsets (in bytes).
+        Larger values may improve performance on large files. Default is 10 MB.
+    return_cell_bounds : bool, optional
+        Whether to extract and return cell bounds for each timestep. If True, the output
+        will include cell bounds in addition to timestep and atomic data. Default is False.
+    n_jobs : Optional[int], optional
+        Number of parallel jobs to run. If None, defaults to single-threaded operation.
+
+    Returns
+    -------
+    Union[
+        tuple[tuple[int, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]], ...],
+        tuple[tuple[int, pd.DataFrame], ...]
+    ]
+        A tuple of timestep data. Each element is either:
+        - (timestep, DataFrame) if return_cell_bounds is False
+        - (timestep, DataFrame, cell_bounds) if return_cell_bounds is True
+
+        `timestep` is an integer, `DataFrame` contains atomic data for that step,
+        and `cell_bounds` is a 3-tuple of (min, max) pairs for x, y, z.
+    """
     filepath_dump = Path(filepath_dump)
     if not filepath_dump.is_file():
         raise FileNotFoundError(filepath_dump)
@@ -740,12 +885,11 @@ def load_dump(
         )
     )
 
-    return sum(
+    return tuple(
         Parallel(n_jobs=n_jobs)(
             delayed(_load_timestep_chunk)(
                 filepath_dump, index_step, offsets, return_cell_bounds
             )
             for index_step in range(len(offsets))
         ),
-        start=tuple(),
     )
