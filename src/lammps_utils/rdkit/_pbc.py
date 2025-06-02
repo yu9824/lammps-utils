@@ -1,63 +1,57 @@
+import networkx as nx
 import numpy as np
 from numpy.typing import ArrayLike
 from rdkit import Chem
 
-
-def _make_conformer_whole(
-    conformer: Chem.rdchem.Conformer, cell_size: ArrayLike
-):
-    """
-    Applies the minimum image convention to a conformer's atom positions
-    to ensure continuity across periodic boundary conditions.
-
-    Parameters
-    ----------
-    conformer : Chem.rdchem.Conformer
-        RDKit conformer object containing 3D coordinates.
-    cell_size : ArrayLike
-        Size of the periodic box as a 1D array-like object of shape (3,).
-    """
-    cell_size = np.asarray(cell_size)
-    assert cell_size.ndim == 1
-    assert cell_size.shape[0] == 3
-
-    pos: np.ndarray = conformer.GetPositions()  # shape: (N_atoms, 3)
-    new_pos = np.copy(pos)
-
-    for idx_atom in range(1, pos.shape[0]):
-        ref: np.ndarray = new_pos[idx_atom - 1]
-        vec: np.ndarray = pos[idx_atom] - ref
-        corrected_vec = vec - cell_size * np.round(vec / cell_size)
-        new_pos[idx_atom] = ref + corrected_vec
-
-        conformer.SetAtomPosition(
-            idx_atom, new_pos[idx_atom]
-        )  # update coordinate
+from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
+from lammps_utils.rdkit._bond import get_bond_order
 
 
-def fix_molecule_periodic_boundary(
-    mol: Chem.rdchem.Mol, cell_size: ArrayLike, confId: int = 0
+def unwrap_rdkit_mol_under_pbc(
+    mol: Chem.rdchem.Mol,
+    cell_size: ArrayLike,
+    confId: int = -1,
+    determine_bonds: bool = False,
 ) -> Chem.rdchem.Mol:
-    """
-    Adjusts atom positions of a molecule's conformer to respect periodic boundary
-    conditions using the minimum image convention.
+    assert mol.GetNumConformers() > 0
+    rwmol = Chem.RWMol(mol)
 
-    Parameters
-    ----------
-    mol : Chem.rdchem.Mol
-        RDKit Mol object containing at least one conformer.
-    cell_size : ArrayLike
-        Periodic box dimensions as a 1D array-like object of shape (3,).
-    confId : int, optional
-        ID of the conformer to adjust. Default is 0.
+    cell_size = np.asarray(cell_size)
+    assert cell_size.shape[0] == 3
+    assert cell_size.ndim == 1
 
-    Returns
-    -------
-    Chem.rdchem.Mol
-        A copy of the input molecule with adjusted atom positions.
-    """
-    mol = Chem.Mol(mol)  # make a copy to avoid modifying the original
-    conf = mol.GetConformer(confId)
+    graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(rwmol))
+    assert isinstance(graph, nx.Graph)
+    conf = rwmol.GetConformer(confId)
+    positions_new = unwrap_molecule_under_pbc(
+        graph, positions=conf.GetPositions(), cell_size=cell_size
+    )
+    conf.SetPositions(positions_new)
 
-    _make_conformer_whole(conf, np.asarray(cell_size))
-    return mol
+    if determine_bonds:
+        for bond in rwmol.GetBonds():
+            assert isinstance(bond, Chem.rdchem.Bond)
+            distance = np.sqrt(
+                np.sum(
+                    np.square(
+                        positions_new[bond.GetBeginAtomIdx()]
+                        - positions_new[bond.GetEndAtomIdx()]
+                    )
+                )
+            )
+            bond.SetBondType(
+                get_bond_order(
+                    (
+                        bond.GetBeginAtom().GetSymbol(),
+                        bond.GetEndAtom().GetSymbol(),
+                    ),
+                    distance,
+                )
+            )
+
+    return Chem.RemoveHs(
+        rwmol.GetMol(),
+        implicitOnly=True,
+        updateExplicitCount=True,
+        sanitize=True,
+    )
