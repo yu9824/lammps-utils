@@ -96,7 +96,9 @@ def _read_file_or_buffer(
 
 
 def get_n_atoms(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> int:
     """
     Get the number of atoms from a LAMMPS data file or a file-like object.
@@ -127,7 +129,9 @@ def get_n_atoms(
 
 
 def get_n_atom_types(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> int:
     """
     Get the number of atom types from a LAMMPS data file or a file-like object.
@@ -158,7 +162,9 @@ def get_n_atom_types(
 
 
 def get_n_bonds(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> int:
     """
     Get the number of bonds from a LAMMPS data file or a file-like object.
@@ -189,7 +195,9 @@ def get_n_bonds(
 
 
 def get_atom_type_masses(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> dict[int, float]:
     """
     Get the masses of atom types from a LAMMPS data file or a file-like object.
@@ -229,7 +237,9 @@ def get_atom_type_masses(
 
 
 def get_atom_type_symbols(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> dict[int, str]:
     """
     Get the symbols of atom types from a LAMMPS data file or a file-like object.
@@ -255,7 +265,9 @@ def get_atom_type_symbols(
 
 
 def get_cell_bounds(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> tuple[tuple[float, float], tuple[float, float], tuple[float, float]]:
     """
     Get the cell limits from a LAMMPS data file or a file-like object.
@@ -294,7 +306,9 @@ def get_cell_bounds(
 
 
 def _get_bond_dataframe(
-    filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        os.PathLike, str, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> pd.DataFrame:
     """
     Get the bond DataFrame from a LAMMPS data file or a file-like object.
@@ -343,7 +357,9 @@ def _get_bond_dataframe(
 
 
 def _get_atom_dataframe(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
 ) -> pd.DataFrame:
     """
     Get the atom DataFrame from a LAMMPS data file or a file-like object.
@@ -471,7 +487,9 @@ def load_data(
 
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[False] = False,
     return_cell_bounds: Literal[True] = True,
@@ -481,7 +499,9 @@ def load_data(
 ]: ...
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[True] = True,
     return_cell_bounds: Literal[False] = False,
@@ -490,7 +510,9 @@ def load_data(
 
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[True] = True,
     return_cell_bounds: Literal[True] = True,
@@ -502,7 +524,9 @@ def load_data(
 
 
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: bool = False,
     return_cell_bounds: bool = False,
@@ -524,7 +548,7 @@ def load_data(
 
     Parameters
     ----------
-    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+    filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase, io.BufferedIOBase]
         The file path or file-like object to read.
 
     Returns
