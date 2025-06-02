@@ -701,6 +701,18 @@ def _parse_dump_timestep(
     else:
         raise ValueError("Failed to find ATOMS section in the dump file.")
 
+    for idx_axis, axis in enumerate(("x", "y", "z")):
+        if axis in df.columns:
+            continue
+
+        col = f"{axis}s"
+        if col in df.columns:
+            df.loc[:, axis] = (
+                df.loc[:, col]
+                * (cell_bounds[idx_axis][1] - cell_bounds[idx_axis][0])
+                + cell_bounds[idx_axis][0]
+            )
+
     if return_cell_bounds:
         return (timestep, df, cell_bounds)
     else:
