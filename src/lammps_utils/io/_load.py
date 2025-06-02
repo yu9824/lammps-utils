@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 from typing import Literal, Optional, Union, overload
 
+import networkx as nx
+import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
@@ -13,11 +15,16 @@ from lammps_utils.constants import (
     COLS_BONDS_LAMMPS_DATA_DTYPE,
     MAP_ELEMENT_MASSES,
 )
-from lammps_utils.graph._pbc import unwrap_molecule_positions
+from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
 PATTERN_N_BONDS = r"\s*(\d+)\s*bonds\s*\n"
+COLS_XYZ = ["x", "y", "z"]
+"""Coordinate column labels
+
+``["x", "y", "z"]``
+"""
 
 
 @overload
@@ -394,6 +401,65 @@ def _get_atom_dataframe(
     return _df_atoms
 
 
+def unwrap_molecule_df_under_pbc(
+    df_atoms: pd.DataFrame,
+    df_bonds: pd.DataFrame,
+    cell_bounds: tuple[
+        tuple[float, float], tuple[float, float], tuple[float, float]
+    ],
+) -> pd.DataFrame:
+    """
+    Adjust atomic coordinates to make the molecule whole under periodic boundary conditions (PBC).
+    This function shifts atoms so that bonded atoms appear spatially close, avoiding discontinuities across cell edges.
+
+    Parameters
+    ----------
+    df_atoms : pd.DataFrame
+        DataFrame containing atomic coordinates. Must include columns "x", "y", and "z".
+    df_bonds : pd.DataFrame
+        DataFrame defining atomic bonds, with columns "atom1" and "atom2" containing atom indices.
+    cell_bounds : tuple of tuple of float
+        Bounds of the periodic cell along each axis. Format: ((xmin, xmax), (ymin, ymax), (zmin, zmax)).
+
+    Returns
+    -------
+    pd.DataFrame
+        A new DataFrame with adjusted atomic coordinates that are spatially continuous across the cell.
+    """
+
+    # Ensure all coordinate columns have the same dtype
+    st_dtypes = set(df_atoms.dtypes[COLS_XYZ])
+    assert len(st_dtypes) == 1, (
+        "Columns x, y, and z must have the same data type"
+    )
+    dtype = st_dtypes.pop()
+
+    # Compute cell size in each direction
+    cell_size = np.array(
+        [bound[1] - bound[0] for bound in cell_bounds],
+        dtype=dtype,
+    )
+
+    edges = (
+        df_bonds[["atom1", "atom2"]]
+        .apply(lambda col: df_atoms.index.get_indexer_for(col), axis=0)
+        .values
+    )
+
+    # Build bond graph
+    graph = nx.Graph()
+    graph.add_edges_from(edges)
+
+    # Prepare a new DataFrame for adjusted coordinates
+    df_atoms_new = df_atoms.copy()
+
+    df_atoms_new.loc[:, COLS_XYZ] = unwrap_molecule_under_pbc(
+        graph, df_atoms.loc[:, COLS_XYZ].values, cell_size=cell_size
+    )
+
+    return df_atoms_new
+
+
 @overload
 def load_data(
     filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
@@ -488,7 +554,7 @@ def load_data(
         _cell_bounds = get_cell_bounds(io.StringIO(content))
 
     if make_molecule_whole:
-        _df_atoms = unwrap_molecule_positions(
+        _df_atoms = unwrap_molecule_df_under_pbc(
             df_atoms=_df_atoms, df_bonds=_df_bonds, cell_bounds=_cell_bounds
         )
 
@@ -732,6 +798,35 @@ def load_dump(
     ],
     tuple[tuple[int, pd.DataFrame], ...],
 ]:
+    """
+    Load and parse a LAMMPS dump file into structured timestep data.
+
+    Parameters
+    ----------
+    filepath_dump : Union[os.PathLike, str]
+        Path to the LAMMPS dump file to be loaded.
+    buffer_size : int, optional
+        Size of the buffer to use when scanning the file for timestep offsets (in bytes).
+        Larger values may improve performance on large files. Default is 10 MB.
+    return_cell_bounds : bool, optional
+        Whether to extract and return cell bounds for each timestep. If True, the output
+        will include cell bounds in addition to timestep and atomic data. Default is False.
+    n_jobs : Optional[int], optional
+        Number of parallel jobs to run. If None, defaults to single-threaded operation.
+
+    Returns
+    -------
+    Union[
+        tuple[tuple[int, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]], ...],
+        tuple[tuple[int, pd.DataFrame], ...]
+    ]
+        A tuple of timestep data. Each element is either:
+        - (timestep, DataFrame) if return_cell_bounds is False
+        - (timestep, DataFrame, cell_bounds) if return_cell_bounds is True
+
+        `timestep` is an integer, `DataFrame` contains atomic data for that step,
+        and `cell_bounds` is a 3-tuple of (min, max) pairs for x, y, z.
+    """
     filepath_dump = Path(filepath_dump)
     if not filepath_dump.is_file():
         raise FileNotFoundError(filepath_dump)
