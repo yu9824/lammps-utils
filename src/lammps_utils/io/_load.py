@@ -577,7 +577,7 @@ def load_data(
         - If `return_bond_info` is True, bond DataFrame is included.
         - If `return_cell_bounds` is True, simulation box bounds are included.
         - If both flags are True, all three values are returned as a tuple:
-        (atom DataFrame, bond DataFrame, cell bounds).
+          (atom DataFrame, bond DataFrame, cell bounds).
 
     Raises
     ------
