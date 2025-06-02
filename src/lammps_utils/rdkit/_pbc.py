@@ -13,6 +13,39 @@ def unwrap_rdkit_mol_under_pbc(
     confId: int = -1,
     determine_bonds: bool = False,
 ) -> Chem.rdchem.Mol:
+    """
+    Unwraps a periodic RDKit molecule so that bonded atoms are positioned close together in Cartesian space.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        The RDKit molecule to be unwrapped. Must have at least one 3D conformer.
+    cell_size : ArrayLike
+        The size of the periodic simulation cell (a 3-element array-like object representing the box dimensions).
+    confId : int, optional
+        The conformer ID to use for coordinate manipulation. Defaults to -1 (the first conformer).
+    determine_bonds : bool, optional
+        If True, reassigns bond orders based on interatomic distances after unwrapping. Defaults to False.
+
+    Returns
+    -------
+    Chem.rdchem.Mol
+        A new RDKit molecule object with unwrapped coordinates and optionally updated bond orders.
+        All hydrogen atoms are removed from the returned molecule.
+
+    Raises
+    ------
+    AssertionError
+        If the input molecule has no conformers or if the cell size is invalid.
+
+    Notes
+    -----
+    This function converts the molecule to a graph to assist in unwrapping it under periodic boundary
+    conditions (PBC), using the `unwrap_molecule_under_pbc` utility. If `determine_bonds` is True,
+    bond distances are recalculated post-unwrapping, and bond types are reassigned using the
+    `get_bond_order` function. Hydrogens are removed from the returned molecule to simplify further processing.
+    """
+
     assert mol.GetNumConformers() > 0
     rwmol = Chem.RWMol(mol)
 
