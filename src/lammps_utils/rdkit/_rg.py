@@ -10,6 +10,38 @@ def compute_rg(
     mode: Literal["mass", "geometry"] = "mass",
     removeHs: bool = False,
 ) -> float:
+    """
+    Compute the radius of gyration (Rg) of a molecule.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        The molecule for which Rg is computed.
+    confId : int, optional
+        Index of the conformer to use (default is -1, which selects the first conformer).
+    mode : {'mass', 'geometry'}, optional
+        Mode of computation:
+        - 'mass': Compute Rg based on atomic masses (default).
+        - 'geometry': Compute Rg based solely on atomic positions.
+    removeHs : bool, optional
+        Whether to remove hydrogens from the molecule before computation (default is False).
+
+    Returns
+    -------
+    float
+        The radius of gyration (Rg) of the molecule.
+
+    Raises
+    ------
+    ValueError
+        If no conformer is available for the molecule.
+        If an invalid mode is specified.
+
+    Notes
+    -----
+    - If mode='mass', Rg is computed using atomic masses as weights.
+    - If mode='geometry', Rg is computed based only on atomic positions.
+    """
     if mol.GetNumConformers() == 0:
         raise ValueError("No conformer")
 
