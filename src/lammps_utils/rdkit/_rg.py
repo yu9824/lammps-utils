@@ -7,7 +7,7 @@ from rdkit import Chem
 def compute_rg(
     mol: Chem.rdchem.Mol,
     confId: int = -1,
-    mode: Literal["mass", "geometry"] = "mass",
+    mode: Literal["geometry", "mass"] = "geometry",
     removeHs: bool = False,
 ) -> float:
     """
@@ -19,10 +19,10 @@ def compute_rg(
         The molecule for which Rg is computed.
     confId : int, optional
         Index of the conformer to use (default is -1, which selects the first conformer).
-    mode : {'mass', 'geometry'}, optional
+    mode : {'geometry', 'mass'}, optional
         Mode of computation:
-        - 'mass': Compute Rg based on atomic masses (default).
-        - 'geometry': Compute Rg based solely on atomic positions.
+        - 'geometry': Compute Rg based solely on atomic positions (default).
+        - 'mass': Compute Rg based on atomic masses.
     removeHs : bool, optional
         Whether to remove hydrogens from the molecule before computation (default is False).
 
