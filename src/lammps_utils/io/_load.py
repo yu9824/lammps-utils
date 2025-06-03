@@ -567,9 +567,9 @@ def load_data(
     Returns
     -------
     Union[pd.DataFrame,
-        tuple[pd.DataFrame, pd.DataFrame],
-        tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],
-        tuple[pd.DataFrame, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]
+    tuple[pd.DataFrame, pd.DataFrame],
+    tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],
+    tuple[pd.DataFrame, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]
     ]
 
         The atom DataFrame is always returned. Depending on the flags:
@@ -877,8 +877,8 @@ def load_dump(
     Returns
     -------
     Union[
-        tuple[tuple[int, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]], ...],
-        tuple[tuple[int, pd.DataFrame], ...]
+    tuple[tuple[int, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]], ...],
+    tuple[tuple[int, pd.DataFrame], ...]
     ]
         A tuple of timestep data. Each element is either:
         - (timestep, DataFrame) if return_cell_bounds is False
