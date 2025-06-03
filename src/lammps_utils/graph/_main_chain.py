@@ -107,8 +107,8 @@ def farthest_node_pair(
     Yields
     ------
     Union[
-        Generator[tuple[int, int], None, None],
-        Generator[tuple[tuple[int, int], int], None, None]
+    Generator[tuple[int, int], None, None],
+    Generator[tuple[tuple[int, int], int], None, None]
     ]
         Yields tuples of farthest node pairs. If `return_length` is True,
         the second value in the tuple is the maximum distance.
