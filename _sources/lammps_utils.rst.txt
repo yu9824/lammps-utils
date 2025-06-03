@@ -1,0 +1,31 @@
+lammps\_utils package
+=====================
+
+.. automodule:: lammps_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   lammps_utils.graph
+   lammps_utils.io
+   lammps_utils.logging
+   lammps_utils.rdkit
+   lammps_utils.smooth
+   lammps_utils.utils
+
+Submodules
+----------
+
+lammps\_utils.constants module
+------------------------------
+
+.. automodule:: lammps_utils.constants
+   :members:
+   :show-inheritance:
+   :undoc-members:

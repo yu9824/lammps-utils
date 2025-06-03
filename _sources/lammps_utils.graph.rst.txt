@@ -1,0 +1,7 @@
+lammps\_utils.graph package
+===========================
+
+.. automodule:: lammps_utils.graph
+   :members:
+   :show-inheritance:
+   :undoc-members:

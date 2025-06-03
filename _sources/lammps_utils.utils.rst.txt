@@ -1,0 +1,7 @@
+lammps\_utils.utils package
+===========================
+
+.. automodule:: lammps_utils.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:

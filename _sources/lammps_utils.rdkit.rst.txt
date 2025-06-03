@@ -1,0 +1,7 @@
+lammps\_utils.rdkit package
+===========================
+
+.. automodule:: lammps_utils.rdkit
+   :members:
+   :show-inheritance:
+   :undoc-members:
