@@ -1,9 +1,14 @@
+from typing import Union
+
 import networkx as nx
 import numpy as np
 from numpy.typing import ArrayLike
 from rdkit import Chem
 
-from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
+from lammps_utils.graph._pbc import (
+    unwrap_molecule_under_pbc,
+    wrap_positions_to_cell,
+)
 from lammps_utils.rdkit._bond import get_bond_order
 
 
@@ -88,3 +93,19 @@ def unwrap_rdkit_mol_under_pbc(
         updateExplicitCount=True,
         sanitize=True,
     )
+
+
+def wrap_mol_positions_to_cell(
+    mol: Chem.Mol,
+    cell_bounds: Union[
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        np.ndarray,
+    ],
+    confId: int = -1,
+):
+    mol_new = Chem.Mol(mol)
+    conf = mol_new.GetConformer(confId)
+    conf.SetPositions(
+        wrap_positions_to_cell(conf.GetPositions(), cell_bounds=cell_bounds)
+    )
+    return mol_new

@@ -14,6 +14,7 @@ __all__ = (
     "MAP_ELEMENT_MASSES",
     "COLS_ATOMS_LAMMPS_DATA_DTYPE",
     "COLS_BONDS_LAMMPS_DATA_DTYPE",
+    "MAP_VDW_RADIUS",
 )
 
 N_ELEMENTS = 118
@@ -45,3 +46,16 @@ COLS_BONDS_LAMMPS_DATA_DTYPE = {
     "atom2": int,
 }
 """Column name to data type mapping for bonds in a LAMMPS data file."""
+
+MAP_VDW_RADIUS = {
+    "H": 1.20,
+    "C": 1.70,
+    "N": 1.55,
+    "O": 1.52,
+    "F": 1.47,
+    "P": 1.80,
+    "S": 1.80,
+    "Cl": 1.75,
+    "Br": 1.85,
+    "I": 1.98,
+}

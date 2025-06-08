@@ -1,3 +1,5 @@
+from typing import Union
+
 import networkx as nx
 import numpy as np
 from numpy.typing import ArrayLike
@@ -71,3 +73,21 @@ def unwrap_molecule_under_pbc(
             positions_new[idx_atom2] = ref + corrected_vec
 
     return positions_new
+
+
+def wrap_positions_to_cell(
+    positions: np.ndarray,
+    cell_bounds: Union[
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        np.ndarray,
+    ],
+) -> np.ndarray:
+    cell_bounds = np.asarray(cell_bounds)
+    cell_min = cell_bounds[:, 0]
+    # cell_min = np.array([b[0] for b in cell_bounds])  # shape (3,)
+    cell_max = cell_bounds[:, 1]
+    # cell_max = np.array([b[1] for b in cell_bounds])  # shape (3,)
+    cell_range = cell_max - cell_min  # shape (3,)
+
+    # broadcastingにより (N, 3) から直接演算
+    return (positions - cell_min) % cell_range + cell_min
