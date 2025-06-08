@@ -7,6 +7,7 @@ from rdkit import Chem
 from scipy.spatial import KDTree
 
 from lammps_utils.constants import MAP_VDW_RADIUS
+from lammps_utils.rdkit._pbc import wrap_mol_positions_to_cell
 
 
 def compute_ffv(
@@ -19,7 +20,9 @@ def compute_ffv(
     grid_spacing: float = 1.0,
     n_jobs: Optional[int] = None,
 ) -> float:
-    conf = mol.GetConformer(confId)
+    conf = wrap_mol_positions_to_cell(
+        mol, cell_bounds=cell_bounds
+    ).GetConformer(confId)
     return calculate_ffv_parallel(
         conf.GetPositions(),
         vdw_radii=np.array(
