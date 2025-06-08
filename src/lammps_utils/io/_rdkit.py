@@ -1,11 +1,13 @@
 import io
 import os
-from typing import Union
+from typing import Optional, Union
 
+import networkx as nx
 import numpy as np
 from rdkit import Chem
 
-from lammps_utils.io._load import load_data
+from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
+from lammps_utils.io._load import load_data, load_dump
 from lammps_utils.rdkit._bond import get_bond_order
 
 COLS_XYZ = ["x", "y", "z"]
@@ -111,3 +113,44 @@ def MolFromLAMMPSData(
         updateExplicitCount=True,
         sanitize=True,
     )
+
+
+def MolFromLAMMPSDump(
+    filepath_dump: Union[os.PathLike, str],
+    mol_template: Chem.rdchem.Mol,
+    make_molecule_whole: bool = False,
+    n_jobs: Optional[int] = None,
+) -> Chem.rdchem.Mol:
+    tup_results = load_dump(
+        filepath_dump, n_jobs=n_jobs, return_cell_bounds=True
+    )
+    mol = Chem.Mol(mol_template)
+    mol.RemoveAllConformers()
+    n_atoms = mol.GetNumAtoms()
+
+    graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(mol))
+    assert isinstance(graph, nx.Graph)
+    for confId, (frame, df_atoms, cell_bounds) in enumerate(tup_results):
+        df_atoms.sort_index(inplace=True)
+        conf = Chem.Conformer(n_atoms)
+        conf.SetPositions(df_atoms.loc[:, COLS_XYZ].values)
+        conf.SetIntProp("frame", frame)
+        conf.SetId(confId)
+        for idx_axis, axis in enumerate(COLS_XYZ):
+            conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
+            conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
+
+        if make_molecule_whole:
+            cell_size = tuple(
+                conf.GetDoubleProp(f"{axis}hi")
+                - conf.GetDoubleProp(f"{axis}lo")
+                for axis in COLS_XYZ
+            )
+
+            conf.SetPositions(
+                unwrap_molecule_under_pbc(
+                    graph, positions=conf.GetPositions(), cell_size=cell_size
+                )
+            )
+        mol.AddConformer(conf)
+    return mol
