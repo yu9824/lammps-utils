@@ -82,6 +82,26 @@ def wrap_positions_to_cell(
         np.ndarray,
     ],
 ) -> np.ndarray:
+    """
+    Wrap 3D positions into a periodic simulation cell.
+
+    This function takes an array of 3D Cartesian coordinates and wraps each
+    position into the simulation cell defined by the given bounds using
+    periodic boundary conditions.
+
+    Parameters
+    ----------------
+    positions : np.ndarray
+        A NumPy array of shape (N, 3) representing the positions of N atoms.
+    cell_bounds : tuple or np.ndarray
+        The simulation cell bounds. Can be provided as a tuple of
+        ((xlo, xhi), (ylo, yhi), (zlo, zhi)) or a NumPy array of shape (3, 2).
+
+    Returns
+    ----------------
+    np.ndarray
+        A NumPy array of shape (N, 3) containing the wrapped positions.
+    """
     cell_bounds = np.asarray(cell_bounds)
     cell_min = cell_bounds[:, 0]
     # cell_min = np.array([b[0] for b in cell_bounds])  # shape (3,)

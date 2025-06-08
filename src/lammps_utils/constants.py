@@ -59,3 +59,4 @@ MAP_VDW_RADIUS = {
     "Br": 1.85,
     "I": 1.98,
 }
+"""Mapping from atomic symbols to van der Waals radii in angstroms."""
