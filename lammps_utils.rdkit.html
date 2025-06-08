@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lammps_utils.rdkit package &mdash; lammps-utils 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="lammps_utils.smooth package" href="lammps_utils.smooth.html" />
+    <link rel="prev" title="lammps_utils.logging package" href="lammps_utils.logging.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            lammps-utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">lammps_utils</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="lammps_utils.html">lammps_utils package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.html#lammps-utilities">LAMMPS Utilities</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="lammps_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.html">lammps_utils.graph package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.html">lammps_utils.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.logging.html">lammps_utils.logging package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">lammps_utils.rdkit package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.smooth.html">lammps_utils.smooth package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.utils.html">lammps_utils.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.html#module-lammps_utils.constants">lammps_utils.constants module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">lammps-utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">lammps_utils</a></li>
+          <li class="breadcrumb-item"><a href="lammps_utils.html">lammps_utils package</a></li>
+      <li class="breadcrumb-item active">lammps_utils.rdkit package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/lammps_utils.rdkit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-lammps_utils.rdkit">
+<span id="lammps-utils-rdkit-package"></span><h1>lammps_utils.rdkit package<a class="headerlink" href="#module-lammps_utils.rdkit" title="Link to this heading"></a></h1>
+<p>High-level RDKit-based utilities for molecular structure processing.</p>
+<p>This submodule includes:
+- Bond order estimation based on atomic distance and element types,
+- Coordinate unwrapping for RDKit molecules under periodic boundary conditions (PBC),
+- Main chain detection in polymer-like molecular structures.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.rdkit.compute_density">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.rdkit.</span></span><span class="sig-name descname"><span class="pre">compute_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Buffer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">complex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">complex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#lammps_utils.rdkit.compute_density" title="Link to this definition"></a></dt>
+<dd><p>Compute the mass density of a molecule in g/cm³ based on its atomic mass and a given cell size.</p>
+<p>This function assumes that the input cell size is given in angstroms (Å), as commonly used in
+molecular simulations such as LAMMPS with <cite>units real</cite> or <cite>units metal</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – RDKit molecule object. The atomic masses are obtained using <cite>atom.GetMass()</cite>, which returns values in amu.</p></li>
+<li><p><strong>cell_size</strong> (<em>ArrayLike</em>) – A 1D array-like object of shape (3,) specifying the dimensions of the simulation cell (in angstroms).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The computed density in grams per cubic centimeter (g/cm³).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The atomic mass is converted from amu to grams using Avogadro’s number.</p></li>
+<li><p>The cell volume is converted from Å³ to cm³ using the relation: 1 Å = 1e-8 cm.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.rdkit.compute_ffv">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.rdkit.</span></span><span class="sig-name descname"><span class="pre">compute_ffv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confId</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#lammps_utils.rdkit.compute_ffv" title="Link to this definition"></a></dt>
+<dd><p>Compute the fractional free volume (FFV) of a molecule.</p>
+<p>If <cite>cell_bounds</cite> is not provided, it is automatically determined from
+the conformer properties (“xlo”, “xhi”, etc.) assumed to be preassigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – The input RDKit molecule.</p></li>
+<li><p><strong>confId</strong> (<em>int</em>) – The conformer ID to use from the molecule.</p></li>
+<li><p><strong>cell_bounds</strong> (<em>tuple</em><em> of </em><em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The periodic cell boundaries as ((xlo, xhi), (ylo, yhi), (zlo, zhi)).
+If None, the bounds will be extracted from conformer properties.</p></li>
+<li><p><strong>probe_radius</strong> (<em>float</em>) – The radius of the spherical probe for free volume determination.</p></li>
+<li><p><strong>grid_spacing</strong> (<em>float</em>) – The spacing of the grid used to sample the cell volume.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of parallel jobs to run. Use -1 to utilize all CPUs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The fractional free volume of the molecule.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.rdkit.compute_rg">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.rdkit.</span></span><span class="sig-name descname"><span class="pre">compute_rg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confId</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'geometry'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'mass'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'geometry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removeHs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#lammps_utils.rdkit.compute_rg" title="Link to this definition"></a></dt>
+<dd><p>Compute the radius of gyration (Rg) of a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – The molecule for which Rg is computed.</p></li>
+<li><p><strong>confId</strong> (<em>int</em><em>, </em><em>optional</em>) – Index of the conformer to use (default is -1, which selects the first conformer).</p></li>
+<li><p><strong>mode</strong> (<em>{'geometry'</em><em>, </em><em>'mass'}</em><em>, </em><em>optional</em>) – Mode of computation:
+- ‘geometry’: Compute Rg based solely on atomic positions (default).
+- ‘mass’: Compute Rg based on atomic masses.</p></li>
+<li><p><strong>removeHs</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to remove hydrogens from the molecule before computation (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The radius of gyration (Rg) of the molecule.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If no conformer is available for the molecule.
+    If an invalid mode is specified.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If mode=’mass’, Rg is computed using atomic masses as weights.</p></li>
+<li><p>If mode=’geometry’, Rg is computed based only on atomic positions.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.rdkit.find_main_chains">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.rdkit.</span></span><span class="sig-name descname"><span class="pre">find_main_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">Mol</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.rdkit.find_main_chains" title="Link to this definition"></a></dt>
+<dd><p>Extracts and yields the longest linear (main chain) fragments from a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – An RDKit Mol object representing the molecular structure.</p>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Chem.rdchem.Mol</em> – A fragment corresponding to the main chain (as a substructure) for each connected component.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – If the input is not an RDKit Mol object.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function identifies the longest acyclic paths (main chains) within each connected component
+of the input molecule.</p>
+<ul class="simple">
+<li><p>Hydrogen atoms are removed prior to analysis.</p></li>
+<li><p>An undirected graph is constructed from the molecule using the adjacency matrix.</p></li>
+<li><p>Cyclic atoms are ignored when determining the main chain endpoints.</p></li>
+<li><p>The longest path between two non-cyclic atoms is obtained via a breadth-first search,
+followed by a shortest path search in the graph.</p></li>
+<li><p>The corresponding substructure (bond path) is returned as an RDKit Mol fragment.</p></li>
+</ul>
+<p>This method is useful for isolating backbone structures or linear scaffolds in a molecule.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.rdkit.get_bond_order">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.rdkit.</span></span><span class="sig-name descname"><span class="pre">get_bond_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_symbols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BondType</span></span></span><a class="headerlink" href="#lammps_utils.rdkit.get_bond_order" title="Link to this definition"></a></dt>
+<dd><p>Estimate bond order based on atom symbols and bond length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_symbols</strong> (<em>tuple</em><em> of </em><em>str</em>) – A tuple containing the atomic symbols of the two bonded atoms (e.g., (“C”, “O”)).</p></li>
+<li><p><strong>bond_length</strong> (<em>float</em>) – The bond length in angstroms.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The estimated bond type (SINGLE, DOUBLE, TRIPLE, or AROMATIC).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>rdkit.Chem.rdchem.BondType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.rdkit.unwrap_rdkit_mol_under_pbc">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.rdkit.</span></span><span class="sig-name descname"><span class="pre">unwrap_rdkit_mol_under_pbc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Buffer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">complex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">complex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confId</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">determine_bonds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.rdkit.unwrap_rdkit_mol_under_pbc" title="Link to this definition"></a></dt>
+<dd><p>Unwraps a periodic RDKit molecule so that bonded atoms are positioned close together in Cartesian space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – The RDKit molecule to be unwrapped. Must have at least one 3D conformer.</p></li>
+<li><p><strong>cell_size</strong> (<em>ArrayLike</em>) – The size of the periodic simulation cell (a 3-element array-like object representing the box dimensions).</p></li>
+<li><p><strong>confId</strong> (<em>int</em><em>, </em><em>optional</em>) – The conformer ID to use for coordinate manipulation. Defaults to -1 (the first conformer).</p></li>
+<li><p><strong>determine_bonds</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, reassigns bond orders based on interatomic distances after unwrapping. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new RDKit molecule object with unwrapped coordinates and optionally updated bond orders.
+All hydrogen atoms are removed from the returned molecule.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Chem.rdchem.Mol</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If the input molecule has no conformers or if the cell size is invalid.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function converts the molecule to a graph to assist in unwrapping it under periodic boundary
+conditions (PBC), using the <cite>unwrap_molecule_under_pbc</cite> utility. If <cite>determine_bonds</cite> is True,
+bond distances are recalculated post-unwrapping, and bond types are reassigned using the
+<cite>get_bond_order</cite> function. Hydrogens are removed from the returned molecule to simplify further processing.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lammps_utils.logging.html" class="btn btn-neutral float-left" title="lammps_utils.logging package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lammps_utils.smooth.html" class="btn btn-neutral float-right" title="lammps_utils.smooth package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, yu9824.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

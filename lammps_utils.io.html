@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lammps_utils.io package &mdash; lammps-utils 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="lammps_utils.logging package" href="lammps_utils.logging.html" />
+    <link rel="prev" title="lammps_utils.graph package" href="lammps_utils.graph.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            lammps-utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">lammps_utils</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="lammps_utils.html">lammps_utils package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.html#lammps-utilities">LAMMPS Utilities</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="lammps_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.html">lammps_utils.graph package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">lammps_utils.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.logging.html">lammps_utils.logging package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.rdkit.html">lammps_utils.rdkit package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.smooth.html">lammps_utils.smooth package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.utils.html">lammps_utils.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.html#module-lammps_utils.constants">lammps_utils.constants module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">lammps-utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">lammps_utils</a></li>
+          <li class="breadcrumb-item"><a href="lammps_utils.html">lammps_utils package</a></li>
+      <li class="breadcrumb-item active">lammps_utils.io package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/lammps_utils.io.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-lammps_utils.io">
+<span id="lammps-utils-io-package"></span><h1>lammps_utils.io package<a class="headerlink" href="#module-lammps_utils.io" title="Link to this heading"></a></h1>
+<p>Lammps utils I/O module.</p>
+<p>This module provides functions to convert LAMMPS data files to GROMACS gro files
+and to load data from LAMMPS data files</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.MolFromLAMMPSData">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">MolFromLAMMPSData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_molecule_whole</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">determine_bonds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.io.MolFromLAMMPSData" title="Link to this definition"></a></dt>
+<dd><p>Constructs an RDKit Mol object from a LAMMPS data file or buffer.</p>
+<p>This function reads atomic and bonding information from a LAMMPS-style
+data file, reconstructs the molecular structure by inferring bond orders
+based on interatomic distances, and returns a corresponding RDKit Mol object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>os.PathLike</em><em>, </em><em>str</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – Path to the LAMMPS data file, or a file-like buffer object
+containing the data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An RDKit Mol object with atoms and inferred bonds, including
+3D coordinates as a single conformer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Chem.rdchem.Mol</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.MolFromLAMMPSDump">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">MolFromLAMMPSDump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_dump</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_molecule_whole</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.io.MolFromLAMMPSDump" title="Link to this definition"></a></dt>
+<dd><p>Create an RDKit molecule with conformers from a LAMMPS dump file.</p>
+<p>This function loads atom coordinates from a LAMMPS trajectory file and assigns
+them to the provided molecular template as conformers. If specified, the molecule
+can be unwrapped under periodic boundary conditions to make it whole.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath_dump</strong> (<em>Union</em><em>[</em><em>os.PathLike</em><em>, </em><em>str</em><em>]</em>) – Path to the LAMMPS dump file to load.</p></li>
+<li><p><strong>mol_template</strong> (<em>Chem.rdchem.Mol</em>) – An RDKit molecule used as a template. The returned molecule will copy
+its atom and bond structure.</p></li>
+<li><p><strong>make_molecule_whole</strong> (<em>bool</em>) – If True, unwrap the molecule based on PBC to make it whole in each frame.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel jobs for loading the dump. -1 uses all available CPUs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An RDKit molecule with one conformer per frame in the LAMMPS dump file.
+Each conformer stores the simulation cell bounds as properties.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Chem.rdchem.Mol</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.data2gro">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">data2gro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath_gro</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#lammps_utils.io.data2gro" title="Link to this definition"></a></dt>
+<dd><p>Convert LAMMPS data file to GROMACS gro file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – file path or buffer of LAMMPS data file</p></li>
+<li><p><strong>filepath_gro</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – file path of GROMACS gro file, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>GROMACS gro file content if filepath_gro is None, otherwise None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[str, None]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – If the directory of filepath_gro does not exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.data2pdb">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">data2pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath_pdb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#lammps_utils.io.data2pdb" title="Link to this definition"></a></dt>
+<dd><p>Convert LAMMPS data file to PDB file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – file path or buffer of LAMMPS data file</p></li>
+<li><p><strong>filepath_pdb</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – file path of PDB file, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PDB file content if filepath_pdb is None, otherwise None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[str, None]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – If the directory of filepath_pdb does not exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.get_atom_type_masses">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">get_atom_type_masses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.io.get_atom_type_masses" title="Link to this definition"></a></dt>
+<dd><p>Get the masses of atom types from a LAMMPS data file or a file-like object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – The file path or file-like object to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary mapping atom type IDs to their masses.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, float]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the atom type masses cannot be found in the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.get_atom_type_symbols">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">get_atom_type_symbols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.io.get_atom_type_symbols" title="Link to this definition"></a></dt>
+<dd><p>Get the symbols of atom types from a LAMMPS data file or a file-like object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – The file path or file-like object to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary mapping atom type IDs to their symbols.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.get_cell_bounds">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">get_cell_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.io.get_cell_bounds" title="Link to this definition"></a></dt>
+<dd><p>Get the cell limits from a LAMMPS data file or a file-like object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – The file path or file-like object to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the cell limits for x, y, and z axes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[tuple[float, float], tuple[float, float], tuple[float, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.get_n_atom_types">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">get_n_atom_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#lammps_utils.io.get_n_atom_types" title="Link to this definition"></a></dt>
+<dd><p>Get the number of atom types from a LAMMPS data file or a file-like object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – The file path or file-like object to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of atom types in the LAMMPS data file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the number of atom types cannot be found in the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.get_n_atoms">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#lammps_utils.io.get_n_atoms" title="Link to this definition"></a></dt>
+<dd><p>Get the number of atoms from a LAMMPS data file or a file-like object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – The file path or file-like object to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of atoms in the LAMMPS data file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the number of atoms cannot be found in the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.get_n_bonds">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">get_n_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#lammps_utils.io.get_n_bonds" title="Link to this definition"></a></dt>
+<dd><p>Get the number of bonds from a LAMMPS data file or a file-like object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath_data_or_buffer</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>, </em><em>io.TextIOBase</em><em>]</em>) – The file path or file-like object to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of bonds in the LAMMPS data file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the number of bonds cannot be found in the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.load_data">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_data_or_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TextIOBase</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferedIOBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_molecule_whole</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_bond_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_cell_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.io.load_data" title="Link to this definition"></a></dt>
+<dd><p>Load atom (and optionally bond and cell) data from a LAMMPS data file into a DataFrame.</p>
+<p>This function supports file paths and file-like objects and optionally reconstructs molecules
+by unwrapping coordinates under periodic boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath_data_or_buffer</strong> (<em>str</em><em> or </em><em>os.PathLike</em><em> or </em><em>io.TextIOBase</em><em> or </em><em>io.BufferedIOBase</em>) – The path to a LAMMPS data file, or a file-like object containing the data.</p></li>
+<li><p><strong>make_molecule_whole</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If True, unwraps atomic coordinates using bond connectivity and periodic cell bounds
+so that molecules are made whole (not split across periodic boundaries).</p></li>
+<li><p><strong>return_bond_info</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If True, returns an additional DataFrame containing bond information.</p></li>
+<li><p><strong>return_cell_bounds</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If True, returns the simulation cell bounds as a tuple of 3 (min, max) pairs for x, y, z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>Union[pd.DataFrame,</em></p></li>
+<li><p><em>tuple[pd.DataFrame, pd.DataFrame],</em></p></li>
+<li><p><em>tuple[pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]],</em></p></li>
+<li><p><em>tuple[pd.DataFrame, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]</em></p></li>
+<li><p><em>]</em> – The atom DataFrame is always returned. Depending on the flags:</p>
+<ul>
+<li><p>If <cite>return_bond_info</cite> is True, bond DataFrame is included.</p></li>
+<li><p>If <cite>return_cell_bounds</cite> is True, simulation box bounds are included.</p></li>
+<li><p>If both flags are True, all three values are returned as a tuple:
+(atom DataFrame, bond DataFrame, cell bounds).</p></li>
+</ul>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If required components (like conformers) are missing when <cite>make_molecule_whole</cite> is True.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function assumes the input file is in LAMMPS data format with sections for atoms,
+bonds, and box bounds. If <cite>make_molecule_whole</cite> is enabled, bond and box information
+are automatically parsed regardless of the other flags.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.load_dump">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">load_dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath_dump</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10485760</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_cell_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.io.load_dump" title="Link to this definition"></a></dt>
+<dd><p>Load and parse a LAMMPS dump file into structured timestep data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath_dump</strong> (<em>Union</em><em>[</em><em>os.PathLike</em><em>, </em><em>str</em><em>]</em>) – Path to the LAMMPS dump file to be loaded.</p></li>
+<li><p><strong>buffer_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the buffer to use when scanning the file for timestep offsets (in bytes).
+Larger values may improve performance on large files. Default is 10 MB.</p></li>
+<li><p><strong>return_cell_bounds</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to extract and return cell bounds for each timestep. If True, the output
+will include cell bounds in addition to timestep and atomic data. Default is False.</p></li>
+<li><p><strong>n_jobs</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Number of parallel jobs to run. If None, defaults to single-threaded operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul>
+<li><p><em>Union[</em></p></li>
+<li><p><em>tuple[tuple[int, pd.DataFrame, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]], …],</em></p></li>
+<li><p><em>tuple[tuple[int, pd.DataFrame], …]</em></p></li>
+<li><p><em>]</em> – A tuple of timestep data. Each element is either:
+- (timestep, DataFrame) if return_cell_bounds is False
+- (timestep, DataFrame, cell_bounds) if return_cell_bounds is True</p>
+<p><cite>timestep</cite> is an integer, <cite>DataFrame</cite> contains atomic data for that step,
+and <cite>cell_bounds</cite> is a 3-tuple of (min, max) pairs for x, y, z.</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.io.unwrap_molecule_df_under_pbc">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.io.</span></span><span class="sig-name descname"><span class="pre">unwrap_molecule_df_under_pbc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#lammps_utils.io.unwrap_molecule_df_under_pbc" title="Link to this definition"></a></dt>
+<dd><p>Adjust atomic coordinates to make the molecule whole under periodic boundary conditions (PBC).
+This function shifts atoms so that bonded atoms appear spatially close, avoiding discontinuities across cell edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – DataFrame containing atomic coordinates. Must include columns “x”, “y”, and “z”.</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – DataFrame defining atomic bonds, with columns “atom1” and “atom2” containing atom indices.</p></li>
+<li><p><strong>cell_bounds</strong> (<em>tuple</em><em> of </em><em>tuple</em><em> of </em><em>float</em>) – Bounds of the periodic cell along each axis. Format: ((xmin, xmax), (ymin, ymax), (zmin, zmax)).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new DataFrame with adjusted atomic coordinates that are spatially continuous across the cell.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lammps_utils.graph.html" class="btn btn-neutral float-left" title="lammps_utils.graph package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lammps_utils.logging.html" class="btn btn-neutral float-right" title="lammps_utils.logging package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, yu9824.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
