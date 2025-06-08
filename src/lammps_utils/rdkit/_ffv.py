@@ -12,9 +12,9 @@ from lammps_utils.rdkit._pbc import wrap_mol_positions_to_cell
 
 def compute_ffv(
     mol: Chem.rdchem.Mol,
-    cell_bounds: tuple[
-        tuple[float, float], tuple[float, float], tuple[float, float]
-    ],
+    cell_bounds: Optional[
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
+    ] = None,
     confId: int = -1,
     probe_radius: float = 1.4,
     grid_spacing: float = 1.0,
@@ -23,6 +23,14 @@ def compute_ffv(
     conf = wrap_mol_positions_to_cell(
         mol, cell_bounds=cell_bounds
     ).GetConformer(confId)
+    if cell_bounds is None:
+        tup_tmp = tuple(
+            (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
+            for axis in ("x", "y", "z")
+        )
+        assert len(tup_tmp) == 3
+        cell_bounds = tup_tmp
+
     return calculate_ffv_parallel(
         conf.GetPositions(),
         vdw_radii=np.array(

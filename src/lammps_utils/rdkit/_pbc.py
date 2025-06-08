@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 import networkx as nx
 import numpy as np
@@ -97,14 +97,24 @@ def unwrap_rdkit_mol_under_pbc(
 
 def wrap_mol_positions_to_cell(
     mol: Chem.Mol,
-    cell_bounds: Union[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
-        np.ndarray,
-    ],
+    cell_bounds: Optional[
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
+    ] = None,
     confId: int = -1,
 ):
     mol_new = Chem.Mol(mol)
     conf = mol_new.GetConformer(confId)
+    if cell_bounds is None:
+        if not conf.HasProp("xlo"):
+            raise ValueError
+
+        _tup_tmp = tuple(
+            (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
+            for axis in ("x", "y", "z")
+        )
+        assert len(_tup_tmp) == 3
+        cell_bounds = _tup_tmp
+
     conf.SetPositions(
         wrap_positions_to_cell(conf.GetPositions(), cell_bounds=cell_bounds)
     )
