@@ -8,6 +8,8 @@ from rdkit import Chem
 from lammps_utils.io._load import load_data
 from lammps_utils.rdkit._bond import get_bond_order
 
+COLS_XYZ = ["x", "y", "z"]
+
 
 def MolFromLAMMPSData(
     filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
@@ -33,7 +35,6 @@ def MolFromLAMMPSData(
         An RDKit Mol object with atoms and inferred bonds, including
         3D coordinates as a single conformer.
     """
-    COLS_XYZ = ["x", "y", "z"]
 
     df_atoms, df_bonds, cell_bounds = load_data(
         filepath_data_or_buffer,
@@ -46,25 +47,28 @@ def MolFromLAMMPSData(
     df_atoms.sort_index(inplace=True)
     offset = df_atoms.index[0].item()
     rwmol.SetIntProp("offset", offset)
-    for idx_axis, axis in enumerate(COLS_XYZ):
-        rwmol.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
-        rwmol.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
 
     for atom_id, _sr_atom in df_atoms.iterrows():
         atom = Chem.Atom(_sr_atom["symbol"])
         atom.SetIntProp("id", atom_id)
         rwmol.AddAtom(atom)
 
-    if determine_bonds and make_molecule_whole:
+    if determine_bonds:
+        if make_molecule_whole:
+            _df_atoms_unwrapped = df_atoms
+        else:
+            _df_atoms_unwrapped = load_data(
+                filepath_data_or_buffer, make_molecule_whole=True
+            ).sort_index()
         dict_bond_type: dict[int, Chem.rdchem.BondType] = dict()
         for bond_type, df_each_bond in df_bonds.groupby("type"):
             distances = np.sqrt(
                 np.sum(
                     np.square(
-                        df_atoms.loc[
+                        _df_atoms_unwrapped.loc[
                             df_each_bond.loc[:, "atom1"], COLS_XYZ
                         ].values
-                        - df_atoms.loc[
+                        - _df_atoms_unwrapped.loc[
                             df_each_bond.loc[:, "atom2"], COLS_XYZ
                         ].values
                     ),
@@ -72,7 +76,7 @@ def MolFromLAMMPSData(
                 )
             )
             symbols = tuple(
-                df_atoms.loc[
+                _df_atoms_unwrapped.loc[
                     df_each_bond.iloc[0].loc[["atom1", "atom2"]], "symbol"
                 ].tolist()
             )
@@ -96,6 +100,9 @@ def MolFromLAMMPSData(
     conf = Chem.Conformer(df_atoms.shape[0])
     positions = df_atoms.loc[:, COLS_XYZ].values
     conf.SetPositions(positions)
+    for idx_axis, axis in enumerate(COLS_XYZ):
+        conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
+        conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
 
     rwmol.AddConformer(conf)
     return Chem.RemoveHs(
