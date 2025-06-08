@@ -15,7 +15,10 @@ from lammps_utils.constants import (
     COLS_BONDS_LAMMPS_DATA_DTYPE,
     MAP_ELEMENT_MASSES,
 )
-from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
+from lammps_utils.graph._pbc import (
+    unwrap_molecule_under_pbc,
+    wrap_positions_to_cell,
+)
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
@@ -917,3 +920,16 @@ def load_dump(
             for index_step in range(len(offsets))
         ),
     )
+
+
+def wrap_df_positions_to_cell(
+    df_atoms: pd.DataFrame,
+    cell_bounds: Union[
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        np.ndarray,
+    ],
+) -> pd.DataFrame:
+    df_atoms.loc[:, COLS_XYZ] = wrap_positions_to_cell(
+        df_atoms.loc[:, COLS_XYZ], cell_bounds=cell_bounds
+    )
+    return df_atoms
