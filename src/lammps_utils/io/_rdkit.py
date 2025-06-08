@@ -121,6 +121,31 @@ def MolFromLAMMPSDump(
     make_molecule_whole: bool = False,
     n_jobs: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
+    """
+    Create an RDKit molecule with conformers from a LAMMPS dump file.
+
+    This function loads atom coordinates from a LAMMPS trajectory file and assigns
+    them to the provided molecular template as conformers. If specified, the molecule
+    can be unwrapped under periodic boundary conditions to make it whole.
+
+    Parameters
+    ----------------
+    filepath_dump : Union[os.PathLike, str]
+        Path to the LAMMPS dump file to load.
+    mol_template : Chem.rdchem.Mol
+        An RDKit molecule used as a template. The returned molecule will copy
+        its atom and bond structure.
+    make_molecule_whole : bool
+        If True, unwrap the molecule based on PBC to make it whole in each frame.
+    n_jobs : int, optional
+        Number of parallel jobs for loading the dump. -1 uses all available CPUs.
+
+    Returns
+    ----------------
+    Chem.rdchem.Mol
+        An RDKit molecule with one conformer per frame in the LAMMPS dump file.
+        Each conformer stores the simulation cell bounds as properties.
+    """
     tup_results = load_dump(
         filepath_dump, n_jobs=n_jobs, return_cell_bounds=True
     )

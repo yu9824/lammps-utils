@@ -12,14 +12,41 @@ from lammps_utils.rdkit._pbc import wrap_mol_positions_to_cell
 
 def compute_ffv(
     mol: Chem.rdchem.Mol,
+    confId: int = -1,
     cell_bounds: Optional[
         tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
     ] = None,
-    confId: int = -1,
     probe_radius: float = 1.4,
     grid_spacing: float = 1.0,
     n_jobs: Optional[int] = None,
 ) -> float:
+    """
+    Compute the fractional free volume (FFV) of a molecule.
+
+    If `cell_bounds` is not provided, it is automatically determined from
+    the conformer properties ("xlo", "xhi", etc.) assumed to be preassigned.
+
+    Parameters
+    ----------------
+    mol : Chem.rdchem.Mol
+        The input RDKit molecule.
+    confId : int
+        The conformer ID to use from the molecule.
+    cell_bounds : tuple of tuple of float, optional
+        The periodic cell boundaries as ((xlo, xhi), (ylo, yhi), (zlo, zhi)).
+        If None, the bounds will be extracted from conformer properties.
+    probe_radius : float
+        The radius of the spherical probe for free volume determination.
+    grid_spacing : float
+        The spacing of the grid used to sample the cell volume.
+    n_jobs : int, optional
+        The number of parallel jobs to run. Use -1 to utilize all CPUs.
+
+    Returns
+    ----------------
+    float
+        The fractional free volume of the molecule.
+    """
     conf = wrap_mol_positions_to_cell(
         mol, cell_bounds=cell_bounds
     ).GetConformer(confId)
@@ -54,7 +81,28 @@ def _check_free_single(
     effective_radii: np.ndarray,
 ) -> bool:
     """
-    単一グリッド点が自由かどうか判定する関数。
+    Determine whether a single grid point is located in the free volume.
+
+    A grid point is considered "free" if it lies outside the effective van der Waals
+    spheres (vdW radius + probe radius) of all nearby atoms.
+
+    Parameters
+    ----------------
+    grid_point : np.ndarray
+        A 3-element array representing the (x, y, z) coordinates of the grid point.
+    candidate_indices : Sequence[int]
+        Indices of atoms that are within the maximum effective radius of the grid point,
+        obtained via spatial indexing (e.g., KDTree).
+    positions : np.ndarray
+        Array of atomic coordinates with shape (N_atoms, 3).
+    effective_radii : np.ndarray
+        Array of effective radii (vdW radius + probe radius) for each atom.
+
+    Returns
+    ----------------
+    bool
+        True if the grid point is in the free volume (i.e., not overlapping with
+        any atom's effective radius), False otherwise.
     """
     if not candidate_indices:
         return True
@@ -79,10 +127,32 @@ def calculate_ffv_parallel(
     n_jobs: Optional[int] = None,
 ) -> float:
     """
-    joblibで並列化した自由体積分率計算。
+    Compute the fractional free volume (FFV) using parallel processing.
 
-    Parametersは従来版と同じです。
-    n_jobsは並列ジョブ数（-1は全CPU利用）
+    This function evaluates the free volume by placing a regular 3D grid
+    inside the specified cell and checking for each grid point whether
+    a probe sphere centered at that point does not overlap with any atoms.
+
+    Parameters
+    ----------------
+    positions : np.ndarray
+        Array of atomic coordinates with shape (N_atoms, 3).
+    vdw_radii : np.ndarray
+        Array of van der Waals radii for each atom.
+    cell_bounds : tuple of tuple of float
+        The periodic cell boundaries as ((xlo, xhi), (ylo, yhi), (zlo, zhi)).
+    probe_radius : float
+        The radius of the spherical probe.
+    grid_spacing : float
+        The spacing of the 3D grid in each dimension.
+    n_jobs : int, optional
+        Number of parallel jobs to use with joblib. -1 uses all available CPUs.
+
+    Returns
+    ----------------
+    float
+        The fractional free volume, defined as the fraction of grid points
+        where the probe does not intersect any atom's van der Waals sphere.
     """
     (xlo, xhi), (ylo, yhi), (zlo, zhi) = cell_bounds
 
@@ -99,7 +169,7 @@ def calculate_ffv_parallel(
         grid, r=max_effective_radius
     ).tolist()
 
-    # joblibで並列化
+    # Parallelize with joblib
     results = Parallel(n_jobs=n_jobs, prefer="threads")(
         delayed(_check_free_single)(
             grid[idx], candidate_indices, positions, effective_radii

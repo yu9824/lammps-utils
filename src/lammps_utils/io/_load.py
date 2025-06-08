@@ -929,6 +929,25 @@ def wrap_df_positions_to_cell(
         np.ndarray,
     ],
 ) -> pd.DataFrame:
+    """
+    Wrap atomic positions in a DataFrame into the periodic simulation cell.
+
+    This function modifies the input DataFrame by wrapping atomic positions
+    so that all atoms are located within the given periodic cell boundaries.
+
+    Parameters
+    ----------------
+    df_atoms : pd.DataFrame
+        A DataFrame containing atomic coordinates. Must include columns "x", "y", and "z".
+    cell_bounds : tuple or np.ndarray
+        The simulation cell bounds specified as a tuple of ((xlo, xhi), (ylo, yhi), (zlo, zhi)),
+        or as a NumPy array of shape (3, 2).
+
+    Returns
+    ----------------
+    pd.DataFrame
+        The same DataFrame with wrapped atomic coordinates within the cell.
+    """
     df_atoms.loc[:, COLS_XYZ] = wrap_positions_to_cell(
         df_atoms.loc[:, COLS_XYZ], cell_bounds=cell_bounds
     )
