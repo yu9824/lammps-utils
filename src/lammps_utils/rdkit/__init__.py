@@ -9,6 +9,7 @@ This submodule includes:
 
 from ._bond import get_bond_order
 from ._density import compute_density
+from ._ffv import compute_ffv
 from ._pbc import unwrap_rdkit_mol_under_pbc
 from ._poly import find_main_chains
 from ._rg import compute_rg
@@ -16,6 +17,7 @@ from ._rg import compute_rg
 __all__ = (
     "get_bond_order",
     "compute_density",
+    "compute_ffv",
     "unwrap_rdkit_mol_under_pbc",
     "find_main_chains",
     "compute_rg",

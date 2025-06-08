@@ -16,7 +16,7 @@ from ._load import (
     load_dump,
     unwrap_molecule_df_under_pbc,
 )
-from ._rdkit import MolFromLAMMPSData
+from ._rdkit import MolFromLAMMPSData, MolFromLAMMPSDump
 
 __all__ = (
     "data2gro",
@@ -29,6 +29,7 @@ __all__ = (
     "get_n_atom_types",
     "get_atom_type_masses",
     "MolFromLAMMPSData",
+    "MolFromLAMMPSDump",
     "load_dump",
     "unwrap_molecule_df_under_pbc",
 )

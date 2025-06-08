@@ -1,12 +1,16 @@
 import io
 import os
-from typing import Union
+from typing import Optional, Union
 
+import networkx as nx
 import numpy as np
 from rdkit import Chem
 
-from lammps_utils.io._load import load_data
+from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
+from lammps_utils.io._load import load_data, load_dump
 from lammps_utils.rdkit._bond import get_bond_order
+
+COLS_XYZ = ["x", "y", "z"]
 
 
 def MolFromLAMMPSData(
@@ -33,7 +37,6 @@ def MolFromLAMMPSData(
         An RDKit Mol object with atoms and inferred bonds, including
         3D coordinates as a single conformer.
     """
-    COLS_XYZ = ["x", "y", "z"]
 
     df_atoms, df_bonds, cell_bounds = load_data(
         filepath_data_or_buffer,
@@ -46,25 +49,28 @@ def MolFromLAMMPSData(
     df_atoms.sort_index(inplace=True)
     offset = df_atoms.index[0].item()
     rwmol.SetIntProp("offset", offset)
-    for idx_axis, axis in enumerate(COLS_XYZ):
-        rwmol.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
-        rwmol.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
 
     for atom_id, _sr_atom in df_atoms.iterrows():
         atom = Chem.Atom(_sr_atom["symbol"])
         atom.SetIntProp("id", atom_id)
         rwmol.AddAtom(atom)
 
-    if determine_bonds and make_molecule_whole:
+    if determine_bonds:
+        if make_molecule_whole:
+            _df_atoms_unwrapped = df_atoms
+        else:
+            _df_atoms_unwrapped = load_data(
+                filepath_data_or_buffer, make_molecule_whole=True
+            ).sort_index()
         dict_bond_type: dict[int, Chem.rdchem.BondType] = dict()
         for bond_type, df_each_bond in df_bonds.groupby("type"):
             distances = np.sqrt(
                 np.sum(
                     np.square(
-                        df_atoms.loc[
+                        _df_atoms_unwrapped.loc[
                             df_each_bond.loc[:, "atom1"], COLS_XYZ
                         ].values
-                        - df_atoms.loc[
+                        - _df_atoms_unwrapped.loc[
                             df_each_bond.loc[:, "atom2"], COLS_XYZ
                         ].values
                     ),
@@ -72,7 +78,7 @@ def MolFromLAMMPSData(
                 )
             )
             symbols = tuple(
-                df_atoms.loc[
+                _df_atoms_unwrapped.loc[
                     df_each_bond.iloc[0].loc[["atom1", "atom2"]], "symbol"
                 ].tolist()
             )
@@ -96,6 +102,9 @@ def MolFromLAMMPSData(
     conf = Chem.Conformer(df_atoms.shape[0])
     positions = df_atoms.loc[:, COLS_XYZ].values
     conf.SetPositions(positions)
+    for idx_axis, axis in enumerate(COLS_XYZ):
+        conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
+        conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
 
     rwmol.AddConformer(conf)
     return Chem.RemoveHs(
@@ -104,3 +113,69 @@ def MolFromLAMMPSData(
         updateExplicitCount=True,
         sanitize=True,
     )
+
+
+def MolFromLAMMPSDump(
+    filepath_dump: Union[os.PathLike, str],
+    mol_template: Chem.rdchem.Mol,
+    make_molecule_whole: bool = False,
+    n_jobs: Optional[int] = None,
+) -> Chem.rdchem.Mol:
+    """
+    Create an RDKit molecule with conformers from a LAMMPS dump file.
+
+    This function loads atom coordinates from a LAMMPS trajectory file and assigns
+    them to the provided molecular template as conformers. If specified, the molecule
+    can be unwrapped under periodic boundary conditions to make it whole.
+
+    Parameters
+    ----------------
+    filepath_dump : Union[os.PathLike, str]
+        Path to the LAMMPS dump file to load.
+    mol_template : Chem.rdchem.Mol
+        An RDKit molecule used as a template. The returned molecule will copy
+        its atom and bond structure.
+    make_molecule_whole : bool
+        If True, unwrap the molecule based on PBC to make it whole in each frame.
+    n_jobs : int, optional
+        Number of parallel jobs for loading the dump. -1 uses all available CPUs.
+
+    Returns
+    ----------------
+    Chem.rdchem.Mol
+        An RDKit molecule with one conformer per frame in the LAMMPS dump file.
+        Each conformer stores the simulation cell bounds as properties.
+    """
+    tup_results = load_dump(
+        filepath_dump, n_jobs=n_jobs, return_cell_bounds=True
+    )
+    mol = Chem.Mol(mol_template)
+    mol.RemoveAllConformers()
+    n_atoms = mol.GetNumAtoms()
+
+    graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(mol))
+    assert isinstance(graph, nx.Graph)
+    for confId, (frame, df_atoms, cell_bounds) in enumerate(tup_results):
+        df_atoms.sort_index(inplace=True)
+        conf = Chem.Conformer(n_atoms)
+        conf.SetPositions(df_atoms.loc[:, COLS_XYZ].values)
+        conf.SetIntProp("frame", frame)
+        conf.SetId(confId)
+        for idx_axis, axis in enumerate(COLS_XYZ):
+            conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
+            conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
+
+        if make_molecule_whole:
+            cell_size = tuple(
+                conf.GetDoubleProp(f"{axis}hi")
+                - conf.GetDoubleProp(f"{axis}lo")
+                for axis in COLS_XYZ
+            )
+
+            conf.SetPositions(
+                unwrap_molecule_under_pbc(
+                    graph, positions=conf.GetPositions(), cell_size=cell_size
+                )
+            )
+        mol.AddConformer(conf)
+    return mol

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 import networkx as nx
 import numpy as np
@@ -96,15 +96,48 @@ def unwrap_rdkit_mol_under_pbc(
 
 
 def wrap_mol_positions_to_cell(
-    mol: Chem.Mol,
-    cell_bounds: Union[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
-        np.ndarray,
-    ],
+    mol: Chem.rdchem.Mol,
     confId: int = -1,
-):
+    cell_bounds: Optional[
+        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
+    ] = None,
+) -> Chem.rdchem.Mol:
+    """
+    Wrap atom positions of a conformer into the periodic simulation cell.
+
+    This function returns a copy of the given RDKit molecule, with the specified
+    conformer's atomic positions wrapped so that all atoms lie within the given
+    simulation cell bounds. If `cell_bounds` is not provided, they will be inferred
+    from the conformer's properties.
+
+    Parameters
+    ----------------
+    mol : Chem.Mol
+        An RDKit molecule containing at least one conformer.
+    confId : int
+        The conformer ID to wrap. Defaults to -1 (the last conformer).
+    cell_bounds : tuple of 3 (lo, hi) tuples, optional
+        The simulation cell bounds along x, y, and z axes. If not provided,
+        they will be read from the conformer's properties: "xlo", "xhi", "ylo", etc.
+
+    Returns
+    ----------------
+    Chem.Mol
+        A copy of the input molecule with wrapped conformer coordinates.
+    """
     mol_new = Chem.Mol(mol)
     conf = mol_new.GetConformer(confId)
+    if cell_bounds is None:
+        if not conf.HasProp("xlo"):
+            raise ValueError
+
+        _tup_tmp = tuple(
+            (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
+            for axis in ("x", "y", "z")
+        )
+        assert len(_tup_tmp) == 3
+        cell_bounds = _tup_tmp
+
     conf.SetPositions(
         wrap_positions_to_cell(conf.GetPositions(), cell_bounds=cell_bounds)
     )
