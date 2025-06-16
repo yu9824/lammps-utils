@@ -3,7 +3,10 @@ from collections.abc import Generator
 import networkx as nx
 from rdkit import Chem
 
-from lammps_utils.graph._main_chain import _bfs_farthest_node, nodes_in_cycles
+from lammps_utils.graph.topology._topology import (
+    _bfs_farthest_node,
+    nodes_in_cycles,
+)
 
 
 def find_main_chains(

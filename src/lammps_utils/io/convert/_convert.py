@@ -6,7 +6,11 @@ from typing import Literal, Optional, Union, overload
 import numpy as np
 
 from lammps_utils import __version__
-from lammps_utils.io._load import _read_file_or_buffer, get_n_atoms, load_data
+from lammps_utils.io.mol._mol import load_data
+from lammps_utils.io.utils._data import (
+    _read_file_or_buffer,
+    get_n_atoms,
+)
 
 
 @overload

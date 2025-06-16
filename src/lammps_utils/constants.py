@@ -60,3 +60,9 @@ MAP_VDW_RADIUS = {
     "I": 1.98,
 }
 """Mapping from atomic symbols to van der Waals radii in angstroms."""
+
+COLS_XYZ = ["x", "y", "z"]
+"""Coordinate column labels
+
+``["x", "y", "z"]``
+"""

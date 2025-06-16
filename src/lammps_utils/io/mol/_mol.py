@@ -6,11 +6,10 @@ import networkx as nx
 import numpy as np
 from rdkit import Chem
 
-from lammps_utils.graph._pbc import unwrap_molecule_under_pbc
-from lammps_utils.io._load import load_data, load_dump
-from lammps_utils.rdkit._bond import get_bond_order
-
-COLS_XYZ = ["x", "y", "z"]
+from lammps_utils.chem.bond._bond import get_bond_order
+from lammps_utils.constants import COLS_XYZ
+from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
+from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 
 
 def MolFromLAMMPSData(
@@ -173,7 +172,7 @@ def MolFromLAMMPSDump(
             )
 
             conf.SetPositions(
-                unwrap_molecule_under_pbc(
+                unwrap_positions_under_pbc(
                     graph, positions=conf.GetPositions(), cell_size=cell_size
                 )
             )
