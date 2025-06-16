@@ -7,7 +7,9 @@ from rdkit import Chem
 from scipy.spatial import KDTree
 
 from lammps_utils.constants import MAP_VDW_RADIUS
-from lammps_utils.rdkit._pbc import wrap_mol_positions_to_cell
+from lammps_utils.graph.pbc._pbc import wrap_mol_into_cell
+
+__all__ = ("compute_ffv",)
 
 
 def compute_ffv(
@@ -47,9 +49,9 @@ def compute_ffv(
     float
         The fractional free volume of the molecule.
     """
-    conf = wrap_mol_positions_to_cell(
-        mol, cell_bounds=cell_bounds
-    ).GetConformer(confId)
+    conf = wrap_mol_into_cell(mol, cell_bounds=cell_bounds).GetConformer(
+        confId
+    )
     if cell_bounds is None:
         tup_tmp = tuple(
             (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
