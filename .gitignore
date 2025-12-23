@@ -1,9 +1,8 @@
 # custom
 docs/
-examples/*
-!examples/*.ipynb
-!examples/eq*.data
-!examples/eq*.in
+examples/analyze/*
+examples/*.xtc
+examples/*.rst
 !examples/eq3.xtc
 
 # Byte-compiled / optimized / DLL files
