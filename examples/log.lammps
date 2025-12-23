@@ -1,0 +1,9 @@
+LAMMPS (29 Aug 2024)
+  using 2 OpenMP thread(s) per MPI task
+package omp 2
+using multi-threaded neighbor list subroutines
+log eq3.log append
+mpirun -n 8 lmp_mpi -sf opt -pk omp 2 -in eq3.in -sc none -log log.lammps
+
+
+LAMMPS returncode = 0 
