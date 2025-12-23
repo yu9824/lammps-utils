@@ -12,6 +12,63 @@ from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 
 
+def _prepare_conformer_data(
+    frame: int,
+    df_atoms,
+    cell_bounds,
+    confId: int,
+    make_molecule_whole: bool,
+    graph: Optional[nx.Graph] = None,
+) -> tuple[np.ndarray, int, int, dict[str, tuple[float, float]]]:
+    """
+    Prepare conformer data from frame data.
+
+    Parameters
+    ----------
+    frame : int
+        Frame number.
+    df_atoms
+        DataFrame containing atom positions.
+    cell_bounds
+        Cell bounds for each axis.
+    confId : int
+        Conformer ID.
+    make_molecule_whole : bool
+        Whether to unwrap positions under PBC.
+    graph : nx.Graph, optional
+        Graph for unwrapping positions. Required if make_molecule_whole is True.
+
+    Returns
+    -------
+    tuple[np.ndarray, int, int, dict[str, tuple[float, float]]]
+        Tuple containing:
+        - positions: Final positions array
+        - frame: Frame number
+        - confId: Conformer ID
+        - cell_props: Dictionary with axis names as keys and (lo, hi) tuples as values
+    """
+    df_atoms.sort_index(inplace=True)
+    positions = df_atoms.loc[:, COLS_XYZ].values
+
+    cell_props = {}
+    for idx_axis, axis in enumerate(COLS_XYZ):
+        cell_props[axis] = (cell_bounds[idx_axis][0], cell_bounds[idx_axis][1])
+
+    if make_molecule_whole:
+        if graph is None:
+            raise ValueError(
+                "graph is required when make_molecule_whole is True"
+            )
+        cell_size = tuple(
+            cell_props[axis][1] - cell_props[axis][0] for axis in COLS_XYZ
+        )
+        positions = unwrap_positions_under_pbc(
+            graph, positions=positions, cell_size=cell_size
+        )
+
+    return positions, frame, confId, cell_props
+
+
 def MolFromLAMMPSData(
     filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
     make_molecule_whole: bool = True,
@@ -51,6 +108,7 @@ def MolFromLAMMPSData(
 
     for atom_id, _sr_atom in df_atoms.iterrows():
         atom = Chem.Atom(_sr_atom["symbol"])
+        atom.SetNoImplicit(True)
         atom.SetIntProp("id", atom_id)
         rwmol.AddAtom(atom)
 
@@ -155,26 +213,21 @@ def MolFromLAMMPSDump(
     graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(mol))
     assert isinstance(graph, nx.Graph)
     for confId, (frame, df_atoms, cell_bounds) in enumerate(tup_results):
-        df_atoms.sort_index(inplace=True)
+        positions, frame, confId, cell_props = _prepare_conformer_data(
+            frame=frame,
+            df_atoms=df_atoms,
+            cell_bounds=cell_bounds,
+            confId=confId,
+            make_molecule_whole=make_molecule_whole,
+            graph=graph if make_molecule_whole else None,
+        )
+
         conf = Chem.Conformer(n_atoms)
-        conf.SetPositions(df_atoms.loc[:, COLS_XYZ].values)
+        conf.SetPositions(positions)
         conf.SetIntProp("frame", frame)
         conf.SetId(confId)
-        for idx_axis, axis in enumerate(COLS_XYZ):
-            conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
-            conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
-
-        if make_molecule_whole:
-            cell_size = tuple(
-                conf.GetDoubleProp(f"{axis}hi")
-                - conf.GetDoubleProp(f"{axis}lo")
-                for axis in COLS_XYZ
-            )
-
-            conf.SetPositions(
-                unwrap_positions_under_pbc(
-                    graph, positions=conf.GetPositions(), cell_size=cell_size
-                )
-            )
+        for axis in COLS_XYZ:
+            conf.SetDoubleProp(f"{axis}lo", cell_props[axis][0])
+            conf.SetDoubleProp(f"{axis}hi", cell_props[axis][1])
         mol.AddConformer(conf)
     return mol
