@@ -4,12 +4,22 @@ from typing import Optional, Union
 
 import networkx as nx
 import numpy as np
+from joblib import Parallel, delayed
 from rdkit import Chem
 
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
+from lammps_utils.logging import get_child_logger
+from lammps_utils.utils import is_installed
+
+if is_installed("tqdm"):
+    from tqdm.auto import tqdm
+else:
+    from lammps_utils.utils import dummy_tqdm as tqdm
+
+logger = get_child_logger(__name__)
 
 
 def _prepare_conformer_data(
@@ -203,25 +213,37 @@ def MolFromLAMMPSDump(
         An RDKit molecule with one conformer per frame in the LAMMPS dump file.
         Each conformer stores the simulation cell bounds as properties.
     """
-    tup_results = load_dump(
+    timestep_data = load_dump(
         filepath_dump, n_jobs=n_jobs, return_cell_bounds=True
     )
+
+    # logging
+    logger.info(
+        "Successfully loaded the dump file. Converting to 'rdkit.Chem.rdchem.Mol'."
+    )
+
     mol = Chem.Mol(mol_template)
     mol.RemoveAllConformers()
     n_atoms = mol.GetNumAtoms()
 
     graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(mol))
     assert isinstance(graph, nx.Graph)
-    for confId, (frame, df_atoms, cell_bounds) in enumerate(tup_results):
-        positions, frame, confId, cell_props = _prepare_conformer_data(
-            frame=frame,
-            df_atoms=df_atoms,
-            cell_bounds=cell_bounds,
-            confId=confId,
+
+    conformer_data_results = Parallel(n_jobs=n_jobs)(
+        delayed(_prepare_conformer_data)(
+            frame,
+            df_atoms,
+            cell_bounds,
+            confId,
             make_molecule_whole=make_molecule_whole,
             graph=graph if make_molecule_whole else None,
         )
+        for confId, (frame, df_atoms, cell_bounds) in enumerate(timestep_data)
+    )
 
+    for positions, frame, confId, cell_props in tqdm(
+        conformer_data_results, desc="AddConformer"
+    ):
         conf = Chem.Conformer(n_atoms)
         conf.SetPositions(positions)
         conf.SetIntProp("frame", frame)
