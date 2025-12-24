@@ -1,15 +1,83 @@
 import io
 import os
-from typing import Optional, Union
+from collections.abc import Sequence
+from typing import Literal, Optional, Union
 
 import networkx as nx
 import numpy as np
+from joblib import Parallel, delayed
 from rdkit import Chem
 
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
+from lammps_utils.logging import get_child_logger
+from lammps_utils.utils import is_installed
+
+if is_installed("tqdm"):
+    from tqdm.auto import tqdm
+else:
+    from lammps_utils.utils import dummy_tqdm as tqdm
+
+logger = get_child_logger(__name__)
+
+
+def _prepare_conformer_data(
+    frame: int,
+    df_atoms,
+    cell_bounds,
+    confId: int,
+    make_molecule_whole: bool,
+    graph: Optional[nx.Graph] = None,
+) -> tuple[np.ndarray, int, int, dict[str, tuple[float, float]]]:
+    """
+    Prepare conformer data from frame data.
+
+    Parameters
+    ----------
+    frame : int
+        Frame number.
+    df_atoms
+        DataFrame containing atom positions.
+    cell_bounds
+        Cell bounds for each axis.
+    confId : int
+        Conformer ID.
+    make_molecule_whole : bool
+        Whether to unwrap positions under PBC.
+    graph : nx.Graph, optional
+        Graph for unwrapping positions. Required if make_molecule_whole is True.
+
+    Returns
+    -------
+    tuple[np.ndarray, int, int, dict[str, tuple[float, float]]]
+        Tuple containing:
+        - positions: Final positions array
+        - frame: Frame number
+        - confId: Conformer ID
+        - cell_props: Dictionary with axis names as keys and (lo, hi) tuples as values
+    """
+    df_atoms.sort_index(inplace=True)
+    positions = df_atoms.loc[:, COLS_XYZ].values
+
+    cell_props = {}
+    for idx_axis, axis in enumerate(COLS_XYZ):
+        cell_props[axis] = (cell_bounds[idx_axis][0], cell_bounds[idx_axis][1])
+
+    if make_molecule_whole:
+        if graph is None:
+            raise ValueError(
+                "graph is required when make_molecule_whole is True"
+            )
+        cell_size = tuple(
+            cell_props[axis][1] - cell_props[axis][0] for axis in COLS_XYZ
+        )
+        positions = unwrap_positions_under_pbc(
+            graph, positions=positions, cell_size=cell_size
+        )
+
+    return positions, frame, confId, cell_props
 
 
 def MolFromLAMMPSData(
@@ -51,6 +119,7 @@ def MolFromLAMMPSData(
 
     for atom_id, _sr_atom in df_atoms.iterrows():
         atom = Chem.Atom(_sr_atom["symbol"])
+        atom.SetNoImplicit(True)
         atom.SetIntProp("id", atom_id)
         rwmol.AddAtom(atom)
 
@@ -106,18 +175,15 @@ def MolFromLAMMPSData(
         conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
 
     rwmol.AddConformer(conf)
-    return Chem.RemoveHs(
-        rwmol.GetMol(),
-        implicitOnly=True,
-        updateExplicitCount=True,
-        sanitize=True,
-    )
+    return rwmol.GetMol()
 
 
 def MolFromLAMMPSDump(
     filepath_dump: Union[os.PathLike, str],
     mol_template: Chem.rdchem.Mol,
     make_molecule_whole: bool = False,
+    select: Optional[Union[int, slice, Sequence[int]]] = None,
+    select_by: Literal["timestep", "index"] = "timestep",
     n_jobs: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
     """
@@ -136,6 +202,14 @@ def MolFromLAMMPSDump(
         its atom and bond structure.
     make_molecule_whole : bool
         If True, unwrap the molecule based on PBC to make it whole in each frame.
+    select : Optional[Union[int, slice, Sequence[int]]], optional
+        Selection criteria for frames. If None, all frames are loaded.
+        - If int: select a single frame
+        - If slice: select a range of frames
+        - If Sequence[int]: select specific frames
+    select_by : Literal["timestep", "index"], optional
+        Whether to select by timestep value ("timestep") or index position ("index").
+        Default is "timestep".
     n_jobs : int, optional
         Number of parallel jobs for loading the dump. -1 uses all available CPUs.
 
@@ -145,36 +219,49 @@ def MolFromLAMMPSDump(
         An RDKit molecule with one conformer per frame in the LAMMPS dump file.
         Each conformer stores the simulation cell bounds as properties.
     """
-    tup_results = load_dump(
-        filepath_dump, n_jobs=n_jobs, return_cell_bounds=True
+    timestep_records = load_dump(
+        filepath_dump,
+        select=select,
+        select_by=select_by,
+        n_jobs=n_jobs,
+        return_cell_bounds=True,
     )
+
+    # logging
+    logger.info(
+        "Successfully loaded the dump file. Converting to 'rdkit.Chem.rdchem.Mol'."
+    )
+
     mol = Chem.Mol(mol_template)
     mol.RemoveAllConformers()
     n_atoms = mol.GetNumAtoms()
 
     graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(mol))
     assert isinstance(graph, nx.Graph)
-    for confId, (frame, df_atoms, cell_bounds) in enumerate(tup_results):
-        df_atoms.sort_index(inplace=True)
+
+    conformer_data_results = Parallel(n_jobs=n_jobs)(
+        delayed(_prepare_conformer_data)(
+            frame,
+            df_atoms,
+            cell_bounds,
+            confId,
+            make_molecule_whole=make_molecule_whole,
+            graph=graph if make_molecule_whole else None,
+        )
+        for confId, (frame, df_atoms, cell_bounds) in enumerate(
+            timestep_records
+        )
+    )
+
+    for positions, frame, confId, cell_props in tqdm(
+        conformer_data_results, desc="AddConformer"
+    ):
         conf = Chem.Conformer(n_atoms)
-        conf.SetPositions(df_atoms.loc[:, COLS_XYZ].values)
+        conf.SetPositions(positions)
         conf.SetIntProp("frame", frame)
         conf.SetId(confId)
-        for idx_axis, axis in enumerate(COLS_XYZ):
-            conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
-            conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
-
-        if make_molecule_whole:
-            cell_size = tuple(
-                conf.GetDoubleProp(f"{axis}hi")
-                - conf.GetDoubleProp(f"{axis}lo")
-                for axis in COLS_XYZ
-            )
-
-            conf.SetPositions(
-                unwrap_positions_under_pbc(
-                    graph, positions=conf.GetPositions(), cell_size=cell_size
-                )
-            )
+        for axis in COLS_XYZ:
+            conf.SetDoubleProp(f"{axis}lo", cell_props[axis][0])
+            conf.SetDoubleProp(f"{axis}hi", cell_props[axis][1])
         mol.AddConformer(conf)
     return mol
