@@ -2,6 +2,7 @@ import io
 import math
 import os
 import re
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal, Optional, Union, overload
 
@@ -361,9 +362,129 @@ def _load_timestep_chunk(
         )
 
 
+def _filter_timesteps(
+    timestep_records: Union[
+        tuple[tuple[int, pd.DataFrame], ...],
+        tuple[
+            tuple[
+                int,
+                pd.DataFrame,
+                tuple[
+                    tuple[float, float],
+                    tuple[float, float],
+                    tuple[float, float],
+                ],
+            ],
+            ...,
+        ],
+    ],
+    select: Optional[Union[int, slice, Sequence[int]]],
+    select_by: Literal["timestep", "index"],
+) -> Union[
+    tuple[tuple[int, pd.DataFrame], ...],
+    tuple[
+        tuple[
+            int,
+            pd.DataFrame,
+            tuple[
+                tuple[float, float], tuple[float, float], tuple[float, float]
+            ],
+        ],
+        ...,
+    ],
+]:
+    """
+    Filter timestep data based on select and select_by parameters.
+
+    Parameters
+    ----------
+    timestep_records : tuple
+        Tuple of (timestep, df_atoms) or (timestep, df_atoms, cell_bounds) tuples.
+    select : Optional[Union[int, slice, Sequence[int]]]
+        Selection criteria. If None, returns all frames.
+    select_by : Literal["timestep", "index"]
+        Whether to select by timestep value or index position.
+
+    Returns
+    -------
+    tuple
+        Filtered timestep data.
+    """
+    if select is None:
+        return timestep_records
+
+    if select_by == "timestep":
+        # Create a mapping from timestep to index
+        timestep_to_index = {
+            frame: idx for idx, (frame, *_) in enumerate(timestep_records)
+        }
+
+        if isinstance(select, int):
+            # Single timestep
+            if select in timestep_to_index:
+                idx = timestep_to_index[select]
+                return (timestep_records[idx],)  # type: ignore[return-value]
+            else:
+                return timestep_records[:0]  # type: ignore[return-value]
+        elif isinstance(select, slice):
+            # Slice by timestep values - filter by timestep range
+            frames = [frame for frame, *_ in timestep_records]
+            if not frames:
+                return timestep_records[:0]  # type: ignore[return-value]
+
+            # Get slice bounds
+            start = select.start if select.start is not None else min(frames)
+            stop = select.stop if select.stop is not None else max(frames) + 1
+            step = select.step if select.step is not None else 1
+
+            # Filter by timestep range
+            filtered = [
+                (frame, idx)
+                for idx, frame in enumerate(frames)
+                if start <= frame < stop
+            ]
+
+            # Apply step
+            if step > 0:
+                filtered = filtered[::step]
+            else:
+                # For negative step, reverse the list and use positive step
+                filtered = filtered[::-1][:: abs(step)]
+
+            return tuple(timestep_records[idx] for _, idx in filtered)  # type: ignore[return-value]
+        elif isinstance(select, Sequence):
+            # Sequence of timestep_records
+            return tuple(  # type: ignore[return-value]
+                timestep_records[timestep_to_index[ts]]
+                for ts in set(select)
+                if ts in timestep_to_index
+            )
+    else:  # select_by == "index"
+        if isinstance(select, int):
+            # Single index
+            if 0 <= select < len(timestep_records):
+                return (timestep_records[select],)  # type: ignore[return-value]
+            else:
+                return timestep_records[:0]  # type: ignore[return-value]
+        elif isinstance(select, slice):
+            # Slice by index
+            return timestep_records[select]  # type: ignore[return-value]
+        elif isinstance(select, Sequence):
+            # Sequence of indices
+            return tuple(  # type: ignore[return-value]
+                timestep_records[idx]
+                for idx in set(select)
+                if 0 <= idx < len(timestep_records)
+            )
+
+    return timestep_records
+
+
 @overload
 def load_dump(
     filepath_dump: Union[os.PathLike, str],
+    select: Optional[Union[int, slice, Sequence[int]]] = None,
+    select_by: Literal["timestep", "index"] = "timestep",
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: Literal[False] = False,
     n_jobs: Optional[int] = None,
@@ -373,6 +494,8 @@ def load_dump(
 @overload
 def load_dump(
     filepath_dump: Union[os.PathLike, str],
+    select: Optional[Union[int, slice, Sequence[int]]] = None,
+    select_by: Literal["timestep", "index"] = "timestep",
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: Literal[True] = True,
     n_jobs: Optional[int] = None,
@@ -388,6 +511,8 @@ def load_dump(
 
 def load_dump(
     filepath_dump: Union[os.PathLike, str],
+    select: Optional[Union[int, slice, Sequence[int]]] = None,
+    select_by: Literal["timestep", "index"] = "timestep",
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: bool = False,
     n_jobs: Optional[int] = None,
@@ -411,6 +536,14 @@ def load_dump(
     ----------
     filepath_dump : Union[os.PathLike, str]
         Path to the LAMMPS dump file to be loaded.
+    select : Optional[Union[int, slice, Sequence[int]]], optional
+        Selection criteria for frames. If None, all frames are loaded.
+        - If int: select a single frame
+        - If slice: select a range of frames
+        - If Sequence[int]: select specific frames
+    select_by : Literal["timestep", "index"], optional
+        Whether to select by timestep value ("timestep") or index position ("index").
+        Default is "timestep".
     buffer_size : int, optional
         Size of the buffer to use when scanning the file for timestep offsets (in bytes).
         Larger values may improve performance on large files. Default is 10 MB.
@@ -455,7 +588,7 @@ def load_dump(
         )
     )
 
-    return tuple(
+    timestep_records = tuple(
         Parallel(n_jobs=n_jobs)(
             delayed(_load_timestep_chunk)(
                 filepath_dump, index_step, offsets, return_cell_bounds
@@ -463,6 +596,9 @@ def load_dump(
             for index_step in range(len(offsets))
         ),
     )
+
+    # Filter timestep_records based on select and select_by
+    return _filter_timesteps(timestep_records, select, select_by)
 
 
 def wrap_df_positions_to_cell(

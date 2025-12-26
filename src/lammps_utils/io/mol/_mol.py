@@ -1,6 +1,7 @@
 import io
 import os
-from typing import Optional, Union
+from collections.abc import Sequence
+from typing import Literal, Optional, Union
 
 import networkx as nx
 import numpy as np
@@ -174,18 +175,15 @@ def MolFromLAMMPSData(
         conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
 
     rwmol.AddConformer(conf)
-    return Chem.RemoveHs(
-        rwmol.GetMol(),
-        implicitOnly=True,
-        updateExplicitCount=True,
-        sanitize=True,
-    )
+    return rwmol.GetMol()
 
 
 def MolFromLAMMPSDump(
     filepath_dump: Union[os.PathLike, str],
     mol_template: Chem.rdchem.Mol,
     make_molecule_whole: bool = False,
+    select: Optional[Union[int, slice, Sequence[int]]] = None,
+    select_by: Literal["timestep", "index"] = "timestep",
     n_jobs: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
     """
@@ -204,6 +202,14 @@ def MolFromLAMMPSDump(
         its atom and bond structure.
     make_molecule_whole : bool
         If True, unwrap the molecule based on PBC to make it whole in each frame.
+    select : Optional[Union[int, slice, Sequence[int]]], optional
+        Selection criteria for frames. If None, all frames are loaded.
+        - If int: select a single frame
+        - If slice: select a range of frames
+        - If Sequence[int]: select specific frames
+    select_by : Literal["timestep", "index"], optional
+        Whether to select by timestep value ("timestep") or index position ("index").
+        Default is "timestep".
     n_jobs : int, optional
         Number of parallel jobs for loading the dump. -1 uses all available CPUs.
 
@@ -213,8 +219,12 @@ def MolFromLAMMPSDump(
         An RDKit molecule with one conformer per frame in the LAMMPS dump file.
         Each conformer stores the simulation cell bounds as properties.
     """
-    timestep_data = load_dump(
-        filepath_dump, n_jobs=n_jobs, return_cell_bounds=True
+    timestep_records = load_dump(
+        filepath_dump,
+        select=select,
+        select_by=select_by,
+        n_jobs=n_jobs,
+        return_cell_bounds=True,
     )
 
     # logging
@@ -238,7 +248,9 @@ def MolFromLAMMPSDump(
             make_molecule_whole=make_molecule_whole,
             graph=graph if make_molecule_whole else None,
         )
-        for confId, (frame, df_atoms, cell_bounds) in enumerate(timestep_data)
+        for confId, (frame, df_atoms, cell_bounds) in enumerate(
+            timestep_records
+        )
     )
 
     for positions, frame, confId, cell_props in tqdm(
