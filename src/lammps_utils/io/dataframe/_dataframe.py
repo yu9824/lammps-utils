@@ -6,20 +6,14 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal, Optional, Union, overload
 
-import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
-from lammps_utils.constants import COLS_XYZ
-from lammps_utils.graph.pbc._pbc import (
-    wrap_positions_into_cell,
-)
-from lammps_utils.io.utils._data import (
+from lammps_utils.io.parsing._parsing import (
     _read_file_or_buffer,
     get_atom_dataframe,
     get_bond_dataframe,
     get_cell_bounds,
-    unwrap_df_positions_under_pbc,
 )
 
 
@@ -149,6 +143,10 @@ def load_data(
         _cell_bounds = get_cell_bounds(io.StringIO(content))
 
     if make_molecule_whole:
+        from lammps_utils.io.dataframe._pbc import (
+            unwrap_df_positions_under_pbc,
+        )
+
         _df_atoms = unwrap_df_positions_under_pbc(
             df_atoms=_df_atoms, df_bonds=_df_bonds, cell_bounds=_cell_bounds
         )
@@ -599,35 +597,3 @@ def load_dump(
 
     # Filter timestep_records based on select and select_by
     return _filter_timesteps(timestep_records, select, select_by)
-
-
-def wrap_df_positions_to_cell(
-    df_atoms: pd.DataFrame,
-    cell_bounds: Union[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
-        np.ndarray,
-    ],
-) -> pd.DataFrame:
-    """
-    Wrap atomic positions in a DataFrame into the periodic simulation cell.
-
-    This function modifies the input DataFrame by wrapping atomic positions
-    so that all atoms are located within the given periodic cell boundaries.
-
-    Parameters
-    ----------------
-    df_atoms : pd.DataFrame
-        A DataFrame containing atomic coordinates. Must include columns "x", "y", and "z".
-    cell_bounds : tuple or np.ndarray
-        The simulation cell bounds specified as a tuple of ((xlo, xhi), (ylo, yhi), (zlo, zhi)),
-        or as a NumPy array of shape (3, 2).
-
-    Returns
-    ----------------
-    pd.DataFrame
-        The same DataFrame with wrapped atomic coordinates within the cell.
-    """
-    df_atoms.loc[:, COLS_XYZ] = wrap_positions_into_cell(
-        df_atoms.loc[:, COLS_XYZ], cell_bounds=cell_bounds
-    )
-    return df_atoms

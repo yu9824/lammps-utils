@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from lammps_utils import __version__
-from lammps_utils.io._convert import data2gro, data2pdb
+from lammps_utils.io.convert._convert import data2gro, data2pdb
 from lammps_utils.logging import get_child_logger
 
 _logger = get_child_logger(__name__)

@@ -7,7 +7,7 @@ from rdkit import Chem
 from scipy.spatial import KDTree
 
 from lammps_utils.constants import MAP_VDW_RADIUS
-from lammps_utils.graph.pbc._pbc import wrap_mol_into_cell
+from lammps_utils.io.mol._pbc import wrap_mol_into_cell
 
 __all__ = ("compute_ffv",)
 
