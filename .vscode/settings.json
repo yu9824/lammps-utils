@@ -1,7 +1,3 @@
 {
     "ruff.configuration": "${workspaceFolder}/pyproject.toml",
-    "python-envs.defaultEnvManager": "ms-python.python:conda",
-    "python-envs.defaultPackageManager": "ms-python.python:conda",
-    "python-envs.pythonProjects": [],
-    "python.pythonPath": "/Users/yu9824/opt/miniforge3/envs/py312/bin/python3"
 }
