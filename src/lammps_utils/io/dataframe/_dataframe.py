@@ -284,7 +284,7 @@ def _parse_dump_timestep(
         raise ValueError("Failed to find BOX BOUNDS in the dump file.")
 
     if _match_atoms := re.search(
-        rb"ITEM: ATOMS (id type mol.*\n" + rb".+\n" * n_atoms + rb")", content
+        rb"ITEM: ATOMS (id .*\n" + rb".+\n" * n_atoms + rb")", content
     ):
         df = pd.read_table(
             io.BytesIO(_match_atoms.group(1)),
