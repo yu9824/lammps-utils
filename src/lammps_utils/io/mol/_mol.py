@@ -11,14 +11,14 @@ from rdkit import Chem
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
+from lammps_utils.helpers import is_installed
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.logging import get_child_logger
-from lammps_utils.utils import is_installed
 
 if is_installed("tqdm"):
     from tqdm.auto import tqdm
 else:
-    from lammps_utils.utils import dummy_tqdm as tqdm
+    from lammps_utils.helpers import dummy_tqdm as tqdm
 
 logger = get_child_logger(__name__)
 
