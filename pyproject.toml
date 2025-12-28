@@ -29,7 +29,13 @@ classifiers = [
 test = ["pytest"]
 dev = ["build"]
 optional = ["colorlog", "tqdm"]
-docs = ["sphinx", "sphinx_rtd_theme", "sphinx-markdown-tables", "recommonmark"]
+docs = [
+    "sphinx",
+    "myst-parser",
+    "myst-nb",
+    "sphinx-book-theme",
+    "jupyter-sphinx",
+]
 gui = ["TkEasyGUI"]
 
 [project.urls]
