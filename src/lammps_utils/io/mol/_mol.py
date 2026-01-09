@@ -13,6 +13,7 @@ from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
+from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -113,9 +114,9 @@ def MolFromLAMMPSData(
         if make_molecule_whole:
             _df_atoms_unwrapped = df_atoms
         else:
-            _df_atoms_unwrapped = load_data(
-                filepath_data_or_buffer, make_molecule_whole=True
-            ).sort_index()
+            _df_atoms_unwrapped = unwrap_df_positions_under_pbc(
+                df_atoms, df_bonds, cell_bounds
+            )
         dict_bond_type: dict[int, Chem.rdchem.BondType] = dict()
         for bond_type, df_each_bond in df_bonds.groupby("type"):
             distances = np.sqrt(
@@ -181,6 +182,35 @@ def _mol_from_dataframe_dump(
     n_jobs: Optional[int] = None,
     make_molecule_whole: bool = False,
 ):
+    """
+    Construct an RDKit molecule with conformers from a sequence of trajectory records.
+
+    Parameters
+    ----------
+    timestep_records : Sequence[Tuple[int, pd.DataFrame, Tuple[Tuple[float, float], Tuple[float, float], Tuple[float, float]]]]
+        List of tuples for each frame, where each tuple contains
+        (frame index or timestep, atom DataFrame, cell bounds).
+    mol_template : rdkit.Chem.rdchem.Mol
+        RDKit molecule to use as a template. The atom order and bonds will be copied.
+    n_jobs : int, optional
+        Number of jobs to use for parallel processing. If None, uses a single process.
+    make_molecule_whole : bool, optional
+        If True, unwrap the molecule coordinates in each frame according to periodic boundary conditions.
+
+    Returns
+    -------
+    rdkit.Chem.rdchem.Mol
+        An RDKit molecule instance with one conformer per trajectory record. Each conformer
+        stores its cell bounds information in double properties, and its corresponding frame
+        or timestep as an integer property "frame".
+
+    Notes
+    -----
+    The conformer coordinates are extracted from the atom DataFrame for each frame.
+    If `make_molecule_whole` is True, atoms are unwrapped using the molecular graph
+    and cell bounds to provide whole molecule coordinates per frame. Each conformer also
+    has cell bounds attached as double properties: Xlo/Xhi, Ylo/Yhi, Zlo/Zhi.
+    """
     mol = Chem.Mol(mol_template)
     mol.RemoveAllConformers()
     n_atoms = mol.GetNumAtoms()
@@ -210,7 +240,7 @@ def _mol_from_dataframe_dump(
         conf.SetId(confId)
         for index_axis, axis in enumerate(COLS_XYZ):
             conf.SetDoubleProp(f"{axis}lo", cell_bounds[index_axis][0])
-            conf.SetDoubleProp(f"{axis}hi", cell_bounds[index_axis[1]])
+            conf.SetDoubleProp(f"{axis}hi", cell_bounds[index_axis][1])
         mol.AddConformer(conf)
     return mol
 
