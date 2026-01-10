@@ -88,7 +88,7 @@ def test_load_data_with_all_options(data_file):
 
 def test_load_dump_basic(dump_file):
     """Test basic loading of eq3_last.dump file."""
-    timesteps = load_dump(dump_file)
+    timesteps = load_dump(dump_file, silent=True)
 
     # Check that timesteps are returned
     assert timesteps is not None
@@ -112,7 +112,7 @@ def test_load_dump_basic(dump_file):
 
 def test_load_dump_with_cell_bounds(dump_file):
     """Test loading dump file with cell bounds."""
-    timesteps = load_dump(dump_file, return_cell_bounds=True)
+    timesteps = load_dump(dump_file, return_cell_bounds=True, silent=True)
 
     # Check that timesteps are returned
     assert timesteps is not None
@@ -130,7 +130,9 @@ def test_load_dump_with_cell_bounds(dump_file):
 def test_load_dump_select_timestep(dump_file):
     """Test loading specific timestep from dump file."""
     # Select the first timestep (5000000 from the file)
-    timesteps = load_dump(dump_file, select=5000000, select_by="timestep")
+    timesteps = load_dump(
+        dump_file, select=5000000, select_by="timestep", silent=True
+    )
 
     assert timesteps is not None
     assert len(timesteps) == 1
@@ -146,7 +148,7 @@ def test_data_dump_consistency(data_file, dump_file):
     df_data = load_data(data_file)
 
     # Load dump file
-    timesteps = load_dump(dump_file)
+    timesteps = load_dump(dump_file, silent=True)
     assert len(timesteps) > 0
     _, df_dump = timesteps[0]
 

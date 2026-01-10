@@ -4,11 +4,12 @@ import os
 import re
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Optional, Union, overload
+from typing import Any, Literal, Optional, Union, overload
 
 import pandas as pd
 from joblib import Parallel, delayed
 
+from lammps_utils.helpers import tqdm_joblib
 from lammps_utils.io.parsing._parsing import (
     _read_file_or_buffer,
     get_atom_dataframe,
@@ -19,7 +20,9 @@ from lammps_utils.io.parsing._parsing import (
 
 @overload
 def load_data(
-    filepath_data_or_buffer: Union[str, os.PathLike, io.TextIOBase],
+    filepath_data_or_buffer: Union[
+        str, os.PathLike, io.TextIOBase, io.BufferedIOBase
+    ],
     make_molecule_whole: bool = False,
     return_bond_info: Literal[False] = False,
     return_cell_bounds: Literal[False] = False,
@@ -38,6 +41,8 @@ def load_data(
     pd.DataFrame,
     tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
 ]: ...
+
+
 @overload
 def load_data(
     filepath_data_or_buffer: Union[
@@ -151,7 +156,7 @@ def load_data(
             df_atoms=_df_atoms, df_bonds=_df_bonds, cell_bounds=_cell_bounds
         )
 
-    _list_out = [_df_atoms]
+    _list_out: list[Any] = [_df_atoms]
     if return_bond_info:
         _list_out.append(_df_bonds)
 
@@ -486,6 +491,7 @@ def load_dump(
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: Literal[False] = False,
     n_jobs: Optional[int] = None,
+    silent: bool = False,
 ) -> tuple[tuple[int, pd.DataFrame], ...]: ...
 
 
@@ -497,6 +503,7 @@ def load_dump(
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: Literal[True] = True,
     n_jobs: Optional[int] = None,
+    silent: bool = False,
 ) -> tuple[
     tuple[
         int,
@@ -514,6 +521,7 @@ def load_dump(
     buffer_size: int = 10 * 1024 * 1024,
     return_cell_bounds: bool = False,
     n_jobs: Optional[int] = None,
+    silent: bool = False,
 ) -> Union[
     tuple[
         tuple[
@@ -586,14 +594,15 @@ def load_dump(
         )
     )
 
-    timestep_records = tuple(
-        Parallel(n_jobs=n_jobs)(
-            delayed(_load_timestep_chunk)(
-                filepath_dump, index_step, offsets, return_cell_bounds
-            )
-            for index_step in range(len(offsets))
-        ),
-    )
+    with tqdm_joblib(total=len(offsets), silent=silent, desc="Loading"):
+        timestep_records = tuple(
+            Parallel(n_jobs=n_jobs)(
+                delayed(_load_timestep_chunk)(
+                    filepath_dump, index_step, offsets, return_cell_bounds
+                )
+                for index_step in range(len(offsets))
+            ),
+        )
 
     # Filter timestep_records based on select and select_by
     return _filter_timesteps(timestep_records, select, select_by)
