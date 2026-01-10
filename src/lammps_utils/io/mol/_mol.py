@@ -15,14 +15,67 @@ from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
 from lammps_utils.helpers import tqdm_joblib
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
+from lammps_utils.types import CellBounds
+
+
+def _set_conformer_cell_bounds(
+    conf: Chem.Conformer,
+    cell_bounds: CellBounds,
+) -> None:
+    """
+    Set cell bounds properties on a conformer.
+
+    Parameters
+    ----------
+    conf : Chem.Conformer
+        The conformer to set properties on.
+    cell_bounds : CellBounds
+        Cell bounds for each axis (x, y, z).
+    """
+    for idx_axis, axis in enumerate(COLS_XYZ):
+        conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
+        conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
+
+
+def _calculate_bond_distances(
+    df_atoms: pd.DataFrame,
+    df_bonds: pd.DataFrame,
+) -> dict[int, float]:
+    """
+    Calculate mean bond distances for each bond type.
+
+    Parameters
+    ----------
+    df_atoms : pd.DataFrame
+        DataFrame containing atom positions.
+    df_bonds : pd.DataFrame
+        DataFrame containing bond information with columns 'atom1', 'atom2', 'type'.
+
+    Returns
+    -------
+    dict[int, float]
+        Dictionary mapping bond type to mean distance.
+    """
+    distances_by_type: dict[int, list[float]] = {}
+    for _, bond_row in df_bonds.iterrows():
+        atom1_pos = df_atoms.loc[bond_row["atom1"], COLS_XYZ].values
+        atom2_pos = df_atoms.loc[bond_row["atom2"], COLS_XYZ].values
+        distance = np.linalg.norm(atom1_pos - atom2_pos)
+        bond_type = bond_row["type"]
+        if bond_type not in distances_by_type:
+            distances_by_type[bond_type] = []
+        distances_by_type[bond_type].append(distance)
+
+    return {
+        bond_type: np.mean(distances).item()
+        for bond_type, distances in distances_by_type.items()
+    }
 
 
 def _get_conformer_positions(
     df_atoms: pd.DataFrame,
     make_molecule_whole: bool,
-    cell_bounds: Optional[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
-    ] = None,
+    cell_bounds: Optional[CellBounds] = None,
     graph: Optional[nx.Graph] = None,
 ) -> np.ndarray:
     """
@@ -68,9 +121,7 @@ def _get_conformer_positions(
 def _mol_from_dataframe_data(
     df_atoms: pd.DataFrame,
     df_bonds: pd.DataFrame,
-    cell_bounds: tuple[
-        tuple[float, float], tuple[float, float], tuple[float, float]
-    ],
+    cell_bounds: CellBounds,
     determine_bonds: bool = True,
     make_molecule_whole: bool = True,
 ) -> Chem.rdchem.Mol:
@@ -79,42 +130,33 @@ def _mol_from_dataframe_data(
     offset = df_atoms.index[0].item()
     rwmol.SetIntProp("offset", offset)
 
-    for atom_id, _sr_atom in df_atoms.iterrows():
-        atom = Chem.Atom(_sr_atom["symbol"])
+    for atom_id, atom_row in df_atoms.iterrows():
+        atom = Chem.Atom(atom_row["symbol"])
         atom.SetNoImplicit(True)
         atom.SetIntProp("id", atom_id)
         rwmol.AddAtom(atom)
 
     if determine_bonds:
         if make_molecule_whole:
-            _df_atoms_unwrapped = df_atoms
+            df_atoms_unwrapped = df_atoms
         else:
-            _df_atoms_unwrapped = unwrap_df_positions_under_pbc(
+            df_atoms_unwrapped = unwrap_df_positions_under_pbc(
                 df_atoms, df_bonds, cell_bounds
             )
-        dict_bond_type: dict[int, Chem.rdchem.BondType] = dict()
+        mean_distances = _calculate_bond_distances(
+            df_atoms_unwrapped, df_bonds
+        )
+        dict_bond_type: dict[int, Chem.rdchem.BondType] = {}
         for bond_type, df_each_bond in df_bonds.groupby("type"):
-            distances = np.sqrt(
-                np.sum(
-                    np.square(
-                        _df_atoms_unwrapped.loc[
-                            df_each_bond.loc[:, "atom1"], COLS_XYZ
-                        ].values
-                        - _df_atoms_unwrapped.loc[
-                            df_each_bond.loc[:, "atom2"], COLS_XYZ
-                        ].values
-                    ),
-                    axis=1,
-                )
-            )
+            first_bond = df_each_bond.iloc[0]
             symbols = tuple(
-                _df_atoms_unwrapped.loc[
-                    df_each_bond.iloc[0].loc[["atom1", "atom2"]], "symbol"
+                df_atoms_unwrapped.loc[
+                    [first_bond["atom1"], first_bond["atom2"]], "symbol"
                 ].tolist()
             )
             dict_bond_type[bond_type] = get_bond_order(
                 symbols,
-                np.mean(distances).item(),
+                mean_distances[bond_type],
             )
     else:
         dict_bond_type = {
@@ -122,19 +164,19 @@ def _mol_from_dataframe_data(
             for bond_type, _ in df_bonds.groupby("type")
         }
 
-    for _, _sr_bond in df_bonds.iterrows():
+    for _, bond_row in df_bonds.iterrows():
+        atom1_idx = (bond_row["atom1"] - offset).item()
+        atom2_idx = (bond_row["atom2"] - offset).item()
         rwmol.AddBond(
-            (_sr_bond.loc["atom1"] - offset).item(),
-            (_sr_bond.loc["atom2"] - offset).item(),
-            order=dict_bond_type[_sr_bond["type"]],
+            atom1_idx,
+            atom2_idx,
+            order=dict_bond_type[bond_row["type"]],
         )
 
     conf = Chem.Conformer(df_atoms.shape[0])
     positions = df_atoms.loc[:, COLS_XYZ].values
     conf.SetPositions(positions)
-    for idx_axis, axis in enumerate(COLS_XYZ):
-        conf.SetDoubleProp(f"{axis}lo", cell_bounds[idx_axis][0])
-        conf.SetDoubleProp(f"{axis}hi", cell_bounds[idx_axis][1])
+    _set_conformer_cell_bounds(conf, cell_bounds)
 
     rwmol.AddConformer(conf)
     return rwmol.GetMol()
@@ -181,18 +223,7 @@ def MolFromLAMMPSData(
 
 
 def _mol_from_dataframe_dump(
-    timestep_records: Sequence[
-        tuple[
-            int,  # frame
-            pd.DataFrame,
-            tuple[  # cell_bounds
-                tuple[float, float],
-                tuple[float, float],
-                tuple[float, float],
-            ],
-        ],
-        ...,
-    ],
+    timestep_records: Sequence[tuple[int, pd.DataFrame, CellBounds]],
     mol_template: Chem.rdchem.Mol,
     n_jobs: Optional[int] = None,
     make_molecule_whole: bool = False,
@@ -255,9 +286,7 @@ def _mol_from_dataframe_dump(
         conf.SetPositions(positions)
         conf.SetIntProp("frame", frame)
         conf.SetId(confId)
-        for index_axis, axis in enumerate(COLS_XYZ):
-            conf.SetDoubleProp(f"{axis}lo", cell_bounds[index_axis][0])
-            conf.SetDoubleProp(f"{axis}hi", cell_bounds[index_axis][1])
+        _set_conformer_cell_bounds(conf, cell_bounds)
         mol.AddConformer(conf)
     return mol
 

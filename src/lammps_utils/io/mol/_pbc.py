@@ -10,6 +10,7 @@ from lammps_utils.graph.pbc._pbc import (
     unwrap_positions_under_pbc,
     wrap_positions_into_cell,
 )
+from lammps_utils.types import CellBounds
 
 
 def unwrap_mol_under_pbc(
@@ -69,14 +70,9 @@ def unwrap_mol_under_pbc(
     if determine_bonds:
         for bond in rwmol.GetBonds():
             assert isinstance(bond, Chem.rdchem.Bond)
-            distance = np.sqrt(
-                np.sum(
-                    np.square(
-                        positions_new[bond.GetBeginAtomIdx()]
-                        - positions_new[bond.GetEndAtomIdx()]
-                    )
-                )
-            )
+            atom1_pos = positions_new[bond.GetBeginAtomIdx()]
+            atom2_pos = positions_new[bond.GetEndAtomIdx()]
+            distance = np.linalg.norm(atom1_pos - atom2_pos)
             bond.SetBondType(
                 get_bond_order(
                     (
@@ -98,9 +94,7 @@ def unwrap_mol_under_pbc(
 def wrap_mol_into_cell(
     mol: Chem.rdchem.Mol,
     confId: int = -1,
-    cell_bounds: Optional[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
-    ] = None,
+    cell_bounds: Optional[CellBounds] = None,
 ) -> Chem.rdchem.Mol:
     """
     Wrap atom positions of a conformer into the periodic simulation cell.
@@ -129,14 +123,16 @@ def wrap_mol_into_cell(
     conf = mol_new.GetConformer(confId)
     if cell_bounds is None:
         if not conf.HasProp("xlo"):
-            raise ValueError
+            raise ValueError(
+                "cell_bounds must be provided or conformer must have "
+                "cell bounds properties (xlo, xhi, ylo, yhi, zlo, zhi)"
+            )
 
-        _tup_tmp = tuple(
+        cell_bounds = tuple(
             (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
             for axis in ("x", "y", "z")
         )
-        assert len(_tup_tmp) == 3
-        cell_bounds = _tup_tmp
+        assert len(cell_bounds) == 3
 
     conf.SetPositions(
         wrap_positions_into_cell(conf.GetPositions(), cell_bounds=cell_bounds)

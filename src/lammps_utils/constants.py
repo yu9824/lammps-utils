@@ -1,10 +1,10 @@
 """
-Constants and type definitions for working with atomic data and LAMMPS data file formatting.
+Constants for working with atomic data and LAMMPS data file formatting.
 
 This module provides:
 - The number of known chemical elements,
 - A mapping of element symbols to their atomic masses,
-- Type definitions for parsing atom and bond sections in LAMMPS data files.
+- Data type mappings for parsing atom and bond sections in LAMMPS data files.
 """
 
 from rdkit import Chem
@@ -15,6 +15,7 @@ __all__ = (
     "COLS_ATOMS_LAMMPS_DATA_DTYPE",
     "COLS_BONDS_LAMMPS_DATA_DTYPE",
     "MAP_VDW_RADIUS",
+    "COLS_XYZ",
 )
 
 N_ELEMENTS = 118
