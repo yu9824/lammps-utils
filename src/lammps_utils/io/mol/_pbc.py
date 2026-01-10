@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 import networkx as nx
 import numpy as np
@@ -142,4 +142,3 @@ def wrap_mol_into_cell(
         wrap_positions_into_cell(conf.GetPositions(), cell_bounds=cell_bounds)
     )
     return mol_new
-

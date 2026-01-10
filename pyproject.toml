@@ -36,7 +36,7 @@ docs = [
     "sphinx-book-theme",
     "jupyter-sphinx",
 ]
-gui = ["TkEasyGUI"]
+# gui = ["TkEasyGUI"]
 
 [project.urls]
 Homepage = "https://github.com/yu9824/lammps-utils"

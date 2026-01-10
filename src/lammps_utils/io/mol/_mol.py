@@ -12,11 +12,9 @@ from rdkit import Chem
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
+from lammps_utils.helpers import tqdm_joblib
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
-from lammps_utils.logging import get_child_logger
-
-logger = get_child_logger(__name__)
 
 
 def _get_conformer_positions(
@@ -67,38 +65,15 @@ def _get_conformer_positions(
     return positions
 
 
-def MolFromLAMMPSData(
-    filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
-    make_molecule_whole: bool = True,
+def _mol_from_dataframe_data(
+    df_atoms: pd.DataFrame,
+    df_bonds: pd.DataFrame,
+    cell_bounds: tuple[
+        tuple[float, float], tuple[float, float], tuple[float, float]
+    ],
     determine_bonds: bool = True,
+    make_molecule_whole: bool = True,
 ) -> Chem.rdchem.Mol:
-    """
-    Constructs an RDKit Mol object from a LAMMPS data file or buffer.
-
-    This function reads atomic and bonding information from a LAMMPS-style
-    data file, reconstructs the molecular structure by inferring bond orders
-    based on interatomic distances, and returns a corresponding RDKit Mol object.
-
-    Parameters
-    ----------
-    filepath_data_or_buffer : Union[os.PathLike, str, io.TextIOBase]
-        Path to the LAMMPS data file, or a file-like buffer object
-        containing the data.
-
-    Returns
-    -------
-    Chem.rdchem.Mol
-        An RDKit Mol object with atoms and inferred bonds, including
-        3D coordinates as a single conformer.
-    """
-
-    df_atoms, df_bonds, cell_bounds = load_data(
-        filepath_data_or_buffer,
-        make_molecule_whole=make_molecule_whole,
-        return_bond_info=True,
-        return_cell_bounds=True,
-    )
-
     rwmol = Chem.RWMol()
     df_atoms.sort_index(inplace=True)
     offset = df_atoms.index[0].item()
@@ -165,6 +140,46 @@ def MolFromLAMMPSData(
     return rwmol.GetMol()
 
 
+def MolFromLAMMPSData(
+    filepath_data_or_buffer: Union[os.PathLike, str, io.TextIOBase],
+    make_molecule_whole: bool = True,
+    determine_bonds: bool = True,
+) -> Chem.rdchem.Mol:
+    """
+    Constructs an RDKit Mol object from a LAMMPS data file or buffer.
+
+    This function reads atomic and bonding information from a LAMMPS-style
+    data file, reconstructs the molecular structure by inferring bond orders
+    based on interatomic distances, and returns a corresponding RDKit Mol object.
+
+    Parameters
+    ----------
+    filepath_data_or_buffer : Union[os.PathLike, str, io.TextIOBase]
+        Path to the LAMMPS data file, or a file-like buffer object
+        containing the data.
+
+    Returns
+    -------
+    Chem.rdchem.Mol
+        An RDKit Mol object with atoms and inferred bonds, including
+        3D coordinates as a single conformer.
+    """
+
+    df_atoms, df_bonds, cell_bounds = load_data(
+        filepath_data_or_buffer,
+        make_molecule_whole=make_molecule_whole,
+        return_bond_info=True,
+        return_cell_bounds=True,
+    )
+    return _mol_from_dataframe_data(
+        df_atoms,
+        df_bonds,
+        cell_bounds,
+        determine_bonds=determine_bonds,
+        make_molecule_whole=make_molecule_whole,
+    )
+
+
 def _mol_from_dataframe_dump(
     timestep_records: Sequence[
         tuple[
@@ -181,7 +196,8 @@ def _mol_from_dataframe_dump(
     mol_template: Chem.rdchem.Mol,
     n_jobs: Optional[int] = None,
     make_molecule_whole: bool = False,
-):
+    silent: bool = False,
+) -> Chem.rdchem.Mol:
     """
     Construct an RDKit molecule with conformers from a sequence of trajectory records.
 
@@ -218,17 +234,18 @@ def _mol_from_dataframe_dump(
     graph = nx.from_numpy_array(Chem.GetAdjacencyMatrix(mol))
     assert isinstance(graph, nx.Graph)
 
-    conformer_positions: tuple[np.ndarray, ...] = tuple(
-        Parallel(n_jobs=n_jobs)(
-            delayed(_get_conformer_positions)(
-                df_atoms,
-                make_molecule_whole=make_molecule_whole,
-                cell_bounds=cell_bounds if make_molecule_whole else None,
-                graph=graph if make_molecule_whole else None,
+    with tqdm_joblib(len(timestep_records), silent=silent, desc="Processing"):
+        conformer_positions: tuple[np.ndarray, ...] = tuple(
+            Parallel(n_jobs=n_jobs)(
+                delayed(_get_conformer_positions)(
+                    df_atoms,
+                    make_molecule_whole=make_molecule_whole,
+                    cell_bounds=cell_bounds if make_molecule_whole else None,
+                    graph=graph if make_molecule_whole else None,
+                )
+                for _, df_atoms, cell_bounds in timestep_records
             )
-            for _, df_atoms, cell_bounds in timestep_records
         )
-    )
 
     assert len(conformer_positions) == len(timestep_records)
     for confId, (positions, (frame, _, cell_bounds)) in enumerate(
@@ -252,6 +269,7 @@ def MolFromLAMMPSDump(
     select: Optional[Union[int, slice, Sequence[int]]] = None,
     select_by: Literal["timestep", "index"] = "timestep",
     n_jobs: Optional[int] = None,
+    silent: bool = False,
 ) -> Chem.rdchem.Mol:
     """
     Create an RDKit molecule with conformers from a LAMMPS dump file.
@@ -292,11 +310,7 @@ def MolFromLAMMPSDump(
         select_by=select_by,
         n_jobs=n_jobs,
         return_cell_bounds=True,
-    )
-
-    # logging
-    logger.info(
-        "Successfully loaded the dump file. Converting to 'rdkit.Chem.rdchem.Mol'."
+        silent=silent,
     )
 
     return _mol_from_dataframe_dump(
@@ -304,4 +318,5 @@ def MolFromLAMMPSDump(
         mol_template=mol_template,
         n_jobs=n_jobs,
         make_molecule_whole=make_molecule_whole,
+        silent=silent,
     )
