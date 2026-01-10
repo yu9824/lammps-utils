@@ -1,3 +1,5 @@
+"""Module for converting LAMMPS data files to other formats."""
+
 import io
 import os
 from pathlib import Path
@@ -37,20 +39,20 @@ def data2gro(
     Parameters
     ----------
     filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
-        file path or buffer of LAMMPS data file
-
+        File path or buffer of LAMMPS data file.
     filepath_gro : Optional[Union[str, os.PathLike]], optional
-        file path of GROMACS gro file, by default None
+        File path of GROMACS gro file. If None, returns the content as a string.
+        Default is None.
 
     Returns
     -------
     Union[str, None]
-        GROMACS gro file content if filepath_gro is None, otherwise None
+        GROMACS gro file content if `filepath_gro` is None, otherwise None.
 
     Raises
     ------
     FileNotFoundError
-        If the directory of filepath_gro does not exist
+        If the directory of `filepath_gro` does not exist.
     """
     if filepath_gro is not None:
         filepath_gro = Path(filepath_gro)
@@ -122,19 +124,20 @@ def data2pdb(
     Parameters
     ----------
     filepath_data_or_buffer : Union[str, os.PathLike, io.TextIOBase]
-        file path or buffer of LAMMPS data file
+        File path or buffer of LAMMPS data file.
     filepath_pdb : Optional[Union[str, os.PathLike]], optional
-        file path of PDB file, by default None
+        File path of PDB file. If None, returns the content as a string.
+        Default is None.
 
     Returns
     -------
     Union[str, None]
-        PDB file content if filepath_pdb is None, otherwise None
+        PDB file content if `filepath_pdb` is None, otherwise None.
 
     Raises
     ------
     FileNotFoundError
-        If the directory of filepath_pdb does not exist
+        If the directory of `filepath_pdb` does not exist.
     """
     if filepath_pdb is not None:
         filepath_pdb = Path(filepath_pdb)

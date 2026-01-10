@@ -1,3 +1,5 @@
+"""Module for logging configuration and utilities."""
+
 import importlib.util
 import os
 import re
@@ -18,7 +20,15 @@ HandlerType = TypeVar("HandlerType", bound=Handler)
 
 
 def _color_supported() -> bool:
-    """Detection of color support."""
+    """
+    Detect whether color support is available for logging output.
+
+    Returns
+    -------
+    bool
+        True if color support is available (colorlog is installed, NO_COLOR
+        is not set, and stderr is a TTY), False otherwise.
+    """
     if not importlib.util.find_spec("colorlog"):
         return False
 

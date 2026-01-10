@@ -1,3 +1,5 @@
+"""Module for parsing LAMMPS data and dump files."""
+
 import io
 import os
 import re
@@ -42,19 +44,25 @@ def _read_file_or_buffer(
     as_bytes: bool = False,
 ) -> Union[str, bytes]:
     """
-    Read a LAMMPS data file or a file-like object and return its content as a string.
+    Read a LAMMPS data file or a file-like object and return its content.
+
     This function handles both file paths and file-like objects (e.g., StringIO).
-    If a file path is provided, it checks if the file exists and raises a FileNotFoundError
+    If a file path is provided, it checks if the file exists and raises a
+    FileNotFoundError if it doesn't.
 
     Parameters
     ----------
-    filepath_or_buffer : Union[str, os.PathLike, io.TextIOBase]
+    filepath_or_buffer : Union[str, os.PathLike, io.TextIOBase, io.BufferedIOBase]
         The file path or file-like object to read.
+    as_bytes : bool, optional
+        If True, return content as bytes. If False, return as string.
+        Default is False.
 
     Returns
     -------
-    str
-        The content of the file or file-like object as a string.
+    Union[str, bytes]
+        The content of the file or file-like object. Returns str if
+        `as_bytes` is False, bytes if True.
 
     Raises
     ------

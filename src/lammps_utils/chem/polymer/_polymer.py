@@ -1,3 +1,5 @@
+"""Module for analyzing polymer structures and finding main chains."""
+
 from collections.abc import Generator
 
 import networkx as nx

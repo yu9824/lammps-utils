@@ -325,6 +325,33 @@ def _find_timestep_offsets(
     index: int,
     buffer_size: int = 10 * 1024 * 1024,
 ) -> tuple[int, ...]:
+    """
+    Find byte offsets of TIMESTEP markers in a dump file chunk.
+
+    This function reads a chunk of the dump file and finds all byte positions
+    where "ITEM: TIMESTEP" markers occur. Used for parallel processing of
+    large dump files.
+
+    Parameters
+    ----------
+    filepath_dump : Union[os.PathLike, str]
+        Path to the LAMMPS dump file.
+    index : int
+        Chunk index (0-based) indicating which portion of the file to read.
+    buffer_size : int, optional
+        Size of the buffer to read in bytes. Default is 10 MB.
+
+    Returns
+    -------
+    tuple[int, ...]
+        Tuple of byte offsets where TIMESTEP markers are found, relative to
+        the start of the file.
+
+    Notes
+    -----
+    The function uses an OVERWRAP constant to ensure timestep markers at
+    chunk boundaries are not missed.
+    """
     filepath_dump = Path(filepath_dump)
 
     start = index * (buffer_size - OVERWRAP)
@@ -351,6 +378,37 @@ def _load_timestep_chunk(
     ],
     tuple[int, pd.DataFrame],
 ]:
+    """
+    Load a single timestep from a dump file using precomputed byte offsets.
+
+    This function reads a specific timestep from a dump file by seeking to
+    the precomputed byte offset and parsing the timestep data.
+
+    Parameters
+    ----------
+    filepath_dump : Union[os.PathLike, str]
+        Path to the LAMMPS dump file.
+    index_step : int
+        Index of the timestep to load (0-based).
+    offsets : tuple[int, ...]
+        Tuple of byte offsets where TIMESTEP markers are located.
+    return_cell_bounds : bool, optional
+        Whether to return cell bounds along with the timestep data.
+        Default is False.
+
+    Returns
+    -------
+    Union[tuple[int, pd.DataFrame], tuple[int, pd.DataFrame, CellBounds]]
+        If return_cell_bounds is False:
+            (timestep, atom_dataframe)
+        If return_cell_bounds is True:
+            (timestep, atom_dataframe, cell_bounds)
+
+    Raises
+    ------
+    IndexError
+        If index_step is out of range for the provided offsets.
+    """
     with open(filepath_dump, mode="rb") as f:
         f.seek(offsets[index_step])
         return _parse_dump_timestep(

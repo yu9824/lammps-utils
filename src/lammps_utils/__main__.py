@@ -1,3 +1,5 @@
+"""Command-line interface for lammps-utils."""
+
 import argparse
 import sys
 from collections.abc import Sequence
@@ -17,6 +19,14 @@ __all__ = ("main",)
 def _data2gro_cli(
     args: argparse.Namespace,
 ) -> None:
+    """
+    Command-line handler for data2gro conversion.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing 'input' and optionally 'output'.
+    """
     filepath_data: Path = args.input
     filepath_gro: Optional[Path] = getattr(args, "output", None)
 
@@ -30,6 +40,14 @@ def _data2gro_cli(
 def _data2pdb_cli(
     args: argparse.Namespace,
 ) -> None:
+    """
+    Command-line handler for data2pdb conversion.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing 'input' and optionally 'output'.
+    """
     filepath_data: Path = args.input
     filepath_pdb: Optional[Path] = getattr(args, "output", None)
 
@@ -41,6 +59,21 @@ def _data2pdb_cli(
 
 
 def main(cli_args: Sequence[str], prog: Optional[str] = None) -> None:
+    """
+    Main entry point for the lammps-utils command-line interface.
+
+    Parameters
+    ----------
+    cli_args : Sequence[str]
+        Command-line arguments (typically sys.argv[1:]).
+    prog : Optional[str], optional
+        Program name for the argument parser. Default is None.
+
+    Notes
+    -----
+    This function sets up the argument parser with subcommands for data2gro
+    and data2pdb conversions.
+    """
     parser = argparse.ArgumentParser(prog=prog, description="LAMMPS utils CLI")
     # subcommand
     subparsers = parser.add_subparsers(dest="command")
@@ -96,6 +129,12 @@ def main(cli_args: Sequence[str], prog: Optional[str] = None) -> None:
 
 
 def entrypoint() -> None:
+    """
+    Entry point function called by the console script.
+
+    This function is typically called when the package is invoked as a command
+    from the command line (e.g., `lammps-utils data2pdb input.data`).
+    """
     main(sys.argv[1:])
 
 

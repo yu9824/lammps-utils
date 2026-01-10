@@ -1,3 +1,5 @@
+"""Module for graph topology analysis, including cycle detection and path finding."""
+
 from collections.abc import Generator
 from typing import Union
 
@@ -5,7 +7,8 @@ import networkx as nx
 
 
 def nodes_in_cycles(graph: nx.Graph) -> set[int]:
-    """Returns nodes that belong to cycles in the graph.
+    """
+    Find nodes that belong to cycles in the graph.
 
     Parameters
     ----------
@@ -16,6 +19,12 @@ def nodes_in_cycles(graph: nx.Graph) -> set[int]:
     -------
     set[int]
         A set of node identifiers that belong to cycles in the graph.
+
+    Notes
+    -----
+    This function identifies cycle nodes by finding edges that are not bridges
+    (edges whose removal would disconnect the graph). Nodes connected by
+    non-bridge edges are considered to be part of cycles.
     """
     bridges = set(nx.bridges(graph))
 
@@ -35,27 +44,33 @@ def _bfs_farthest_node(
     ignore_nodes: set[int] = set(),
     return_length: bool = False,
 ) -> Union[tuple[int, int], tuple[tuple[int, int], int]]:
-    """Performs BFS to find the farthest node from any starting node in the graph.
+    """
+    Find the farthest node pair in the graph using breadth-first search.
+
+    This function performs BFS from each node (excluding ignored nodes) to find
+    the pair of nodes with the maximum shortest path distance.
 
     Parameters
     ----------
     graph : nx.Graph
         The input graph.
     ignore_nodes : set[int], optional
-        Set of nodes to ignore during the BFS, by default an empty set.
+        Set of nodes to ignore during the BFS. Default is an empty set.
     return_length : bool, optional
-        Whether to return the maximum distance along with the node pair, by default False.
+        Whether to return the maximum distance along with the node pair.
+        Default is False.
 
     Returns
     -------
     Union[tuple[int, int], tuple[tuple[int, int], int]]
         If `return_length` is False, returns a tuple of the farthest node pair.
-        If `return_length` is True, returns a tuple containing the farthest node pair and the maximum distance.
+        If `return_length` is True, returns a tuple containing the farthest
+        node pair and the maximum distance.
 
     Raises
     ------
     ValueError
-        If no valid pair is found.
+        If no valid pair is found (e.g., all nodes are ignored).
     """
     use_nodes: set[int] = set(graph.nodes) - ignore_nodes
 
@@ -93,23 +108,25 @@ def farthest_node_pair(
     Generator[tuple[int, int], None, None],
     Generator[tuple[tuple[int, int], int], None, None],
 ]:
-    """Finds the farthest node pair in each connected component of the graph.
+    """
+    Find the farthest node pair in each connected component of the graph.
+
+    This function processes each connected component independently and yields
+    the farthest node pair for each component.
 
     Parameters
     ----------
     graph : nx.Graph
         The input graph.
     ignore_nodes : set[int], optional
-        Set of nodes to ignore during the search, by default an empty set.
+        Set of nodes to ignore during the search. Default is an empty set.
     return_length : bool, optional
-        Whether to return the maximum distance along with the node pair, by default False.
+        Whether to return the maximum distance along with the node pair.
+        Default is False.
 
     Yields
     ------
-    Union[
-    Generator[tuple[int, int], None, None],
-    Generator[tuple[tuple[int, int], int], None, None]
-    ]
+    Union[tuple[int, int], tuple[tuple[int, int], int]]
         Yields tuples of farthest node pairs. If `return_length` is True,
         the second value in the tuple is the maximum distance.
 

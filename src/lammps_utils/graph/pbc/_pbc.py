@@ -1,3 +1,5 @@
+"""Module for handling periodic boundary conditions with graphs."""
+
 from typing import Union
 
 import networkx as nx
@@ -90,15 +92,15 @@ def wrap_positions_into_cell(
     periodic boundary conditions.
 
     Parameters
-    ----------------
+    ----------
     positions : np.ndarray
         A NumPy array of shape (N, 3) representing the positions of N atoms.
-    cell_bounds : tuple or np.ndarray
+    cell_bounds : Union[tuple, np.ndarray]
         The simulation cell bounds. Can be provided as a tuple of
         ((xlo, xhi), (ylo, yhi), (zlo, zhi)) or a NumPy array of shape (3, 2).
 
     Returns
-    ----------------
+    -------
     np.ndarray
         A NumPy array of shape (N, 3) containing the wrapped positions.
     """

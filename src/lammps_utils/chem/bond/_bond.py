@@ -1,3 +1,5 @@
+"""Module for determining bond orders from interatomic distances."""
+
 from rdkit import Chem
 
 from lammps_utils.logging import get_child_logger
@@ -11,17 +13,27 @@ def get_bond_order(
     """
     Estimate bond order based on atom symbols and bond length.
 
+    This function determines the bond order (single, double, triple, or aromatic)
+    by comparing the bond length to typical bond lengths for various atom pairs.
+
     Parameters
     ----------
-    atom_symbols : tuple of str
-        A tuple containing the atomic symbols of the two bonded atoms (e.g., ("C", "O")).
+    atom_symbols : tuple[str, str]
+        A tuple containing the atomic symbols of the two bonded atoms
+        (e.g., ("C", "O")).
     bond_length : float
         The bond length in angstroms.
 
     Returns
     -------
-    rdkit.Chem.rdchem.BondType
-        The estimated bond type (SINGLE, DOUBLE, TRIPLE, or AROMATIC).
+    Chem.rdchem.BondType
+        The estimated bond type (SINGLE, DOUBLE, TRIPLE, AROMATIC, or UNSPECIFIED).
+
+    Notes
+    -----
+    The function uses bond length thresholds based on typical bond lengths
+    for different hybridization states. If the atom pair is not recognized,
+    it returns UNSPECIFIED and logs a warning.
     """
     SINGLE_BOND_ELEMENTS = {"H", "F", "Cl", "Br", "I"}
     ALL_ELEMENTS_USED = {"C", "N", "O", "P", "S", "H", "F", "Cl", "Br", "I"}
