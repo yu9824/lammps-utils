@@ -1,3 +1,5 @@
+"""Module for generating and minimizing molecular conformers."""
+
 from array import array
 from typing import Literal, Optional, Union
 
@@ -31,20 +33,22 @@ def generate_minimized_conformer(
     ----------
     smiles_or_mol : Union[str, Chem.Mol]
         SMILES string or RDKit Mol object to generate conformers from.
-    forcefield : {"MMFF", "UFF"}, default="MMFF"
-        Force field used for geometry optimization.
-    max_iters : int, default=500
+    forcefield : Literal["MMFF", "UFF"], optional
+        Force field used for geometry optimization. Default is "MMFF".
+    max_iters : int, optional
         Maximum number of iterations for geometry minimization.
-    max_attempts : int, default=1000
+        Default is 500.
+    max_attempts : int, optional
         Maximum number of attempts for 3D conformer generation.
-    num_confs : int, default=10
-        Number of conformers to generate and minimize.
-    seed : int or None, default=None
-        Random seed for reproducibility.
+        Default is 1000.
+    num_confs : int, optional
+        Number of conformers to generate and minimize. Default is 10.
+    seed : Optional[int], optional
+        Random seed for reproducibility. Default is None.
 
     Returns
     -------
-    mol : Chem.Mol
+    Chem.Mol
         RDKit Mol object with a single conformer of minimized lowest energy.
 
     Raises
@@ -96,17 +100,19 @@ def generate_conformers_from_smiles(
     smiles_or_mol : Union[str, Chem.Mol]
         SMILES string or RDKit Mol object to generate conformers from.
     max_attempts : int, optional
-        Maximum number of attempts for 3D conformer generation, by default 1000
+        Maximum number of attempts for 3D conformer generation.
+        Default is 1000.
     num_confs : int, optional
-        Number of conformers to generate, by default 10
+        Number of conformers to generate. Default is 10.
     seed : Optional[int], optional
-        Random seed for reproducibility, by default None
+        Random seed for reproducibility. Default is None.
 
     Returns
     -------
     tuple[Chem.Mol, tuple[int, ...]]
-        A tuple containing the RDKit Mol object with generated conformers
-        and a tuple of conformer IDs.
+        A tuple containing:
+        - The RDKit Mol object with generated conformers
+        - A tuple of conformer IDs
 
     Raises
     ------
@@ -157,12 +163,12 @@ def minimize_conformer(
     mol : Chem.Mol
         RDKit Mol object with a conformer to minimize.
     forcefield : Literal["MMFF", "UFF"], optional
-        Force field to use for minimization, by default "MMFF"
-        Supported values are "MMFF" and "UFF".
+        Force field to use for minimization. Supported values are "MMFF" and "UFF".
+        Default is "MMFF".
     max_iters : int, optional
-        Maximum number of iterations for minimization, by default 500
+        Maximum number of iterations for minimization. Default is 500.
     conf_id : int, optional
-        Conformer ID to minimize, by default -1 (minimizes the last conformer).
+        Conformer ID to minimize. Default is -1 (minimizes the last conformer).
 
     Returns
     -------

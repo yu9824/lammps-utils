@@ -1,3 +1,5 @@
+"""Module for handling periodic boundary conditions with RDKit molecules."""
+
 from typing import Optional
 
 import networkx as nx
@@ -10,6 +12,7 @@ from lammps_utils.graph.pbc._pbc import (
     unwrap_positions_under_pbc,
     wrap_positions_into_cell,
 )
+from lammps_utils.types import CellBounds
 
 
 def unwrap_mol_under_pbc(
@@ -19,36 +22,47 @@ def unwrap_mol_under_pbc(
     determine_bonds: bool = False,
 ) -> Chem.rdchem.Mol:
     """
-    Unwraps a periodic RDKit molecule so that bonded atoms are positioned close together in Cartesian space.
+    Unwrap a periodic RDKit molecule so that bonded atoms are positioned close together.
+
+    This function unwraps a molecule under periodic boundary conditions (PBC) so that
+    bonded atoms are positioned close together in Cartesian space, making the molecule
+    "whole" across periodic boundaries.
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
         The RDKit molecule to be unwrapped. Must have at least one 3D conformer.
     cell_size : ArrayLike
-        The size of the periodic simulation cell (a 3-element array-like object representing the box dimensions).
+        The size of the periodic simulation cell. A 3-element array-like object
+        representing the box dimensions (x, y, z) in angstroms.
     confId : int, optional
-        The conformer ID to use for coordinate manipulation. Defaults to -1 (the first conformer).
+        The conformer ID to use for coordinate manipulation. Defaults to -1
+        (the last conformer).
     determine_bonds : bool, optional
-        If True, reassigns bond orders based on interatomic distances after unwrapping. Defaults to False.
+        If True, reassigns bond orders based on interatomic distances after
+        unwrapping. Default is False.
 
     Returns
     -------
     Chem.rdchem.Mol
-        A new RDKit molecule object with unwrapped coordinates and optionally updated bond orders.
-        All hydrogen atoms are removed from the returned molecule.
+        A new RDKit molecule object with unwrapped coordinates and optionally
+        updated bond orders. All hydrogen atoms are removed from the returned
+        molecule.
 
     Raises
     ------
     AssertionError
-        If the input molecule has no conformers or if the cell size is invalid.
+        If the input molecule has no conformers or if the cell size is invalid
+        (not 3 elements or not 1-dimensional).
 
     Notes
     -----
-    This function converts the molecule to a graph to assist in unwrapping it under periodic boundary
-    conditions (PBC), using the `unwrap_positions_under_pbc` utility. If `determine_bonds` is True,
-    bond distances are recalculated post-unwrapping, and bond types are reassigned using the
-    `get_bond_order` function. Hydrogens are removed from the returned molecule to simplify further processing.
+    This function converts the molecule to a graph to assist in unwrapping it
+    under periodic boundary conditions, using the `unwrap_positions_under_pbc`
+    utility. If `determine_bonds` is True, bond distances are recalculated
+    post-unwrapping, and bond types are reassigned using the `get_bond_order`
+    function. Hydrogens are removed from the returned molecule to simplify
+    further processing.
     """
 
     assert mol.GetNumConformers() > 0
@@ -69,14 +83,9 @@ def unwrap_mol_under_pbc(
     if determine_bonds:
         for bond in rwmol.GetBonds():
             assert isinstance(bond, Chem.rdchem.Bond)
-            distance = np.sqrt(
-                np.sum(
-                    np.square(
-                        positions_new[bond.GetBeginAtomIdx()]
-                        - positions_new[bond.GetEndAtomIdx()]
-                    )
-                )
-            )
+            atom1_pos = positions_new[bond.GetBeginAtomIdx()]
+            atom2_pos = positions_new[bond.GetEndAtomIdx()]
+            distance = np.linalg.norm(atom1_pos - atom2_pos)
             bond.SetBondType(
                 get_bond_order(
                     (
@@ -98,9 +107,7 @@ def unwrap_mol_under_pbc(
 def wrap_mol_into_cell(
     mol: Chem.rdchem.Mol,
     confId: int = -1,
-    cell_bounds: Optional[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
-    ] = None,
+    cell_bounds: Optional[CellBounds] = None,
 ) -> Chem.rdchem.Mol:
     """
     Wrap atom positions of a conformer into the periodic simulation cell.
@@ -111,32 +118,41 @@ def wrap_mol_into_cell(
     from the conformer's properties.
 
     Parameters
-    ----------------
-    mol : Chem.Mol
+    ----------
+    mol : Chem.rdchem.Mol
         An RDKit molecule containing at least one conformer.
-    confId : int
+    confId : int, optional
         The conformer ID to wrap. Defaults to -1 (the last conformer).
-    cell_bounds : tuple of 3 (lo, hi) tuples, optional
-        The simulation cell bounds along x, y, and z axes. If not provided,
-        they will be read from the conformer's properties: "xlo", "xhi", "ylo", etc.
+    cell_bounds : CellBounds, optional
+        The simulation cell bounds along x, y, and z axes. A tuple of three
+        (lo, hi) tuples. If not provided, they will be read from the conformer's
+        properties: "xlo", "xhi", "ylo", "yhi", "zlo", "zhi".
 
     Returns
-    ----------------
-    Chem.Mol
+    -------
+    Chem.rdchem.Mol
         A copy of the input molecule with wrapped conformer coordinates.
+
+    Raises
+    ------
+    ValueError
+        If `cell_bounds` is None and the conformer does not have cell bounds
+        properties ("xlo", "xhi", etc.).
     """
     mol_new = Chem.Mol(mol)
     conf = mol_new.GetConformer(confId)
     if cell_bounds is None:
         if not conf.HasProp("xlo"):
-            raise ValueError
+            raise ValueError(
+                "cell_bounds must be provided or conformer must have "
+                "cell bounds properties (xlo, xhi, ylo, yhi, zlo, zhi)"
+            )
 
-        _tup_tmp = tuple(
+        cell_bounds = tuple(
             (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
             for axis in ("x", "y", "z")
         )
-        assert len(_tup_tmp) == 3
-        cell_bounds = _tup_tmp
+        assert len(cell_bounds) == 3
 
     conf.SetPositions(
         wrap_positions_into_cell(conf.GetPositions(), cell_bounds=cell_bounds)

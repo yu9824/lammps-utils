@@ -1,3 +1,5 @@
+"""Module for handling periodic boundary conditions with pandas DataFrames."""
+
 from typing import Union
 
 import networkx as nx
@@ -84,15 +86,15 @@ def wrap_df_positions_to_cell(
     so that all atoms are located within the given periodic cell boundaries.
 
     Parameters
-    ----------------
+    ----------
     df_atoms : pd.DataFrame
         A DataFrame containing atomic coordinates. Must include columns "x", "y", and "z".
-    cell_bounds : tuple or np.ndarray
+    cell_bounds : Union[tuple, np.ndarray]
         The simulation cell bounds specified as a tuple of ((xlo, xhi), (ylo, yhi), (zlo, zhi)),
         or as a NumPy array of shape (3, 2).
 
     Returns
-    ----------------
+    -------
     pd.DataFrame
         The same DataFrame with wrapped atomic coordinates within the cell.
     """

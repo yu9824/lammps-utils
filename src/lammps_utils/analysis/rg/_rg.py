@@ -1,3 +1,5 @@
+"""Module for computing radius of gyration (Rg) of molecules."""
+
 from typing import Literal
 
 import numpy as np

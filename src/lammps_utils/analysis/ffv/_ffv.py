@@ -1,3 +1,5 @@
+"""Module for computing fractional free volume (FFV) of molecules."""
+
 from collections.abc import Sequence
 from typing import Optional
 
@@ -29,25 +31,29 @@ def compute_ffv(
     the conformer properties ("xlo", "xhi", etc.) assumed to be preassigned.
 
     Parameters
-    ----------------
+    ----------
     mol : Chem.rdchem.Mol
         The input RDKit molecule.
-    confId : int
-        The conformer ID to use from the molecule.
-    cell_bounds : tuple of tuple of float, optional
+    confId : int, optional
+        The conformer ID to use from the molecule. Default is -1.
+    cell_bounds : Optional[tuple[tuple[float, float], tuple[float, float], tuple[float, float]]], optional
         The periodic cell boundaries as ((xlo, xhi), (ylo, yhi), (zlo, zhi)).
         If None, the bounds will be extracted from conformer properties.
-    probe_radius : float
-        The radius of the spherical probe for free volume determination.
-    grid_spacing : float
-        The spacing of the grid used to sample the cell volume.
-    n_jobs : int, optional
+        Default is None.
+    probe_radius : float, optional
+        The radius of the spherical probe for free volume determination in angstroms.
+        Default is 1.4.
+    grid_spacing : float, optional
+        The spacing of the grid used to sample the cell volume in angstroms.
+        Default is 1.0.
+    n_jobs : Optional[int], optional
         The number of parallel jobs to run. Use -1 to utilize all CPUs.
+        Default is None.
 
     Returns
-    ----------------
+    -------
     float
-        The fractional free volume of the molecule.
+        The fractional free volume of the molecule (0.0 to 1.0).
     """
     conf = wrap_mol_into_cell(mol, cell_bounds=cell_bounds).GetConformer(
         confId
@@ -89,7 +95,7 @@ def _check_free_single(
     spheres (vdW radius + probe radius) of all nearby atoms.
 
     Parameters
-    ----------------
+    ----------
     grid_point : np.ndarray
         A 3-element array representing the (x, y, z) coordinates of the grid point.
     candidate_indices : Sequence[int]
@@ -101,7 +107,7 @@ def _check_free_single(
         Array of effective radii (vdW radius + probe radius) for each atom.
 
     Returns
-    ----------------
+    -------
     bool
         True if the grid point is in the free volume (i.e., not overlapping with
         any atom's effective radius), False otherwise.
@@ -136,22 +142,23 @@ def calculate_ffv_parallel(
     a probe sphere centered at that point does not overlap with any atoms.
 
     Parameters
-    ----------------
+    ----------
     positions : np.ndarray
         Array of atomic coordinates with shape (N_atoms, 3).
     vdw_radii : np.ndarray
-        Array of van der Waals radii for each atom.
-    cell_bounds : tuple of tuple of float
+        Array of van der Waals radii for each atom in angstroms.
+    cell_bounds : tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
         The periodic cell boundaries as ((xlo, xhi), (ylo, yhi), (zlo, zhi)).
-    probe_radius : float
-        The radius of the spherical probe.
-    grid_spacing : float
-        The spacing of the 3D grid in each dimension.
-    n_jobs : int, optional
+    probe_radius : float, optional
+        The radius of the spherical probe in angstroms. Default is 1.4.
+    grid_spacing : float, optional
+        The spacing of the 3D grid in each dimension in angstroms. Default is 1.0.
+    n_jobs : Optional[int], optional
         Number of parallel jobs to use with joblib. -1 uses all available CPUs.
+        Default is None.
 
     Returns
-    ----------------
+    -------
     float
         The fractional free volume, defined as the fraction of grid points
         where the probe does not intersect any atom's van der Waals sphere.

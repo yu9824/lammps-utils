@@ -76,6 +76,18 @@ class dummy_tqdm(Iterable, Generic[T]):
     def __init__(
         self, __iterable: Optional["Iterable[T]"] = None, *args, **kwargs
     ) -> None:
+        """
+        Initialize the dummy tqdm wrapper.
+
+        Parameters
+        ----------
+        __iterable : Iterable[T], optional
+            An iterable object to wrap. If None, an empty tuple is used.
+        *args
+            Additional positional arguments (ignored, for tqdm compatibility).
+        **kwargs
+            Additional keyword arguments (ignored, for tqdm compatibility).
+        """
         self.__iterable = __iterable if __iterable else ()
 
     def __iter__(self) -> "Iterator[T]":
@@ -148,6 +160,19 @@ class tqdm_joblib:
     """
 
     def __init__(self, total: int, silent: bool = False, **tqdm_kwargs):
+        """
+        Initialize the tqdm_joblib context manager.
+
+        Parameters
+        ----------
+        total : int
+            The total number of tasks expected (passed to tqdm).
+        silent : bool, optional
+            If True, suppress progress bar output even if tqdm is installed.
+            Default is False.
+        **tqdm_kwargs
+            Additional keyword arguments passed directly to tqdm (e.g., desc, unit).
+        """
         self.total = total
         self.silent = silent
         self.tqdm_kwargs = tqdm_kwargs
@@ -155,6 +180,20 @@ class tqdm_joblib:
         self._old_batch_callback = None
 
     def __enter__(self):
+        """
+        Enter the context manager and set up the progress bar.
+
+        Returns
+        -------
+        tqdm or dummy_tqdm
+            The progress bar object (tqdm if available and not silent,
+            otherwise dummy_tqdm).
+
+        Notes
+        -----
+        This method temporarily overrides joblib's BatchCompletionCallBack
+        to update the progress bar as batches complete.
+        """
         if is_installed("tqdm") and not self.silent:
             from tqdm.auto import tqdm
         else:
@@ -178,6 +217,28 @@ class tqdm_joblib:
         return self.tqdm
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Exit the context manager and clean up resources.
+
+        Parameters
+        ----------
+        exc_type : type, optional
+            Exception type if an exception was raised.
+        exc_val : Exception, optional
+            Exception value if an exception was raised.
+        exc_tb : traceback, optional
+            Exception traceback if an exception was raised.
+
+        Returns
+        -------
+        bool
+            Always returns False to propagate exceptions.
+
+        Notes
+        -----
+        This method restores the original BatchCompletionCallBack and closes
+        the progress bar, regardless of whether an exception occurred.
+        """
         # Restore the original BatchCompletionCallBack, regardless of exceptions
         joblib.parallel.BatchCompletionCallBack = self._old_batch_callback
 
