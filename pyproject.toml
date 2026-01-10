@@ -40,11 +40,11 @@ docs = [
 
 [project.urls]
 Homepage = "https://github.com/yu9824/lammps-utils"
-# Documentation = "https://readthedocs.org"
-PyPI = "https://pypi.org/project/lammps-utils/"
+Documentation = "https://yu9824.github.io/lammps-utils/"
+# PyPI = "https://pypi.org/project/lammps-utils/"
 Source = "https://github.com/yu9824/lammps-utils"
 Tracker = "https://github.com/yu9824/lammps-utils/issues"
-Changelog = "https://github.com/yu9824/lammps-utils/blob/main/CHANGELOG.md"
+# Changelog = "https://github.com/yu9824/lammps-utils/blob/main/CHANGELOG.md"
 
 [project.scripts]
 lammps-utils = "lammps_utils.__main__:entrypoint"
@@ -67,3 +67,6 @@ indent-width = 4
 
 [tool.ruff.lint]
 unfixable = ["F401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
