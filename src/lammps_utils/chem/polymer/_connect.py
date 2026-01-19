@@ -75,6 +75,7 @@ def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
     return head_idx, tail_idx
 
 
+# TODO: 結合角の指定
 def connect_mols(
     mol1: Chem.rdchem.Mol,
     mol2: Chem.rdchem.Mol,
@@ -133,12 +134,6 @@ def connect_mols(
     6. Sanitizes the resulting molecule
     7. Optionally minimizes the conformer energy
 
-    Examples
-    --------
-    >>> from rdkit import Chem
-    >>> mol1 = Chem.MolFromSmiles("CCO")
-    >>> mol2 = Chem.MolFromSmiles("CCO")
-    >>> connected = connect_mols(mol1, mol2, 0, 0, angle=0.0)
     """
     rng = np.random.default_rng(seed=seed)
 

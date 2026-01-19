@@ -1,5 +1,6 @@
 """Module for generating amorphous cells using packmol."""
 
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -8,11 +9,13 @@ from rdkit import Chem
 
 from lammps_utils.helpers import calculate_box_length
 
+BIN_PACKMOL = os.environ.get("BIN_PACKMOL", "packmol")
+"""Path to the packmol executable. Default is "packmol"."""
+
 
 def generate_amorphous_cell(
     mol_and_numchains: tuple[tuple[Chem.rdchem.Mol, int], ...],
     density: float = 0.3,
-    packmol_bin: str = "packmol",
     tolerance: float = 2.0,
     nloop: int = 50,
     maxit: int = 20,
@@ -30,8 +33,6 @@ def generate_amorphous_cell(
         a polymer chain to be placed in the cell.
     density : float, optional
         Target density in g/cm³. Default is 0.3.
-    packmol_bin : str, optional
-        Path to the packmol executable. Default is "packmol".
     tolerance : float, optional
         Distance tolerance for packmol in Angstroms. Default is 2.0.
     nloop : int, optional
@@ -129,7 +130,7 @@ def generate_amorphous_cell(
 
         # Execute packmol
         subprocess.run(
-            [packmol_bin, "-i", str(filepath_packmol_input)],
+            [BIN_PACKMOL, "-i", str(filepath_packmol_input)],
             check=True,
         )
 
