@@ -5,6 +5,8 @@ from typing import Any, Generic, Optional, TypeVar
 
 import joblib
 
+from lammps_utils.constants import AVOGADRO
+
 T = TypeVar("T")
 
 
@@ -248,3 +250,53 @@ class tqdm_joblib:
 
         # Do not suppress exceptions; propagate them as usual
         return False
+
+
+def calculate_box_length(
+    total_mass: float,  # g/mol
+    density: float,  # g/cm^3
+) -> float:
+    """
+    Calculate the box length for a simulation cell from total mass and density.
+
+    Parameters
+    ----------
+    total_mass : float
+        Total mass of the system in g/mol.
+    density : float
+        Target density in g/cm³.
+
+    Returns
+    -------
+    float
+        Box length in Angstroms (Å) for a cubic simulation cell.
+
+    Notes
+    -----
+    This function calculates the edge length of a cubic simulation cell
+    that would contain the specified mass at the given density.
+
+    The calculation:
+    1. Converts mass from g/mol to grams using Avogadro's number
+    2. Calculates volume from mass and density
+    3. Takes the cube root to get the edge length
+    4. Converts from meters to Angstroms (1 m = 1e10 Å)
+
+    Examples
+    --------
+    >>> calculate_box_length(100.0, 1.0)  # 100 g/mol at 1 g/cm³
+    25.4...  # Angstroms
+    """
+    return (
+        (
+            (
+                total_mass  # g/mol
+                / AVOGADRO  # /mol
+            )
+            / (
+                density  # g/cm^3
+                * ((1e2) ** 3)  # /cm^3
+            )
+        )
+        ** (1 / 3)  # m
+    ) * 1e10  # Å
