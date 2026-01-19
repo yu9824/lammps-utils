@@ -10,6 +10,7 @@ This module provides:
 from rdkit import Chem
 
 __all__ = (
+    "AVOGADRO",
     "N_ELEMENTS",
     "MAP_ELEMENT_MASSES",
     "COLS_ATOMS_LAMMPS_DATA_DTYPE",
@@ -17,6 +18,14 @@ __all__ = (
     "MAP_VDW_RADIUS",
     "COLS_XYZ",
 )
+
+AVOGADRO = 6.022e23
+"""Avogadro's number (6.022 × 10²³) in units of mol⁻¹.
+
+This constant represents the number of atoms, molecules, or other particles
+in one mole of a substance. Used for converting between atomic mass units
+and grams, and for density calculations.
+"""
 
 N_ELEMENTS = 118
 """Total number of elements in the periodic table. The 118th element is Oganesson (Og)."""
