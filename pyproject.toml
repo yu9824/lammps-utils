@@ -6,7 +6,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lammps-utils"
 dynamic = ["version"]
-dependencies = ["numpy", "pandas", "scipy", "rdkit", "networkx", "joblib"]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "rdkit",
+    "networkx",
+    "joblib",
+    "py3Dmol",
+]
 requires-python = ">= 3.9"
 authors = [{ name = "yu9824" }]
 maintainers = [{ name = "yu9824" }]
@@ -46,8 +54,8 @@ Source = "https://github.com/yu9824/lammps-utils"
 Tracker = "https://github.com/yu9824/lammps-utils/issues"
 # Changelog = "https://github.com/yu9824/lammps-utils/blob/main/CHANGELOG.md"
 
-[project.scripts]
-lammps-utils = "lammps_utils.__main__:entrypoint"
+# [project.scripts]
+# lammps-utils = "lammps_utils.__main__:entrypoint"
 
 # [project.gui-scripts]
 # lammps-utils-gui = "lammps_utils:main_gui"

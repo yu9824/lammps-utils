@@ -7,8 +7,20 @@ iterating with a dummy progress bar, and verifying function arguments.
 
 """
 
-from ._helpers import dummy_tqdm, is_argument, is_installed, tqdm_joblib
+from ._helpers import (
+    calculate_box_length,
+    dummy_tqdm,
+    is_argument,
+    is_installed,
+    tqdm_joblib,
+)
 
 # _helpers.pyだと、_が入っているのでドキュメント化されない。
 # ドキュメント化したい場合は、モジュールメソッドとして登録するため、__all__に入れる。
-__all__ = ("dummy_tqdm", "is_argument", "is_installed", "tqdm_joblib")
+__all__ = (
+    "calculate_box_length",
+    "dummy_tqdm",
+    "is_argument",
+    "is_installed",
+    "tqdm_joblib",
+)

@@ -140,7 +140,10 @@ def generate_conformers_from_smiles(
 
     params = rdDistGeom.ETKDGv3()
     params.randomSeed = seed if seed is not None else -1
-    params.maxAttempts = max_attempts
+    if hasattr(params, "maxIterations"):
+        params.maxIterations = max_attempts
+    elif hasattr(params, "maxAttempts"):
+        params.MaxAttempts = max_attempts
 
     conf_ids = rdDistGeom.EmbedMultipleConfs(
         mol, numConfs=num_confs, params=params
