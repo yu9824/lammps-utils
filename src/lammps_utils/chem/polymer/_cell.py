@@ -4,6 +4,7 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 from rdkit import Chem
 
@@ -19,6 +20,7 @@ def generate_amorphous_cell(
     tolerance: float = 2.0,
     nloop: int = 50,
     maxit: int = 20,
+    seed: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
     """
     Generate an amorphous cell using packmol.
@@ -39,6 +41,8 @@ def generate_amorphous_cell(
         Number of loops for packmol optimization. Default is 50.
     maxit : int, optional
         Maximum number of iterations for packmol. Default is 20.
+    seed : int, optional
+        Seed for the random number generator. Default is None.
 
     Returns
     -------
@@ -83,6 +87,8 @@ def generate_amorphous_cell(
         map(str, (-box_length_half,) * 3 + (box_length_half,) * 3)
     )
 
+    seed = seed if seed is not None else -1
+
     # Generate amorphous cell using packmol
     with tempfile.TemporaryDirectory() as str_dirpath_work:
         dirpath_work = Path(str_dirpath_work).resolve()
@@ -100,6 +106,7 @@ def generate_amorphous_cell(
                 f"maxit  {maxit}",
                 f"output  {filepath_output}",
                 f"pbc  {box_cell_str}",
+                f"seed  {seed}",
                 "",
                 "",
                 "",
