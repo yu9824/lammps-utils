@@ -7,34 +7,42 @@ from rdkit import Chem
 
 from lammps_utils.chem.conformer._generate import minimize_conformer
 from lammps_utils.chem.conformer._rotate import rotate_around_bond
+from lammps_utils.logging import get_child_logger
+
+logger = get_child_logger(__name__)
 
 
 def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
     """
-    Detect head and tail atoms in a molecule for polymerization.
+    Identify the head and tail atoms in an RDKit molecule for polymerization.
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
-        RDKit Mol object to analyze.
+        An RDKit Mol object representing the molecule to analyze.
 
     Returns
     -------
     tuple[int, int]
-        A tuple containing (head_idx, tail_idx) atom indices.
+        A tuple (head_idx, tail_idx) containing the atom indices of the detected head and tail.
 
     Raises
     ------
     ValueError
-        If multiple atoms are marked as head_idx or tail_idx.
+        If more than one atom is found with a "head" or "tail" marker.
     AssertionError
-        If head_idx or tail_idx cannot be found.
+        If either the head or tail atom cannot be identified.
 
     Notes
     -----
-    This function first checks for atoms with "head_idx" or "tail_idx" boolean properties.
-    If not found, it searches for hydrogen atoms with isotope number 3 ([3H]).
-    The first [3H] atom found is marked as head, and the second as tail.
+    - This function first inspects all atoms in the molecule for boolean properties "head" and "tail".
+      If both are found, those indices are returned.
+    - If such properties are not set, the function looks for hydrogen atoms with isotope 3 ([3H]):
+        * The first [3H] atom encountered is assigned as the head, and its "head" property is set to True.
+        * The second [3H] atom encountered is assigned as the tail, and its "tail" property is set to True.
+    - If only one labeled ([3H]) atom is present, both head and tail are set to the same atom,
+      and a warning is issued.
+    - This detection mechanism supports both property-based and isotope-based conventions.
 
     Examples
     --------
@@ -47,13 +55,13 @@ def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
     for atom in mol.GetAtoms():
         assert isinstance(atom, Chem.rdchem.Atom)
         props = atom.GetPropsAsDict()
-        if props.get("head_idx", False):
+        if props.get("head", False):
             if head_idx >= 0:
-                raise ValueError("Multiple atoms marked as head_idx")
+                raise ValueError("Multiple atoms marked as head")
             head_idx = atom.GetIdx()
-        elif props.get("tail_idx", False):
+        elif props.get("tail", False):
             if tail_idx >= 0:
-                raise ValueError("Multiple atoms marked as tail_idx")
+                raise ValueError("Multiple atoms marked as tail")
             tail_idx = atom.GetIdx()
 
     if head_idx >= 0 and tail_idx >= 0:
@@ -64,11 +72,19 @@ def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
         if atom.GetAtomicNum() == 1 and atom.GetIsotope() == 3:
             if head_idx < 0:
                 head_idx = atom.GetIdx()
-                atom.SetBoolProp("head_idx", True)
+                atom.SetBoolProp("head", True)
             else:
                 tail_idx = atom.GetIdx()
-                atom.SetBoolProp("tail_idx", True)
+                atom.SetBoolProp("tail", True)
                 break
+    else:
+        if head_idx >= 0 and tail_idx < 0:
+            logger.warning(
+                "Only head_idx found and not tail_idx. "
+                "Setting tail_idx to head_idx. "
+                "Please check the atom properties for 'tail' marker."
+            )
+            tail_idx = head_idx
 
     assert head_idx >= 0, "head_idx not found"
     assert tail_idx >= 0, "tail_idx not found"

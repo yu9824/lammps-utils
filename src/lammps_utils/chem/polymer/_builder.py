@@ -85,3 +85,72 @@ def polymerize_linear(
     if forcefield:
         minimize_conformer(mol, forcefield=forcefield)
     return mol
+
+
+def attach_terminal_groups(
+    polymer: Chem.rdchem.Mol,
+    terminal: Chem.rdchem.Mol,
+    forcefield: Optional[Literal["MMFF", "UFF"]] = "MMFF",
+) -> Chem.rdchem.Mol:
+    """
+    Attach terminal groups to both ends of a linear polymer.
+
+    Parameters
+    ----------
+    polymer : Chem.rdchem.Mol
+        The polymer molecule to which terminal groups will be attached.
+        Must have detectable head and tail atoms (e.g., [3H] markers).
+    terminal : Chem.rdchem.Mol
+        The terminal group molecule (e.g., CH3) to attach at both ends.
+        Must have detectable head and tail atoms.
+    forcefield : Optional[Literal["MMFF", "UFF"]], optional
+        Force field to use for energy minimization after attachment.
+        If None, no minimization is performed. Default is "MMFF".
+
+    Returns
+    -------
+    Chem.rdchem.Mol
+        The polymer molecule with terminal groups attached at both ends.
+
+    Notes
+    -----
+    This function:
+    1. Detects head and tail atoms of both polymer and terminal group
+    2. Connects terminal group to the tail end of the polymer
+    3. Connects another terminal group to the head end of the polymer
+    4. Optionally minimizes the final structure
+
+    The head and tail atoms are detected automatically using detect_head_and_tail,
+    which looks for [3H] markers or atom properties.
+
+    Examples
+    --------
+    >>> from rdkit import Chem
+    >>> from lammps_utils.chem.conformer import generate_minimized_conformer
+    >>> polymer = generate_minimized_conformer("[3H]CC(c1ccccc1)[3H]")
+    >>> terminal = generate_minimized_conformer("[3H]C[3H]")
+    >>> capped = attach_terminal_groups(polymer, terminal)
+    """
+
+    mol = Chem.Mol(polymer)
+
+    head_idx_terminal, tail_idx_terminal = detect_head_and_tail(terminal)
+    head_idx_polymer, tail_idx_polymer = detect_head_and_tail(mol)
+
+    # Attach terminal group to tail end
+    mol = connect_mols(
+        mol, terminal, tail_idx_polymer, head_idx_terminal, forcefield=None
+    )
+
+    # Update indices after first connection
+    head_idx_polymer, _ = detect_head_and_tail(mol)
+
+    # Attach terminal group to head end
+    mol = connect_mols(
+        mol, terminal, head_idx_polymer, tail_idx_terminal, forcefield=None
+    )
+
+    # Final minimization of the complete structure
+    if forcefield:
+        minimize_conformer(mol, forcefield=forcefield)
+    return mol
