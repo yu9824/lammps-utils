@@ -532,3 +532,30 @@ def MolToMol2Block(
         return "\n".join(lines)
     else:
         return raw_mol2_block
+
+
+def MolToMol2File(
+    mol: Chem.Mol,
+    filepath: Union[os.PathLike, str],
+    charges: Optional[Union[Sequence[float], Literal["gasteiger"]]] = None,
+    encoding: Optional[str] = None,
+) -> None:
+    """
+    Write an RDKit Mol object to a MOL2 file, optionally adding partial charges.
+
+    Parameters
+    ----------
+    mol : Chem.Mol
+        The RDKit molecule to be converted.
+    filepath : Union[os.PathLike, str]
+        The path to the MOL2 file to write.
+    charges : Optional[Union[Sequence[float], Literal["gasteiger"]]], default=None
+        If None (the default), no partial charges are added. If "gasteiger", Gasteiger charges
+        are assigned using Open Babel. If a sequence of floats is provided, these are used
+        as the per-atom charges, and will be inserted into the MOL2 output.
+    encoding : Optional[str], default=None
+        Character encoding to use for input and output. If None, system default encoding is used.
+    """
+    encoding = check_encoding(encoding)
+    with open(filepath, mode="w", encoding=encoding) as f:
+        f.write(MolToMol2Block(mol, charges, encoding))
