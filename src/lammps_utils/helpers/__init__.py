@@ -9,9 +9,11 @@ iterating with a dummy progress bar, and verifying function arguments.
 
 from ._helpers import (
     calculate_box_length,
+    check_encoding,
     dummy_tqdm,
     is_argument,
     is_installed,
+    set_positions,
     tqdm_joblib,
 )
 
@@ -23,4 +25,6 @@ __all__ = (
     "is_argument",
     "is_installed",
     "tqdm_joblib",
+    "set_positions",
+    "check_encoding",
 )

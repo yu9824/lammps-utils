@@ -1,9 +1,12 @@
 import importlib.util
 import inspect
+import sys
 from collections.abc import Callable, Iterable, Iterator
 from typing import Any, Generic, Optional, TypeVar
 
 import joblib
+import numpy as np
+from rdkit import Chem
 
 from lammps_utils.constants import AVOGADRO
 
@@ -300,3 +303,33 @@ def calculate_box_length(
         )
         ** (1 / 3)  # m
     ) * 1e10  # Å
+
+
+def set_positions(conf: Chem.rdchem.Conformer, positions: np.ndarray) -> None:
+    """
+    Set the positions of a conformer.
+
+    Parameters
+    ----------
+    conf : Chem.rdchem.Conformer
+        The conformer to set the positions of.
+    positions : np.ndarray
+        The positions to set.
+    """
+    if hasattr(conf, "SetPositions"):
+        conf.SetPositions(positions)
+    else:
+        for i in range(len(positions)):
+            conf.SetAtomPosition(i, positions[i])
+
+
+def check_encoding(encoding: Optional[str] = None) -> str:
+    """
+    Check the encoding of a string.
+
+    Parameters
+    ----------
+    encoding : Optional[str], optional
+        The encoding to check. If None, the default encoding is used.
+    """
+    return encoding if encoding else sys.getdefaultencoding()

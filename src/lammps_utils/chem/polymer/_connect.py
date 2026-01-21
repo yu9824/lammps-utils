@@ -7,6 +7,7 @@ from rdkit import Chem
 
 from lammps_utils.chem.conformer._generate import minimize_conformer
 from lammps_utils.chem.conformer._rotate import rotate_around_bond
+from lammps_utils.helpers import set_positions
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -176,18 +177,24 @@ def connect_mols(
     target_idx1 = target_atom1.GetIdx()
     target_idx2 = target_atom2.GetIdx()
 
-    conf1.SetPositions(
+    set_positions(
+        conf1,
         conf1.GetPositions()
         - np.asarray(conf1.GetAtomPosition(target_idx1))
-        + rand_vec
+        + rand_vec,
     )
-    conf2.SetPositions(
-        conf2.GetPositions() - np.asarray(conf2.GetAtomPosition(target_idx2))
+
+    set_positions(
+        conf2,
+        conf2.GetPositions() - np.asarray(conf2.GetAtomPosition(target_idx2)),
     )
+
     if angle is None:
         angle = rng.uniform(0, 2 * np.pi)
-    conf2.SetPositions(
-        rotate_around_bond(conf2.GetPositions(), idx2, target_idx2, angle)
+
+    set_positions(
+        conf2,
+        rotate_around_bond(conf2.GetPositions(), idx2, target_idx2, angle),
     )
 
     combo = Chem.CombineMols(mol1, mol2)
