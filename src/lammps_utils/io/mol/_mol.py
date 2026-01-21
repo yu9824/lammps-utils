@@ -2,6 +2,8 @@
 
 import io
 import os
+import re
+import subprocess
 from collections.abc import Sequence
 from typing import Literal, Optional, Union
 
@@ -14,7 +16,7 @@ from rdkit import Chem
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
-from lammps_utils.helpers import tqdm_joblib
+from lammps_utils.helpers import check_encoding, tqdm_joblib
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
 from lammps_utils.types import CellBounds
@@ -69,7 +71,7 @@ def _calculate_bond_distances(
     for _, bond_row in df_bonds.iterrows():
         atom1_pos = df_atoms.loc[bond_row["atom1"], COLS_XYZ].values
         atom2_pos = df_atoms.loc[bond_row["atom2"], COLS_XYZ].values
-        distance = np.linalg.norm(atom1_pos - atom2_pos)
+        distance = np.linalg.norm(atom1_pos - atom2_pos).item()
         bond_type = bond_row["type"]
         if bond_type not in distances_by_type:
             distances_by_type[bond_type] = []
@@ -433,3 +435,100 @@ def MolFromLAMMPSDump(
         make_molecule_whole=make_molecule_whole,
         silent=silent,
     )
+
+
+def MolToMol2Block(
+    mol: Chem.Mol,
+    charges: Optional[Union[Sequence[float], Literal["gasteiger"]]] = None,
+    encoding: Optional[str] = None,
+) -> str:
+    """
+    Convert an RDKit Mol object to a MOL2 block string, optionally adding partial charges.
+
+    Parameters
+    ----------
+    mol : Chem.Mol
+        The RDKit molecule to be converted.
+    charges : Optional[Union[Sequence[float], Literal["gasteiger"]]], default=None
+        If None (the default), no partial charges are added. If "gasteiger", Gasteiger charges
+        are assigned using Open Babel. If a sequence of floats is provided, these are used
+        as the per-atom charges, and will be inserted into the MOL2 output.
+    encoding : Optional[str], default=None
+        Character encoding to use for input and output. If None, system default encoding is used.
+
+    Returns
+    -------
+    str
+        MOL2 format block as a string, with the requested charges set.
+
+    Notes
+    -----
+    - Relies on Open Babel (`obabel`) to perform the actual conversion to the MOL2 format.
+    - Atom properties (including updated charges) are preserved in the output.
+    - Custom charges will overwrite any charges written by Open Babel in the output.
+
+    """
+    REGEX_ATOM_LINE = re.compile(r"^(\s*\d+)(.+)( 0\.0+)$")
+    # the space before 0.0 is required for the charge field to include the sign
+
+    KEY_START = "@<TRIPOS>ATOM"
+    KEY_END = "@<TRIPOS>BOND"
+
+    replace_charges = False
+    if charges is None:
+        partial_charge_option = "none"
+    elif charges == "gasteiger":
+        partial_charge_option = "gasteiger"
+    else:
+        assert len(charges) == mol.GetNumAtoms(), (
+            "The number of charges must be equal to the number of atoms"
+        )
+        partial_charge_option = "none"
+        replace_charges = True
+
+    encoding = check_encoding(encoding)
+
+    result_obabel = subprocess.run(
+        f"obabel -ipdb --partialcharge {partial_charge_option} -omol2".split(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        input=Chem.MolToPDBBlock(mol).encode(encoding),
+        check=True,
+    )
+
+    flag_read = False
+    atom_index: int = 1  # 1-based index
+
+    raw_mol2_block = result_obabel.stdout.decode(encoding)
+    if replace_charges:
+        # mypy cannot infer the type of charges when it is not None
+        # so we need to assert it here
+        assert charges is not None
+        assert not isinstance(charges, str)
+
+        lines: list[str] = []
+        for line in raw_mol2_block.splitlines():
+            if flag_read:
+                if match_result := REGEX_ATOM_LINE.search(line):
+                    assert int(match_result.group(1)) == atom_index
+                    lines.append(
+                        REGEX_ATOM_LINE.sub(
+                            lambda match: "{}{}{:> 7.4f}".format(
+                                match.group(1),
+                                match.group(2),
+                                charges[atom_index - 1],
+                            ),
+                            line,
+                        )
+                    )
+                    atom_index += 1
+                    continue
+                elif line.startswith(KEY_END):
+                    flag_read = False
+            elif line.startswith(KEY_START):
+                flag_read = True
+
+            lines.append(line)
+        return "\n".join(lines)
+    else:
+        return raw_mol2_block
