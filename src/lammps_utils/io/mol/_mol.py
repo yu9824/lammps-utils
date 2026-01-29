@@ -21,6 +21,8 @@ from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
 from lammps_utils.types import CellBounds
 
+BIN_OBABEL = os.environ.get("BIN_OBABEL", "obabel")
+
 
 def _set_conformer_cell_bounds(
     conf: Chem.Conformer,
@@ -489,7 +491,13 @@ def MolToMol2Block(
     encoding = check_encoding(encoding)
 
     result_obabel = subprocess.run(
-        f"obabel -ipdb --partialcharge {partial_charge_option} -omol2".split(),
+        [
+            BIN_OBABEL,
+            "-ipdb",
+            "--partialcharge",
+            partial_charge_option,
+            "-omol2",
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         input=Chem.MolToPDBBlock(mol).encode(encoding),
