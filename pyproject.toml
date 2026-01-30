@@ -14,6 +14,7 @@ dependencies = [
     "networkx",
     "joblib",
     "py3Dmol",
+    "moltemplate",
 ]
 requires-python = ">= 3.9"
 authors = [{ name = "yu9824" }]
