@@ -1,8 +1,11 @@
+import contextlib
 import importlib.util
 import inspect
+import os
 import sys
 from collections.abc import Callable, Iterable, Iterator
-from typing import Any, Generic, Optional, TypeVar
+from pathlib import Path
+from typing import Any, Generic, Optional, TypeVar, Union
 
 import joblib
 import numpy as np
@@ -333,3 +336,32 @@ def check_encoding(encoding: Optional[str] = None) -> str:
         The encoding to check. If None, the default encoding is used.
     """
     return encoding if encoding else sys.getdefaultencoding()
+
+
+@contextlib.contextmanager
+def in_directory(dirpath: Union[os.PathLike, str]):
+    """
+    Context manager to temporarily change the current working directory.
+
+    Usage
+    -----
+    with in_directory("target_dir"):
+        # code executed inside target_dir
+
+    Parameters
+    ----------
+    dirpath : Union[os.PathLike, str]
+        The directory path to change to.
+
+    Yields
+    ------
+    None
+        Code block to execute within the specified directory.
+    """
+    original_dir = Path.cwd()
+    target_dir = Path(dirpath).resolve()
+    try:
+        os.chdir(target_dir)
+        yield
+    finally:
+        os.chdir(original_dir)
