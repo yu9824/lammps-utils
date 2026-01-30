@@ -8,7 +8,7 @@ from typing import Literal, Optional, Union
 
 from rdkit import Chem
 
-from lammps_utils.helpers import check_encoding
+from lammps_utils.helpers import check_encoding, in_directory
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -23,6 +23,7 @@ def _mol_to_mol2_block_antechamber(
     encoding: Optional[str] = None,
     atom_type: Literal["gaff", "gaff2", "sybyl", "bcc", "amber"] = "gaff2",
     name: Optional[str] = None,
+    work_in_cwd: bool = False,
 ) -> str:
     """Convert an RDKit Mol object to a MOL2 block string using antechamber.
 
@@ -40,6 +41,10 @@ def _mol_to_mol2_block_antechamber(
         Supported atom types are 'gaff', 'gaff2', 'sybyl', 'bcc', and 'amber'.
     name : Optional[str], optional
         The name of the molecule. If None, the name of the molecule is not set.
+    work_in_cwd : bool, optional
+        If True, use the current working directory for intermediate files (input.pdb,
+        output.mol2, etc.) instead of a temporary directory. Useful for debugging.
+        Default is False.
     Returns
     -------
     str
@@ -58,60 +63,58 @@ def _mol_to_mol2_block_antechamber(
 
     encoding = check_encoding(encoding)
 
-    # use temporary directory to avoid conflicts with other files
-    with tempfile.TemporaryDirectory(prefix="lammps-utils-") as tmpdir:
-        dirpath_tmp = Path(tmpdir).resolve()
+    def run_antechamber_in(dirpath_tmp: Path) -> str:
         filepath_pdb = dirpath_tmp / "input.pdb"
         filepath_mol2 = dirpath_tmp / "output.mol2"
-
-        # convert to PDB file
-        Chem.MolToPDBFile(mol, str(filepath_pdb))
-
-        # prepare commands
-        list_commands = [
-            BIN_ANTECHAMBER,
-            "-i",
-            str(filepath_pdb),
-            "-fi",
-            "pdb",
-            "-o",
-            str(filepath_mol2),
-            "-fo",
-            "mol2",
-            "-at",
-            atom_type,
-        ]
-        # add name
-        if name is not None:
-            list_commands.extend(["-rn", name])
-
-        # add charges
-        if charges is not None:
-            assert len(charges) == mol.GetNumAtoms(), (
-                "charges must be a sequence of length equal to the number of atoms"
-            )
-            filepath_charges = dirpath_tmp / "charges.txt"
-            filepath_charges.write_text("\n".join(map(str, charges)))
-            list_commands.extend(["-c", "rc", "-cf", str(filepath_charges)])
-
-        logger.debug(f"Running antechamber: {' '.join(list_commands)}")
-
-        # run antechamber
-        result_antechamber = subprocess.run(
-            list_commands,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        # check if the command failed
-        if result_antechamber.returncode != 0:
-            raise RuntimeError(
-                "Failed to run antechamber: {}\n\n{}\n\n{}".format(
-                    " ".join(list_commands),
-                    result_antechamber.stdout.decode(encoding),
-                    result_antechamber.stderr.decode(encoding),
+        with in_directory(dirpath_tmp):
+            Chem.MolToPDBFile(mol, str(filepath_pdb))
+            list_commands = [
+                BIN_ANTECHAMBER,
+                "-i",
+                str(filepath_pdb),
+                "-fi",
+                "pdb",
+                "-o",
+                str(filepath_mol2),
+                "-fo",
+                "mol2",
+                "-at",
+                atom_type,
+            ]
+            if name is not None:
+                list_commands.extend(["-rn", name])
+            if charges is not None:
+                assert len(charges) == mol.GetNumAtoms(), (
+                    "charges must be a sequence of length equal to the number of atoms"
                 )
+                filepath_charges = dirpath_tmp / "charges.txt"
+                filepath_charges.write_text("\n".join(map(str, charges)))
+                list_commands.extend(
+                    ["-c", "rc", "-cf", str(filepath_charges)]
+                )
+            logger.debug(f"Running antechamber: {' '.join(list_commands)}")
+            result_antechamber = subprocess.run(
+                list_commands,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-        return filepath_mol2.read_text(encoding=encoding)
+            logger.debug(result_antechamber.stdout.decode(encoding))
+            logger.debug(result_antechamber.stderr.decode(encoding))
+            if result_antechamber.returncode != 0:
+                raise RuntimeError(
+                    "Failed to run antechamber: {}\n\n{}\n\n{}".format(
+                        " ".join(list_commands),
+                        result_antechamber.stdout.decode(encoding),
+                        result_antechamber.stderr.decode(encoding),
+                    )
+                )
+            return filepath_mol2.read_text(encoding=encoding)
+
+    if work_in_cwd:
+        return run_antechamber_in(Path.cwd().resolve())
+    # use temporary directory to avoid conflicts with other files
+    with tempfile.TemporaryDirectory(prefix="lammps-utils-") as tmpdir:
+        return run_antechamber_in(Path(tmpdir).resolve())
 
 
 def _mol_to_mol2_block_obabel(
@@ -223,12 +226,13 @@ def MolToMol2Block(
     atom_type: Literal["gaff", "gaff2", "sybyl", "bcc", "amber"] = "gaff2",
     name: Optional[str] = None,
     engine: Literal["antechamber", "obabel"] = "antechamber",
+    work_in_cwd: bool = False,
 ) -> str:
     if (
         engine == "antechamber"
     ):  # not accept multiple molecules, but have mutch formats
         return _mol_to_mol2_block_antechamber(
-            mol, charges, encoding, atom_type, name
+            mol, charges, encoding, atom_type, name, work_in_cwd
         )
     elif (
         engine == "obabel"
@@ -253,6 +257,7 @@ def MolToMol2File(
     atom_type: Literal["gaff", "gaff2", "sybyl", "bcc", "amber"] = "gaff2",
     name: Optional[str] = None,
     engine: Literal["antechamber", "obabel"] = "antechamber",
+    work_in_cwd: bool = False,
 ) -> None:
     """
     Write an RDKit Mol object to a MOL2 file, optionally adding partial charges.
@@ -277,9 +282,15 @@ def MolToMol2File(
         The engine to use for the conversion.
         Supported engines are 'antechamber' and 'obabel'.
         Default is 'antechamber'.
+    work_in_cwd : bool, optional
+        If True (antechamber engine only), use the current working directory for
+        intermediate files instead of a temporary directory. Useful for debugging.
+        Default is False.
     """
     encoding = check_encoding(encoding)
     with open(filepath, mode="w", encoding=encoding) as f:
         f.write(
-            MolToMol2Block(mol, charges, encoding, atom_type, name, engine)
+            MolToMol2Block(
+                mol, charges, encoding, atom_type, name, engine, work_in_cwd
+            )
         )
