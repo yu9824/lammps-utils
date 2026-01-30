@@ -3,19 +3,23 @@
 import os
 import subprocess
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Optional
 
 from rdkit import Chem
 
 from lammps_utils.helpers import calculate_box_length
+from lammps_utils.logging import get_child_logger
+
+logger = get_child_logger(__name__)
 
 BIN_PACKMOL = os.environ.get("BIN_PACKMOL", "packmol")
 """Path to the packmol executable. Default is "packmol"."""
 
 
 def generate_amorphous_cell(
-    mol_and_numchains: tuple[tuple[Chem.rdchem.Mol, int], ...],
+    mol_and_numchains: Sequence[tuple[Chem.rdchem.Mol, int]],
     density: float = 0.3,
     tolerance: float = 2.0,
     nloop: int = 50,
@@ -30,7 +34,7 @@ def generate_amorphous_cell(
 
     Parameters
     ----------
-    mol_and_numchains : tuple[tuple[Chem.rdchem.Mol, int], ...]
+    mol_and_numchains : Sequence[tuple[Chem.rdchem.Mol, int]]
         Tuple of (molecule, number_of_chains) pairs. Each molecule represents
         a polymer chain to be placed in the cell.
     density : float, optional
@@ -136,13 +140,21 @@ def generate_amorphous_cell(
         filepath_packmol_input.write_text(content_packmol_input)
 
         # Execute packmol
-        subprocess.run(
-            [BIN_PACKMOL, "-i", str(filepath_packmol_input)],
+        list_commands = [BIN_PACKMOL, "-i", str(filepath_packmol_input)]
+        result_packmol = subprocess.run(
+            list_commands,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             check=True,
         )
+        logger.debug(" ".join(list_commands))
+        logger.debug(result_packmol.stdout.decode())
+        logger.debug(result_packmol.stderr.decode())
 
         # Read the generated cell
-        mol_ac = Chem.MolFromPDBFile(str(filepath_output), removeHs=False)
+        mol_ac = Chem.MolFromPDBFile(
+            str(filepath_output), sanitize=False, removeHs=False
+        )
 
     # Assign atom properties from original molecules
     atom_index_amorphous_cell: int = 0
