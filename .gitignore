@@ -4,6 +4,7 @@ examples/analyze/*
 examples/*.xtc
 examples/*.rst
 !examples/eq3.xtc
+temp/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,6 +1,6 @@
 # https://packaging.python.org/ja/latest/guides/writing-pyproject-toml/
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,6 +14,7 @@ dependencies = [
     "networkx",
     "joblib",
     "py3Dmol",
+    "moltemplate",
 ]
 requires-python = ">= 3.9"
 authors = [{ name = "yu9824" }]
@@ -30,7 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.14",
 ] # https://pypi.org/classifiers/
 
 [project.optional-dependencies]
@@ -52,6 +53,7 @@ Documentation = "https://yu9824.github.io/lammps-utils/"
 # PyPI = "https://pypi.org/project/lammps-utils/"
 Source = "https://github.com/yu9824/lammps-utils"
 Tracker = "https://github.com/yu9824/lammps-utils/issues"
+"Release Notes" = "https://github.com/yu9824/lammps-utils/releases"
 # Changelog = "https://github.com/yu9824/lammps-utils/blob/main/CHANGELOG.md"
 
 # [project.scripts]

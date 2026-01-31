@@ -20,6 +20,24 @@ from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
 from lammps_utils.types import CellBounds
 
 
+def set_positions(conf: Chem.rdchem.Conformer, positions: np.ndarray) -> None:
+    """
+    Set the positions of a conformer.
+
+    Parameters
+    ----------
+    conf : Chem.rdchem.Conformer
+        The conformer to set the positions of.
+    positions : np.ndarray
+        The positions to set.
+    """
+    if hasattr(conf, "SetPositions"):
+        conf.SetPositions(positions)
+    else:
+        for i in range(len(positions)):
+            conf.SetAtomPosition(i, positions[i])
+
+
 def _set_conformer_cell_bounds(
     conf: Chem.Conformer,
     cell_bounds: CellBounds,
@@ -69,7 +87,7 @@ def _calculate_bond_distances(
     for _, bond_row in df_bonds.iterrows():
         atom1_pos = df_atoms.loc[bond_row["atom1"], COLS_XYZ].values
         atom2_pos = df_atoms.loc[bond_row["atom2"], COLS_XYZ].values
-        distance = np.linalg.norm(atom1_pos - atom2_pos)
+        distance = np.linalg.norm(atom1_pos - atom2_pos).item()
         bond_type = bond_row["type"]
         if bond_type not in distances_by_type:
             distances_by_type[bond_type] = []
@@ -231,7 +249,7 @@ def _mol_from_dataframe_data(
 
     conf = Chem.Conformer(df_atoms.shape[0])
     positions = df_atoms.loc[:, COLS_XYZ].values
-    conf.SetPositions(positions)
+    set_positions(conf, positions)
     _set_conformer_cell_bounds(conf, cell_bounds)
 
     rwmol.AddConformer(conf)
@@ -357,7 +375,7 @@ def _mol_from_dataframe_dump(
         zip(conformer_positions, timestep_records)
     ):
         conf = Chem.Conformer(n_atoms)
-        conf.SetPositions(positions)
+        set_positions(conf, positions)
         conf.SetIntProp("frame", frame)
         conf.SetId(confId)
         _set_conformer_cell_bounds(conf, cell_bounds)

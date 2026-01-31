@@ -1,11 +1,13 @@
+import contextlib
 import importlib.util
 import inspect
+import os
+import sys
 from collections.abc import Callable, Iterable, Iterator
-from typing import Any, Generic, Optional, TypeVar
+from pathlib import Path
+from typing import Any, Generic, Optional, TypeVar, Union
 
 import joblib
-
-from lammps_utils.constants import AVOGADRO
 
 T = TypeVar("T")
 
@@ -252,51 +254,42 @@ class tqdm_joblib:
         return False
 
 
-def calculate_box_length(
-    total_mass: float,  # g/mol
-    density: float,  # g/cm^3
-) -> float:
+def check_encoding(encoding: Optional[str] = None) -> str:
     """
-    Calculate the box length for a simulation cell from total mass and density.
+    Check the encoding of a string.
 
     Parameters
     ----------
-    total_mass : float
-        Total mass of the system in g/mol.
-    density : float
-        Target density in g/cm³.
-
-    Returns
-    -------
-    float
-        Box length in Angstroms (Å) for a cubic simulation cell.
-
-    Notes
-    -----
-    This function calculates the edge length of a cubic simulation cell
-    that would contain the specified mass at the given density.
-
-    The calculation:
-    1. Converts mass from g/mol to grams using Avogadro's number
-    2. Calculates volume from mass and density
-    3. Takes the cube root to get the edge length
-    4. Converts from meters to Angstroms (1 m = 1e10 Å)
-
-    Examples
-    --------
-    >>> calculate_box_length(100.0, 1.0)  # 100 g/mol at 1 g/cm³
-    25.4...  # Angstroms
+    encoding : Optional[str], optional
+        The encoding to check. If None, the default encoding is used.
     """
-    return (
-        (
-            (
-                total_mass  # g/mol
-                / AVOGADRO  # /mol
-            )
-            / (
-                density  # g/cm^3
-                * ((1e2) ** 3)  # /cm^3
-            )
-        )
-        ** (1 / 3)  # m
-    ) * 1e10  # Å
+    return encoding if encoding else sys.getdefaultencoding()
+
+
+@contextlib.contextmanager
+def in_directory(dirpath: Union[os.PathLike, str]):
+    """
+    Context manager to temporarily change the current working directory.
+
+    Usage
+    -----
+    with in_directory("target_dir"):
+        # code executed inside target_dir
+
+    Parameters
+    ----------
+    dirpath : Union[os.PathLike, str]
+        The directory path to change to.
+
+    Yields
+    ------
+    None
+        Code block to execute within the specified directory.
+    """
+    original_dir = Path.cwd()
+    target_dir = Path(dirpath).resolve()
+    try:
+        os.chdir(target_dir)
+        yield
+    finally:
+        os.chdir(original_dir)
