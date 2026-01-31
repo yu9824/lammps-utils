@@ -155,6 +155,11 @@ def generate_amorphous_cell(
         mol_ac = Chem.MolFromPDBFile(
             str(filepath_output), sanitize=False, removeHs=False
         )
+        assert mol_ac.GetNumConformers() == 1
+        conf = mol_ac.GetConformer(0)
+        for axis in ("x", "y", "z"):
+            for sign, direction in zip((-1, 1), ("lo", "hi")):
+                conf.SetDoubleProp(axis + direction, box_length_half * sign)
 
     # Assign atom properties from original molecules
     atom_index_amorphous_cell: int = 0
