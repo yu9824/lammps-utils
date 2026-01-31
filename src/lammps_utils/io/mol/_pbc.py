@@ -12,6 +12,7 @@ from lammps_utils.graph.pbc._pbc import (
     unwrap_positions_under_pbc,
     wrap_positions_into_cell,
 )
+from lammps_utils.helpers import set_positions
 from lammps_utils.types import CellBounds
 
 
@@ -78,14 +79,14 @@ def unwrap_mol_under_pbc(
     positions_new = unwrap_positions_under_pbc(
         graph, positions=conf.GetPositions(), cell_size=cell_size
     )
-    conf.SetPositions(positions_new)
+    set_positions(conf, positions_new)
 
     if determine_bonds:
         for bond in rwmol.GetBonds():
             assert isinstance(bond, Chem.rdchem.Bond)
             atom1_pos = positions_new[bond.GetBeginAtomIdx()]
             atom2_pos = positions_new[bond.GetEndAtomIdx()]
-            distance = np.linalg.norm(atom1_pos - atom2_pos)
+            distance = np.linalg.norm(atom1_pos - atom2_pos).item()
             bond.SetBondType(
                 get_bond_order(
                     (
@@ -148,13 +149,18 @@ def wrap_mol_into_cell(
                 "cell bounds properties (xlo, xhi, ylo, yhi, zlo, zhi)"
             )
 
-        cell_bounds = tuple(
-            (conf.GetDoubleProp(f"{axis}lo"), conf.GetDoubleProp(f"{axis}hi"))
+        _cell_bounds_temp = tuple(
+            (
+                float(conf.GetDoubleProp(f"{axis}lo")),
+                float(conf.GetDoubleProp(f"{axis}hi")),
+            )
             for axis in ("x", "y", "z")
         )
-        assert len(cell_bounds) == 3
+        assert len(_cell_bounds_temp) == 3
+        cell_bounds = _cell_bounds_temp
 
-    conf.SetPositions(
-        wrap_positions_into_cell(conf.GetPositions(), cell_bounds=cell_bounds)
+    set_positions(
+        conf,
+        wrap_positions_into_cell(conf.GetPositions(), cell_bounds=cell_bounds),
     )
     return mol_new

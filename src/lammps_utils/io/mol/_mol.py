@@ -14,7 +14,7 @@ from rdkit import Chem
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
-from lammps_utils.helpers import tqdm_joblib
+from lammps_utils.helpers import set_positions, tqdm_joblib
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
 from lammps_utils.types import CellBounds
@@ -231,7 +231,7 @@ def _mol_from_dataframe_data(
 
     conf = Chem.Conformer(df_atoms.shape[0])
     positions = df_atoms.loc[:, COLS_XYZ].values
-    conf.SetPositions(positions)
+    set_positions(conf, positions)
     _set_conformer_cell_bounds(conf, cell_bounds)
 
     rwmol.AddConformer(conf)
@@ -357,7 +357,7 @@ def _mol_from_dataframe_dump(
         zip(conformer_positions, timestep_records)
     ):
         conf = Chem.Conformer(n_atoms)
-        conf.SetPositions(positions)
+        set_positions(conf, positions)
         conf.SetIntProp("frame", frame)
         conf.SetId(confId)
         _set_conformer_cell_bounds(conf, cell_bounds)
