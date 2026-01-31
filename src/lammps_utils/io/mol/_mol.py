@@ -14,10 +14,28 @@ from rdkit import Chem
 from lammps_utils.chem.bond._bond import get_bond_order
 from lammps_utils.constants import COLS_XYZ
 from lammps_utils.graph.pbc._pbc import unwrap_positions_under_pbc
-from lammps_utils.helpers import set_positions, tqdm_joblib
+from lammps_utils.helpers import tqdm_joblib
 from lammps_utils.io.dataframe._dataframe import load_data, load_dump
 from lammps_utils.io.dataframe._pbc import unwrap_df_positions_under_pbc
 from lammps_utils.types import CellBounds
+
+
+def set_positions(conf: Chem.rdchem.Conformer, positions: np.ndarray) -> None:
+    """
+    Set the positions of a conformer.
+
+    Parameters
+    ----------
+    conf : Chem.rdchem.Conformer
+        The conformer to set the positions of.
+    positions : np.ndarray
+        The positions to set.
+    """
+    if hasattr(conf, "SetPositions"):
+        conf.SetPositions(positions)
+    else:
+        for i in range(len(positions)):
+            conf.SetAtomPosition(i, positions[i])
 
 
 def _set_conformer_cell_bounds(

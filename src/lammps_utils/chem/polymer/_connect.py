@@ -7,7 +7,7 @@ from rdkit import Chem
 
 from lammps_utils.chem.conformer._generate import minimize_conformer
 from lammps_utils.chem.conformer._rotate import rotate_around_bond
-from lammps_utils.helpers import set_positions
+from lammps_utils.io.mol import set_positions
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)

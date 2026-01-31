@@ -12,7 +12,7 @@ from lammps_utils.graph.pbc._pbc import (
     unwrap_positions_under_pbc,
     wrap_positions_into_cell,
 )
-from lammps_utils.helpers import set_positions
+from lammps_utils.io.mol import set_positions
 from lammps_utils.types import CellBounds
 
 

@@ -8,25 +8,21 @@ iterating with a dummy progress bar, and verifying function arguments.
 """
 
 from ._helpers import (
-    calculate_box_length,
     check_encoding,
     dummy_tqdm,
     in_directory,
     is_argument,
     is_installed,
-    set_positions,
     tqdm_joblib,
 )
 
 # _helpers.pyだと、_が入っているのでドキュメント化されない。
 # ドキュメント化したい場合は、モジュールメソッドとして登録するため、__all__に入れる。
 __all__ = (
-    "calculate_box_length",
     "check_encoding",
     "dummy_tqdm",
     "in_directory",
     "is_argument",
     "is_installed",
-    "set_positions",
     "tqdm_joblib",
 )
