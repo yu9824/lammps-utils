@@ -55,9 +55,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
         auto-activate-base: false
         channels: conda-forge
+        activate-environment: test  # env name
     - name: Install conda optional dependencies
       run: |
-        conda install -n base -c conda-forge -y -f requirements-conda-optional.txt
+        conda install -n test -c conda-forge -y --file requirements-conda-optional.txt
     - name: Install dependencies
       run: |
         pip install ".[test,optional]"
