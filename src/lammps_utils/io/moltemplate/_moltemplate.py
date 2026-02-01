@@ -4,11 +4,9 @@ This module provides functions to generate .lt files using Moltemplate (https://
 and to create LAMMPS data and input files from molecular structures.
 """
 
-import contextlib
 import importlib
 import os
 import shutil
-import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal, Optional, Union
@@ -19,7 +17,7 @@ from lammps_utils.chem.polymer import (
     calculate_box_length,
     generate_amorphous_cell,
 )
-from lammps_utils.helpers import run_executable
+from lammps_utils.helpers import run_executable, work_directory
 from lammps_utils.io.mol import MolToMol2File
 from lammps_utils.logging import get_child_logger
 from lammps_utils.types import CellBounds
@@ -161,29 +159,6 @@ def write_system_lt(
     )
 
 
-@contextlib.contextmanager
-def _work_dir(work_in_cwd: bool):
-    """
-    Context manager to provide a working directory.
-
-    If work_in_cwd is True, yields the current working directory and a flag indicating
-    no output copying is required. If False, yields a temporary directory (as Path)
-    and a flag indicating output files should be copied to the original cwd after processing.
-
-    Returns
-    -------
-    Path
-        work_dir
-    """
-    cwd = Path.cwd().resolve()
-    if work_in_cwd:
-        yield cwd
-    else:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            work_dir = Path(tmpdir).resolve()
-            yield work_dir
-
-
 def write_lammps_input(
     mol_and_num_chains: Sequence[tuple[Chem.Mol, int]],
     charges: Optional[Sequence[float]] = None,
@@ -219,7 +194,7 @@ def write_lammps_input(
         If moltemplate.sh exits with a non-zero status.
     """
     cwd = Path.cwd().resolve()
-    with _work_dir(work_in_cwd) as work_dir:
+    with work_directory(work_in_cwd) as work_dir:
         filepath_system_pdb = work_dir / "system.pdb"
         filepath_system_lt = work_dir / "system.lt"
 
@@ -281,5 +256,10 @@ def write_lammps_input(
 
         if not work_in_cwd:
             for filepath in work_dir.iterdir():
-                if filepath.is_file():
+                if filepath.is_file() and (
+                    any(
+                        suffix in {".in", ".data"}
+                        for suffix in filepath.suffixes
+                    )
+                ):
                     shutil.copy2(filepath, cwd / filepath.name)

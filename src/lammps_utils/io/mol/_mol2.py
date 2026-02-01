@@ -1,14 +1,12 @@
 import os
 import re
 import shutil
-import tempfile
 from collections.abc import Sequence
-from pathlib import Path
 from typing import Literal, Optional, Union
 
 from rdkit import Chem
 
-from lammps_utils.helpers import check_encoding, in_directory, run_executable
+from lammps_utils.helpers import check_encoding, run_executable, work_directory
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -70,43 +68,35 @@ def _mol_to_mol2_block_antechamber(
 
     encoding = check_encoding(encoding)
 
-    def run_antechamber_in(dirpath_tmp: Path) -> str:
-        filepath_pdb = dirpath_tmp / "input.pdb"
-        filepath_mol2 = dirpath_tmp / "output.mol2"
-        with in_directory(dirpath_tmp):
-            Chem.MolToPDBFile(mol, str(filepath_pdb))
-            list_commands = [
-                BIN_ANTECHAMBER,
-                "-i",
-                str(filepath_pdb),
-                "-fi",
-                "pdb",
-                "-o",
-                str(filepath_mol2),
-                "-fo",
-                "mol2",
-                "-at",
-                atom_type,
-            ]
-            if name is not None:
-                list_commands.extend(["-rn", name])
-            if charges is not None:
-                assert len(charges) == mol.GetNumAtoms(), (
-                    "charges must be a sequence of length equal to the number of atoms"
-                )
-                filepath_charges = dirpath_tmp / "charges.txt"
-                filepath_charges.write_text("\n".join(map(str, charges)))
-                list_commands.extend(
-                    ["-c", "rc", "-cf", str(filepath_charges)]
-                )
-            run_executable(list_commands)
-            return filepath_mol2.read_text(encoding=encoding)
+    with work_directory(work_in_cwd) as work_dir:
+        filepath_pdb = work_dir / "input.pdb"
+        filepath_mol2 = work_dir / "output.mol2"
 
-    if work_in_cwd:
-        return run_antechamber_in(Path.cwd().resolve())
-    # use temporary directory to avoid conflicts with other files
-    with tempfile.TemporaryDirectory(prefix="lammps-utils-") as tmpdir:
-        return run_antechamber_in(Path(tmpdir).resolve())
+        Chem.MolToPDBFile(mol, str(filepath_pdb))
+        list_commands = [
+            BIN_ANTECHAMBER,
+            "-i",
+            str(filepath_pdb),
+            "-fi",
+            "pdb",
+            "-o",
+            str(filepath_mol2),
+            "-fo",
+            "mol2",
+            "-at",
+            atom_type,
+        ]
+        if name is not None:
+            list_commands.extend(["-rn", name])
+        if charges is not None:
+            assert len(charges) == mol.GetNumAtoms(), (
+                "charges must be a sequence of length equal to the number of atoms"
+            )
+            filepath_charges = work_dir / "charges.txt"
+            filepath_charges.write_text("\n".join(map(str, charges)))
+            list_commands.extend(["-c", "rc", "-cf", str(filepath_charges)])
+        run_executable(list_commands, cwd=work_dir)
+        return filepath_mol2.read_text(encoding=encoding)
 
 
 def _mol_to_mol2_block_obabel(
