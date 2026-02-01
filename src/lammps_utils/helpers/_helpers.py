@@ -324,6 +324,8 @@ def is_executable(executable: str) -> bool:
 
 def run_executable(
     commands: Sequence[str],
+    *,
+    cwd: Optional[Union[str, os.PathLike]] = None,
 ) -> "subprocess.CompletedProcess[bytes]":
     """Run an executable with subprocess.run.
     This function runs an executable with subprocess.run and returns the result.
@@ -333,6 +335,8 @@ def run_executable(
     ----------
     commands : Sequence[str]
         The sequence of commands to run.
+    cwd : path-like, optional
+        If given, run the command in this directory.
 
     Returns
     -------
@@ -348,7 +352,10 @@ def run_executable(
         raise FileNotFoundError(f"Executable not found: {commands[0]}")
 
     result = subprocess.run(
-        commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        commands,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=cwd,
     )
     logger.debug(f"Running executable: {' '.join(commands)}")
     logger.debug(f"Standard output: {result.stdout.decode()}")
