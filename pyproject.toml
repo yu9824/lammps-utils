@@ -16,7 +16,7 @@ dependencies = [
     "py3Dmol",
     "moltemplate",
 ]
-requires-python = ">= 3.9"
+requires-python = ">= 3.9,<3.14" # because of packmol
 authors = [{ name = "yu9824" }]
 maintainers = [{ name = "yu9824" }]
 description = ""
@@ -31,7 +31,6 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
 ] # https://pypi.org/classifiers/
 
 [project.optional-dependencies]

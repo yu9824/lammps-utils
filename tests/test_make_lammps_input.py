@@ -1,17 +1,9 @@
-import sys
-
-import pytest
-
 from lammps_utils.chem.charge import compute_gasteiger_charges
 from lammps_utils.chem.conformer import generate_minimized_conformer
 from lammps_utils.chem.polymer import attach_terminal_groups, polymerize_linear
 from lammps_utils.io.moltemplate import write_lammps_input
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 14),
-    reason="packmol is not available on python3.14 or higher",
-)
 def test_make_lammps_input():
     mol_mono = generate_minimized_conformer(
         "[3H]CC(c1ccccc1)[3H]", seed=1, num_confs=1
