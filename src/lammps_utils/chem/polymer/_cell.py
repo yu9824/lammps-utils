@@ -195,11 +195,15 @@ def generate_amorphous_cell(
             list_commands,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True,
         )
-        logger.debug(" ".join(list_commands))
-        logger.debug(result_packmol.stdout.decode())
-        logger.debug(result_packmol.stderr.decode())
+        if result_packmol.returncode != 0:
+            logger.error("Packmol execution failed")
+            logger.error(" ".join(list_commands))
+            logger.error(result_packmol.stdout.decode())
+            logger.error(result_packmol.stderr.decode())
+            raise subprocess.CalledProcessError(
+                result_packmol.returncode, list_commands
+            )
 
         # Read the generated cell
         mol_ac = Chem.MolFromPDBFile(
