@@ -1,11 +1,7 @@
 # Regrences
 # - https://enu23456.hatenablog.com/entry/2022/11/24/195744
-name: CI
+name: test
 run-name: ${{ github.workflow }} (${{ github.ref_name }})
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 on:
   workflow_dispatch:
