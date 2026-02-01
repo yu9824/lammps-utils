@@ -4,8 +4,11 @@ This module provides functions to generate .lt files using Moltemplate (https://
 and to create LAMMPS data and input files from molecular structures.
 """
 
+import contextlib
 import importlib
 import os
+import shutil
+import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal, Optional, Union
@@ -158,6 +161,29 @@ def write_system_lt(
     )
 
 
+@contextlib.contextmanager
+def _work_dir(work_in_cwd: bool):
+    """
+    Context manager to provide a working directory.
+
+    If work_in_cwd is True, yields the current working directory and a flag indicating
+    no output copying is required. If False, yields a temporary directory (as Path)
+    and a flag indicating output files should be copied to the original cwd after processing.
+
+    Returns
+    -------
+    Path
+        work_dir
+    """
+    cwd = Path.cwd().resolve()
+    if work_in_cwd:
+        yield cwd
+    else:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            work_dir = Path(tmpdir).resolve()
+            yield work_dir
+
+
 def write_lammps_input(
     mol_and_num_chains: Sequence[tuple[Chem.Mol, int]],
     charges: Optional[Sequence[float]] = None,
@@ -182,61 +208,78 @@ def write_lammps_input(
     seed : int, optional
         Random seed for amorphous cell generation.
     work_in_cwd : bool, default False
-        If True, run MolToMol2File (antechamber) in the current directory.
+        If True, run MolToMol2File (antechamber) and write all intermediate files
+        in the current directory. If False, intermediate files are written to a
+        temporary directory; LAMMPS output files (system.data, system.in.*) are
+        copied to the current directory.
 
     Raises
     ------
     RuntimeError
         If moltemplate.sh exits with a non-zero status.
     """
-    filepath_system_pdb = Path("system.pdb").resolve()
-    filepath_system_lt = Path("system.lt").resolve()
+    cwd = Path.cwd().resolve()
+    with _work_dir(work_in_cwd) as work_dir:
+        filepath_system_pdb = work_dir / "system.pdb"
+        filepath_system_lt = work_dir / "system.lt"
 
-    list_mol_specs: list[tuple[str, Path, int]] = []
-    for idx, (mol, num_chains) in enumerate(mol_and_num_chains):
-        name = f"MOL{idx}"
-        filepath_mol2 = Path(f"{name}.mol2")
+        list_mol_specs: list[tuple[str, Path, int]] = []
+        for idx, (mol, num_chains) in enumerate(mol_and_num_chains):
+            name = f"MOL{idx}"
+            filepath_mol2 = work_dir / f"{name}.mol2"
 
-        MolToMol2File(
-            mol,
-            filepath_mol2,
-            charges=charges,
-            atom_type="gaff2",
-            name=name,
-            engine="antechamber",
-            work_in_cwd=work_in_cwd,
+            MolToMol2File(
+                mol,
+                filepath_mol2,
+                charges=charges,
+                atom_type="gaff2",
+                name=name,
+                engine="antechamber",
+                work_in_cwd=work_in_cwd,
+            )
+            mol22lt(filepath_mol2, forcefield="GAFF2", name=name)
+            list_mol_specs.append(
+                (name, filepath_mol2.with_suffix(".lt"), num_chains)
+            )
+
+        if len(mol_and_num_chains) > 1 or mol_and_num_chains[0][1] > 1:
+            mol_system = generate_amorphous_cell(
+                mol_and_num_chains,
+                density=density,
+                nloop=50,
+                maxit=20,
+                seed=seed,
+            )
+        else:
+            mol_system = mol_and_num_chains[0][0]
+
+        Chem.MolToPDBFile(mol_system, str(filepath_system_pdb))
+
+        box_length = calculate_box_length(
+            sum(atom.GetMass() for atom in mol_system.GetAtoms()),
+            density=density,
         )
-        mol22lt(filepath_mol2, forcefield="GAFF2", name=name)
-        list_mol_specs.append(
-            (name, filepath_mol2.with_suffix(".lt"), num_chains)
+        box_length_half = box_length / 2
+
+        write_system_lt(
+            list_mol_specs,
+            filepath_system_lt,
+            cell_bounds=((-box_length_half, box_length_half),) * 3,
         )
 
-    if len(mol_and_num_chains) > 1 or mol_and_num_chains[0][1] > 1:
-        mol_system = generate_amorphous_cell(
-            mol_and_num_chains, density=density, nloop=50, maxit=20, seed=seed
+        run_executable(
+            [
+                "moltemplate.sh",
+                "-atomstyle",
+                "full",
+                "-pdb",
+                str(filepath_system_pdb),
+                str(filepath_system_lt),
+            ],
+            cwd=work_dir,
         )
-    else:
-        mol_system = mol_and_num_chains[0][0]
 
-    Chem.MolToPDBFile(mol_system, str(filepath_system_pdb))
-
-    box_length = calculate_box_length(
-        sum(atom.GetMass() for atom in mol_system.GetAtoms()), density=density
-    )
-    box_length_half = box_length / 2
-
-    write_system_lt(
-        list_mol_specs,
-        filepath_system_lt,
-        cell_bounds=((-box_length_half, box_length_half),) * 3,
-    )
-
-    list_commands_moltemplate = [
-        "moltemplate.sh",
-        "-atomstyle",
-        "full",
-        "-pdb",
-        str(filepath_system_pdb),
-        str(filepath_system_lt),
-    ]
-    run_executable(list_commands_moltemplate)
+        if not work_in_cwd:
+            for filepath in work_dir.iterdir():
+                if filepath.is_file():
+                    shutil.copy2(filepath, cwd / filepath.name)
