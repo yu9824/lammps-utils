@@ -38,15 +38,32 @@ on:
       - 'tox.ini'
 
 jobs:
-  test:
+  test-core:
     runs-on: ubuntu-latest
-    # runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install ".[test,optional]"
+    - name: Test with pytest
+      run: |
+        pytest -xs . --ignore=tests/test_make_lammps_input.py
+
+  test-make-lammps-input:
+    runs-on: ubuntu-latest
     env:
       CONDA_ENV_NAME: test
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-      # max-parallel: 6
 
     steps:
     - uses: actions/checkout@v4
@@ -64,4 +81,4 @@ jobs:
         conda run -n ${{ env.CONDA_ENV_NAME }} python3 -m pip install ".[test,optional]"
     - name: Test with pytest
       run: |
-        conda run -n ${{ env.CONDA_ENV_NAME }} python3 -m pytest -xs .
+        conda run -n ${{ env.CONDA_ENV_NAME }} python3 -m pytest -xs tests/test_make_lammps_input.py
