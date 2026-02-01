@@ -66,4 +66,4 @@ jobs:
         conda run -n ${{ env.CONDA_ENV_NAME }} pip install ".[test,optional]"
     - name: Test with pytest
       run: |
-        conda run -n ${{ env.CONDA_ENV_NAME }} pytest -xs .
+        conda run -n ${{ env.CONDA_ENV_NAME }} python3 -m pytest -xs .
