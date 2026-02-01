@@ -23,6 +23,7 @@ def test_make_lammps_input():
 
     write_lammps_input(
         [(mol_polymer, 10)],
+        stem="system",
         charges=charges,
         density=0.3,
         seed=1,

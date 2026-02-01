@@ -4,3 +4,4 @@ channels:
 dependencies:
   - ambertools>=23.3
   - packmol
+  - lammps

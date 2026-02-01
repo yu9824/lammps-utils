@@ -82,3 +82,6 @@ jobs:
     - name: Test with pytest
       run: |
         conda run -n ${{ env.CONDA_ENV_NAME }} python3 -m pytest -xs tests/test_make_lammps_input.py
+    - name: Run lammps
+      run: |
+        conda run -n ${{ env.CONDA_ENV_NAME }} lmp -i run.in.EXAMPLE
