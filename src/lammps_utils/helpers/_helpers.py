@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import Any, Generic, Optional, TypeVar, Union
@@ -273,32 +274,40 @@ def check_encoding(encoding: Optional[str] = None) -> str:
 
 
 @contextlib.contextmanager
-def in_directory(dirpath: Union[os.PathLike, str]):
-    """
-    Context manager to temporarily change the current working directory.
+def work_directory(work_in_cwd: bool):
+    """Context manager that yields the current directory or a temporary directory.
 
-    Usage
-    -----
-    with in_directory("target_dir"):
-        # code executed inside target_dir
+    If work_in_cwd is True, yields the current working directory (Path).
+    If False, creates a temporary directory and yields its path; the directory
+    is removed when the context exits.
+
+    Useful when generating intermediate files that may be written either to the
+    current directory or to a temporary directory (e.g. for cleanup).
 
     Parameters
     ----------
-    dirpath : Union[os.PathLike, str]
-        The directory path to change to.
+    work_in_cwd : bool
+        If True, yield the current working directory. If False, create and yield
+        a temporary directory (prefix ``lammps-utils-``).
 
     Yields
     ------
-    None
-        Code block to execute within the specified directory.
+    Path
+        The directory to use for work (either cwd or a temporary directory).
+
+    Examples
+    --------
+    >>> from lammps_utils.helpers import work_directory
+    >>> with work_directory(work_in_cwd=False) as work_dir:
+    ...     (work_dir / "output.txt").write_text("hello")
     """
-    original_dir = Path.cwd()
-    target_dir = Path(dirpath).resolve()
-    try:
-        os.chdir(target_dir)
-        yield
-    finally:
-        os.chdir(original_dir)
+    cwd = Path.cwd().resolve()
+    if work_in_cwd:
+        yield cwd
+    else:
+        with tempfile.TemporaryDirectory(prefix="lammps-utils-") as tmpdir:
+            work_dir = Path(tmpdir).resolve()
+            yield work_dir
 
 
 def is_executable(executable: str) -> bool:
