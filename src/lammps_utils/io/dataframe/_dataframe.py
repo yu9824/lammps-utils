@@ -16,6 +16,7 @@ from lammps_utils.io.parsing._parsing import (
     get_bond_dataframe,
     get_cell_bounds,
 )
+from lammps_utils.types import CellBounds
 
 
 @overload
@@ -39,7 +40,7 @@ def load_data(
     return_cell_bounds: Literal[True] = True,
 ) -> tuple[
     pd.DataFrame,
-    tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    CellBounds,
 ]: ...
 
 
@@ -65,7 +66,7 @@ def load_data(
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
-    tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    CellBounds,
 ]: ...
 
 
@@ -81,12 +82,12 @@ def load_data(
     tuple[pd.DataFrame, pd.DataFrame],
     tuple[
         pd.DataFrame,
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
     ],
     tuple[
         pd.DataFrame,
         pd.DataFrame,
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
     ],
 ]:
     """
@@ -187,7 +188,7 @@ def _parse_dump_timestep(
 ) -> tuple[
     int,
     pd.DataFrame,
-    tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+    CellBounds,
 ]: ...
 
 
@@ -201,7 +202,7 @@ def _parse_dump_timestep(
     tuple[
         int,
         pd.DataFrame,
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
     ],
     tuple[int, pd.DataFrame],
 ]: ...
@@ -216,7 +217,7 @@ def _parse_dump_timestep(
     tuple[
         int,
         pd.DataFrame,
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
     ],
     tuple[int, pd.DataFrame],
 ]:
@@ -374,7 +375,7 @@ def _load_timestep_chunk(
     tuple[
         int,
         pd.DataFrame,
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
     ],
     tuple[int, pd.DataFrame],
 ]:
@@ -566,7 +567,7 @@ def load_dump(
     tuple[
         int,
         pd.DataFrame,
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
     ],
     ...,
 ]: ...

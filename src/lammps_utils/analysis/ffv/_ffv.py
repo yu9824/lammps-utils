@@ -10,6 +10,7 @@ from scipy.spatial import KDTree
 
 from lammps_utils.constants import MAP_VDW_RADIUS
 from lammps_utils.io.mol._pbc import wrap_mol_into_cell
+from lammps_utils.types import CellBounds
 
 __all__ = ("compute_ffv",)
 
@@ -17,9 +18,7 @@ __all__ = ("compute_ffv",)
 def compute_ffv(
     mol: Chem.rdchem.Mol,
     confId: int = -1,
-    cell_bounds: Optional[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]]
-    ] = None,
+    cell_bounds: Optional[CellBounds] = None,
     probe_radius: float = 1.4,
     grid_spacing: float = 1.0,
     n_jobs: Optional[int] = None,

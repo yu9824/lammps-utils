@@ -10,19 +10,23 @@ iterating with a dummy progress bar, and verifying function arguments.
 from ._helpers import (
     check_encoding,
     dummy_tqdm,
-    in_directory,
     is_argument,
+    is_executable,
     is_installed,
+    run_executable,
     tqdm_joblib,
+    work_directory,
 )
 
 # _helpers.pyだと、_が入っているのでドキュメント化されない。
 # ドキュメント化したい場合は、モジュールメソッドとして登録するため、__all__に入れる。
 __all__ = (
     "check_encoding",
+    "work_directory",
     "dummy_tqdm",
-    "in_directory",
     "is_argument",
     "is_installed",
     "tqdm_joblib",
+    "run_executable",
+    "is_executable",
 )

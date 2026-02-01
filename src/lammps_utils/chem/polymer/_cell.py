@@ -1,7 +1,7 @@
 """Module for generating amorphous cells using packmol."""
 
 import os
-import subprocess
+import shutil
 import tempfile
 from collections.abc import Sequence
 from pathlib import Path
@@ -10,6 +10,7 @@ from typing import Optional
 from rdkit import Chem
 
 from lammps_utils.constants import AVOGADRO
+from lammps_utils.helpers import run_executable
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -129,6 +130,14 @@ def generate_amorphous_cell(
     >>> polymer = polymerize_linear((monomer,), (1.0,), n=10)
     >>> cell = generate_amorphous_cell(((polymer, 5),), density=0.3)
     """
+    # Check if packmol is available
+    if not shutil.which(BIN_PACKMOL):
+        raise FileNotFoundError(
+            f"Packmol executable not found: {BIN_PACKMOL}. "
+            "Please install it using `conda install -c conda-forge packmol` "
+            "or set the `BIN_PACKMOL` environment variable to the path of the packmol executable."
+        )
+
     # Calculate box length from total mass and density
     total_mass = sum(
         sum(atom.GetMass() for atom in mol.GetAtoms()) * n_chain
@@ -191,15 +200,7 @@ def generate_amorphous_cell(
 
         # Execute packmol
         list_commands = [BIN_PACKMOL, "-i", str(filepath_packmol_input)]
-        result_packmol = subprocess.run(
-            list_commands,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True,
-        )
-        logger.debug(" ".join(list_commands))
-        logger.debug(result_packmol.stdout.decode())
-        logger.debug(result_packmol.stderr.decode())
+        run_executable(list_commands)
 
         # Read the generated cell
         mol_ac = Chem.MolFromPDBFile(

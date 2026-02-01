@@ -1,14 +1,12 @@
 import os
 import re
-import subprocess
-import tempfile
+import shutil
 from collections.abc import Sequence
-from pathlib import Path
 from typing import Literal, Optional, Union
 
 from rdkit import Chem
 
-from lammps_utils.helpers import check_encoding, in_directory
+from lammps_utils.helpers import check_encoding, run_executable, work_directory
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -55,6 +53,13 @@ def _mol_to_mol2_block_antechamber(
     RuntimeError
         If the command fails.
     """
+    if not shutil.which(BIN_ANTECHAMBER):
+        raise FileNotFoundError(
+            f"antechamber executable not found: {BIN_ANTECHAMBER}. "
+            "Please install it using `conda install -c conda-forge ambertools` "
+            "or set the `BIN_ANTECHAMBER` environment variable to the path of the antechamber executable."
+        )
+
     if len(Chem.GetMolFrags(mol)) > 1:
         raise ValueError(
             "Multiple molecules are not supported for antechamber engine. "
@@ -63,58 +68,35 @@ def _mol_to_mol2_block_antechamber(
 
     encoding = check_encoding(encoding)
 
-    def run_antechamber_in(dirpath_tmp: Path) -> str:
-        filepath_pdb = dirpath_tmp / "input.pdb"
-        filepath_mol2 = dirpath_tmp / "output.mol2"
-        with in_directory(dirpath_tmp):
-            Chem.MolToPDBFile(mol, str(filepath_pdb))
-            list_commands = [
-                BIN_ANTECHAMBER,
-                "-i",
-                str(filepath_pdb),
-                "-fi",
-                "pdb",
-                "-o",
-                str(filepath_mol2),
-                "-fo",
-                "mol2",
-                "-at",
-                atom_type,
-            ]
-            if name is not None:
-                list_commands.extend(["-rn", name])
-            if charges is not None:
-                assert len(charges) == mol.GetNumAtoms(), (
-                    "charges must be a sequence of length equal to the number of atoms"
-                )
-                filepath_charges = dirpath_tmp / "charges.txt"
-                filepath_charges.write_text("\n".join(map(str, charges)))
-                list_commands.extend(
-                    ["-c", "rc", "-cf", str(filepath_charges)]
-                )
-            logger.debug(f"Running antechamber: {' '.join(list_commands)}")
-            result_antechamber = subprocess.run(
-                list_commands,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            logger.debug(result_antechamber.stdout.decode(encoding))
-            logger.debug(result_antechamber.stderr.decode(encoding))
-            if result_antechamber.returncode != 0:
-                raise RuntimeError(
-                    "Failed to run antechamber: {}\n\n{}\n\n{}".format(
-                        " ".join(list_commands),
-                        result_antechamber.stdout.decode(encoding),
-                        result_antechamber.stderr.decode(encoding),
-                    )
-                )
-            return filepath_mol2.read_text(encoding=encoding)
+    with work_directory(work_in_cwd) as work_dir:
+        filepath_pdb = work_dir / "input.pdb"
+        filepath_mol2 = work_dir / "output.mol2"
 
-    if work_in_cwd:
-        return run_antechamber_in(Path.cwd().resolve())
-    # use temporary directory to avoid conflicts with other files
-    with tempfile.TemporaryDirectory(prefix="lammps-utils-") as tmpdir:
-        return run_antechamber_in(Path(tmpdir).resolve())
+        Chem.MolToPDBFile(mol, str(filepath_pdb))
+        list_commands = [
+            BIN_ANTECHAMBER,
+            "-i",
+            str(filepath_pdb),
+            "-fi",
+            "pdb",
+            "-o",
+            str(filepath_mol2),
+            "-fo",
+            "mol2",
+            "-at",
+            atom_type,
+        ]
+        if name is not None:
+            list_commands.extend(["-rn", name])
+        if charges is not None:
+            assert len(charges) == mol.GetNumAtoms(), (
+                "charges must be a sequence of length equal to the number of atoms"
+            )
+            filepath_charges = work_dir / "charges.txt"
+            filepath_charges.write_text("\n".join(map(str, charges)))
+            list_commands.extend(["-c", "rc", "-cf", str(filepath_charges)])
+        run_executable(list_commands, cwd=work_dir)
+        return filepath_mol2.read_text(encoding=encoding)
 
 
 def _mol_to_mol2_block_obabel(
@@ -147,6 +129,13 @@ def _mol_to_mol2_block_obabel(
     - Custom charges will overwrite any charges written by Open Babel in the output.
 
     """
+    if not shutil.which(BIN_OBABEL):
+        raise FileNotFoundError(
+            f"obabel executable not found: {BIN_OBABEL}. "
+            "Please install it using `conda install -c conda-forge openbabel` "
+            "or set the `BIN_OBABEL` environment variable to the path of the obabel executable."
+        )
+
     REGEX_ATOM_LINE = re.compile(r"^(\s*\d+)(.+)( 0\.0+)$")
     # the space before 0.0 is required for the charge field to include the sign
 
@@ -167,19 +156,14 @@ def _mol_to_mol2_block_obabel(
 
     encoding = check_encoding(encoding)
 
-    result_obabel = subprocess.run(
-        [
-            BIN_OBABEL,
-            "-ipdb",
-            "--partialcharge",
-            partial_charge_option,
-            "-omol2",
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        input=Chem.MolToPDBBlock(mol).encode(encoding),
-        check=True,
-    )
+    list_commands = [
+        BIN_OBABEL,
+        "-ipdb",
+        "--partialcharge",
+        partial_charge_option,
+        "-omol2",
+    ]
+    result_obabel = run_executable(list_commands)
 
     flag_read = False
     atom_index: int = 1  # 1-based index

@@ -11,6 +11,7 @@ from lammps_utils.graph.pbc._pbc import (
     unwrap_positions_under_pbc,
     wrap_positions_into_cell,
 )
+from lammps_utils.types import CellBounds
 
 
 def unwrap_df_positions_under_pbc(
@@ -75,7 +76,7 @@ def unwrap_df_positions_under_pbc(
 def wrap_df_positions_to_cell(
     df_atoms: pd.DataFrame,
     cell_bounds: Union[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
         np.ndarray,
     ],
 ) -> pd.DataFrame:
@@ -102,4 +103,3 @@ def wrap_df_positions_to_cell(
         df_atoms.loc[:, COLS_XYZ], cell_bounds=cell_bounds
     )
     return df_atoms
-

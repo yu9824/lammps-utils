@@ -2,14 +2,21 @@ import contextlib
 import importlib.util
 import inspect
 import os
+import shutil
+import subprocess
 import sys
-from collections.abc import Callable, Iterable, Iterator
+import tempfile
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import Any, Generic, Optional, TypeVar, Union
 
 import joblib
 
+from lammps_utils.logging import get_child_logger
+
 T = TypeVar("T")
+
+logger = get_child_logger(__name__)
 
 
 def is_installed(package_name: str) -> bool:
@@ -267,29 +274,109 @@ def check_encoding(encoding: Optional[str] = None) -> str:
 
 
 @contextlib.contextmanager
-def in_directory(dirpath: Union[os.PathLike, str]):
-    """
-    Context manager to temporarily change the current working directory.
+def work_directory(work_in_cwd: bool):
+    """Context manager that yields the current directory or a temporary directory.
 
-    Usage
-    -----
-    with in_directory("target_dir"):
-        # code executed inside target_dir
+    If work_in_cwd is True, yields the current working directory (Path).
+    If False, creates a temporary directory and yields its path; the directory
+    is removed when the context exits.
+
+    Useful when generating intermediate files that may be written either to the
+    current directory or to a temporary directory (e.g. for cleanup).
 
     Parameters
     ----------
-    dirpath : Union[os.PathLike, str]
-        The directory path to change to.
+    work_in_cwd : bool
+        If True, yield the current working directory. If False, create and yield
+        a temporary directory (prefix ``lammps-utils-``).
 
     Yields
     ------
-    None
-        Code block to execute within the specified directory.
+    Path
+        The directory to use for work (either cwd or a temporary directory).
+
+    Examples
+    --------
+    >>> from lammps_utils.helpers import work_directory
+    >>> with work_directory(work_in_cwd=False) as work_dir:
+    ...     (work_dir / "output.txt").write_text("hello")
     """
-    original_dir = Path.cwd()
-    target_dir = Path(dirpath).resolve()
-    try:
-        os.chdir(target_dir)
-        yield
-    finally:
-        os.chdir(original_dir)
+    cwd = Path.cwd().resolve()
+    if work_in_cwd:
+        yield cwd
+    else:
+        with tempfile.TemporaryDirectory(prefix="lammps-utils-") as tmpdir:
+            work_dir = Path(tmpdir).resolve()
+            yield work_dir
+
+
+def is_executable(executable: str) -> bool:
+    """Check if a given executable is available in the system path.
+
+    Parameters
+    ----------
+    executable : str
+        The name of the executable to check.
+
+    Returns
+    -------
+    bool
+        True if the executable is available, False otherwise.
+    """
+    executable_path = shutil.which(executable)
+    if executable_path is None:
+        return False
+    else:
+        logger.debug(f"{executable} is available at {executable_path}")
+        return True
+
+
+def run_executable(
+    commands: Sequence[str],
+    *,
+    cwd: Optional[Union[str, os.PathLike]] = None,
+) -> "subprocess.CompletedProcess[bytes]":
+    """Run an executable with subprocess.run.
+    This function runs an executable with subprocess.run and returns the result.
+    If the command exits with a non-zero status, it raises a subprocess.CalledProcessError.
+
+    Parameters
+    ----------
+    commands : Sequence[str]
+        The sequence of commands to run.
+    cwd : path-like, optional
+        If given, run the command in this directory.
+
+    Returns
+    -------
+    subprocess.CompletedProcess[bytes]
+        The result of the command execution.
+
+    Raises
+    ------
+    subprocess.CalledProcessError
+        If the command exits with a non-zero status.
+    """
+    if not is_executable(commands[0]):
+        raise FileNotFoundError(f"Executable not found: {commands[0]}")
+
+    result = subprocess.run(
+        commands,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=cwd,
+    )
+    logger.debug(f"Running executable: {' '.join(commands)}")
+    logger.debug(f"Standard output: {result.stdout.decode()}")
+    logger.debug(f"Standard error: {result.stderr.decode()}")
+    if result.returncode != 0:
+        logger.error(f"Failed to run executable: {' '.join(commands)}")
+        logger.error(f"Standard output: {result.stdout.decode()}")
+        logger.error(f"Standard error: {result.stderr.decode()}")
+        raise subprocess.CalledProcessError(
+            result.returncode,
+            commands,
+            output=result.stdout,
+            stderr=result.stderr,
+        )
+    return result

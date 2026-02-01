@@ -6,6 +6,8 @@ import networkx as nx
 import numpy as np
 from numpy.typing import ArrayLike
 
+from lammps_utils.types import CellBounds
+
 
 def unwrap_positions_under_pbc(
     graph: nx.Graph, positions: np.ndarray, cell_size: ArrayLike
@@ -80,7 +82,7 @@ def unwrap_positions_under_pbc(
 def wrap_positions_into_cell(
     positions: np.ndarray,
     cell_bounds: Union[
-        tuple[tuple[float, float], tuple[float, float], tuple[float, float]],
+        CellBounds,
         np.ndarray,
     ],
 ) -> np.ndarray:
@@ -113,5 +115,3 @@ def wrap_positions_into_cell(
 
     # broadcastingにより (N, 3) から直接演算
     return (positions - cell_min) % cell_range + cell_min
-
-
