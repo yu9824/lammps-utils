@@ -2,6 +2,10 @@ from lammps_utils.chem.charge import compute_gasteiger_charges
 from lammps_utils.chem.conformer import generate_minimized_conformer
 from lammps_utils.chem.polymer import attach_terminal_groups, polymerize_linear
 from lammps_utils.io.moltemplate import write_lammps_input
+from lammps_utils.logging import DEBUG, get_root_logger
+
+logger = get_root_logger()
+logger.setLevel(DEBUG)
 
 
 def test_make_lammps_input():
