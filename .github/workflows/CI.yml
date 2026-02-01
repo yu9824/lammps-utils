@@ -41,6 +41,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     # runs-on: ubuntu-22.04
+    env:
+      CONDA_ENV_NAME: test
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -58,10 +60,10 @@ jobs:
         activate-environment: test  # env name
     - name: Install conda optional dependencies
       run: |
-        conda install -n test -c conda-forge -y --file requirements-conda-optional.txt
+        conda install -n ${{ env.CONDA_ENV_NAME }} -c conda-forge -y --file requirements-conda-optional.txt
     - name: Install dependencies
       run: |
-        pip install ".[test,optional]"
+        conda run -n ${{ env.CONDA_ENV_NAME }} pip install ".[test,optional]"
     - name: Test with pytest
       run: |
-        pytest -xs .
+        conda run -n ${{ env.CONDA_ENV_NAME }} pytest -xs .
