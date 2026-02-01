@@ -13,6 +13,7 @@ from lammps_utils.constants import (
     COLS_BONDS_LAMMPS_DATA_DTYPE,
     MAP_ELEMENT_MASSES,
 )
+from lammps_utils.types import CellBounds
 
 PATTERN_N_ATOMS = r"\s*(\d+)\s+atoms\s*\n"
 PATTERN_N_ATOM_TYPES = r"\s*(\d+)\s+atom types\s*\n"
@@ -266,7 +267,7 @@ def get_cell_bounds(
     filepath_data_or_buffer: Union[
         str, os.PathLike, io.TextIOBase, io.BufferedIOBase
     ],
-) -> tuple[tuple[float, float], tuple[float, float], tuple[float, float]]:
+) -> CellBounds:
     """
     Get the cell limits from a LAMMPS data file or a file-like object.
 

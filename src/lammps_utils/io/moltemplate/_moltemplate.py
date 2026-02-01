@@ -19,16 +19,12 @@ from lammps_utils.chem.polymer import (
 )
 from lammps_utils.io.mol import MolToMol2File
 from lammps_utils.logging import get_child_logger
+from lammps_utils.types import CellBounds
 
 logger = get_child_logger(__name__)
 
 # Type alias for mol_spec: (mol_name, filepath_lt, mol_count)
 MolSpec = tuple[str, Union[os.PathLike, str], int]
-BoxBounds = tuple[
-    tuple[float, float],
-    tuple[float, float],
-    tuple[float, float],
-]
 
 
 def mol22lt(
@@ -128,7 +124,7 @@ def parse_mol_spec(mol_spec: MolSpec) -> tuple[str, Path, int]:
 def write_system_lt(
     mol_specs: Sequence[MolSpec],
     filepath_system_lt: Union[str, os.PathLike] = "./system.lt",
-    box_bounds: Optional[BoxBounds] = None,
+    cell_bounds: Optional[CellBounds] = None,
 ) -> None:
     """Write a Moltemplate system .lt file that imports molecule .lt files.
 
@@ -138,7 +134,7 @@ def write_system_lt(
         Each element is (mol_name, filepath_lt, mol_count).
     filepath_system_lt : path-like, default "./system.lt"
         Output path for the system .lt file.
-    box_bounds : tuple of 3 (lo, hi) pairs, optional
+    cell_bounds : tuple of 3 (lo, hi) pairs, optional
         If given, writes a "Data Boundary" block with xlo xhi, ylo yhi, zlo zhi.
     """
     filepath_system_lt = Path(filepath_system_lt).resolve()
@@ -155,10 +151,10 @@ def write_system_lt(
         )
 
     list_boundary: list[str] = []
-    if box_bounds:
-        assert len(box_bounds) == 3
+    if cell_bounds:
+        assert len(cell_bounds) == 3
         list_boundary.append('write_once("Data Boundary") {')
-        for axis, (lo, hi) in zip(("x", "y", "z"), box_bounds):
+        for axis, (lo, hi) in zip(("x", "y", "z"), cell_bounds):
             list_boundary.append(f"  {lo: 7.4f} {hi: 7.4f} {axis}lo {axis}hi")
         list_boundary.append("}")
 
@@ -239,7 +235,7 @@ def write_lammps_input(
     write_system_lt(
         list_mol_specs,
         filepath_system_lt,
-        box_bounds=((-box_length_half, box_length_half),) * 3,
+        cell_bounds=((-box_length_half, box_length_half),) * 3,
     )
 
     list_commands_moltemplate = [
