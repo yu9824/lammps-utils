@@ -12,6 +12,7 @@ from ._helpers import (
     dummy_tqdm,
     in_directory,
     is_argument,
+    is_executable,
     is_installed,
     run_executable,
     tqdm_joblib,
@@ -27,4 +28,5 @@ __all__ = (
     "is_installed",
     "tqdm_joblib",
     "run_executable",
+    "is_executable",
 )

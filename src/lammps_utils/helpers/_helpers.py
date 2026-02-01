@@ -2,6 +2,7 @@ import contextlib
 import importlib.util
 import inspect
 import os
+import shutil
 import subprocess
 import sys
 from collections.abc import Callable, Iterable, Iterator
@@ -300,6 +301,27 @@ def in_directory(dirpath: Union[os.PathLike, str]):
         os.chdir(original_dir)
 
 
+def is_executable(executable: str) -> bool:
+    """Check if a given executable is available in the system path.
+
+    Parameters
+    ----------
+    executable : str
+        The name of the executable to check.
+
+    Returns
+    -------
+    bool
+        True if the executable is available, False otherwise.
+    """
+    executable_path = shutil.which(executable)
+    if executable_path is None:
+        return False
+    else:
+        logger.debug(f"{executable} is available at {executable_path}")
+        return True
+
+
 def run_executable(
     commands: list[str],
 ) -> "subprocess.CompletedProcess[bytes]":
@@ -322,6 +344,9 @@ def run_executable(
     subprocess.CalledProcessError
         If the command exits with a non-zero status.
     """
+    if not is_executable(commands[0]):
+        raise FileNotFoundError(f"Executable not found: {commands[0]}")
+
     result = subprocess.run(
         commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
