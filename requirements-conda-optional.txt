@@ -1,3 +1,0 @@
-ambertools
-packmol
-# openbabel
