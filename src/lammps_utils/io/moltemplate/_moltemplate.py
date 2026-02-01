@@ -161,6 +161,7 @@ def write_system_lt(
 
 def write_lammps_input(
     mol_and_num_chains: Sequence[tuple[Chem.Mol, int]],
+    stem: str = "system",
     charges: Optional[Sequence[float]] = None,
     density: float = 0.3,
     seed: Optional[int] = None,
@@ -176,6 +177,8 @@ def write_lammps_input(
     ----------
     mol_and_num_chains : sequence of (Mol, int)
         Each element is (RDKit Mol, number of chains to place in the system).
+    stem : str, default "system"
+        Stem for the output files (system.pdb, system.lt, system.data, system.in.*).
     charges : sequence of float, optional
         Per-atom charges for MOL2. If None, charges are assigned by the engine.
     density : float, default 0.3
@@ -195,8 +198,8 @@ def write_lammps_input(
     """
     cwd = Path.cwd().resolve()
     with work_directory(work_in_cwd) as work_dir:
-        filepath_system_pdb = work_dir / "system.pdb"
-        filepath_system_lt = work_dir / "system.lt"
+        filepath_system_pdb = work_dir / f"{stem}.pdb"
+        filepath_system_lt = filepath_system_pdb.with_suffix(".lt")
 
         list_mol_specs: list[tuple[str, Path, int]] = []
         for idx, (mol, num_chains) in enumerate(mol_and_num_chains):
