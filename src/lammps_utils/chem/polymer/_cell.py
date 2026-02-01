@@ -1,6 +1,7 @@
 """Module for generating amorphous cells using packmol."""
 
 import os
+import shutil
 import subprocess
 import tempfile
 from collections.abc import Sequence
@@ -129,6 +130,14 @@ def generate_amorphous_cell(
     >>> polymer = polymerize_linear((monomer,), (1.0,), n=10)
     >>> cell = generate_amorphous_cell(((polymer, 5),), density=0.3)
     """
+    # Check if packmol is available
+    if not shutil.which(BIN_PACKMOL):
+        raise FileNotFoundError(
+            f"Packmol executable not found: {BIN_PACKMOL}. "
+            "Please install it using `conda install -c conda-forge packmol` "
+            "or set the `BIN_PACKMOL` environment variable to the path of the packmol executable."
+        )
+
     # Calculate box length from total mass and density
     total_mass = sum(
         sum(atom.GetMass() for atom in mol.GetAtoms()) * n_chain

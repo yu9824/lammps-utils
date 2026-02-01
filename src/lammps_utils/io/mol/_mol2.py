@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 from collections.abc import Sequence
@@ -55,6 +56,13 @@ def _mol_to_mol2_block_antechamber(
     RuntimeError
         If the command fails.
     """
+    if not shutil.which(BIN_ANTECHAMBER):
+        raise FileNotFoundError(
+            f"antechamber executable not found: {BIN_ANTECHAMBER}. "
+            "Please install it using `conda install -c conda-forge ambertools` "
+            "or set the `BIN_ANTECHAMBER` environment variable to the path of the antechamber executable."
+        )
+
     if len(Chem.GetMolFrags(mol)) > 1:
         raise ValueError(
             "Multiple molecules are not supported for antechamber engine. "
@@ -147,6 +155,13 @@ def _mol_to_mol2_block_obabel(
     - Custom charges will overwrite any charges written by Open Babel in the output.
 
     """
+    if not shutil.which(BIN_OBABEL):
+        raise FileNotFoundError(
+            f"obabel executable not found: {BIN_OBABEL}. "
+            "Please install it using `conda install -c conda-forge openbabel` "
+            "or set the `BIN_OBABEL` environment variable to the path of the obabel executable."
+        )
+
     REGEX_ATOM_LINE = re.compile(r"^(\s*\d+)(.+)( 0\.0+)$")
     # the space before 0.0 is required for the charge field to include the sign
 
