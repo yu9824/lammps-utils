@@ -2,6 +2,7 @@ import contextlib
 import importlib.util
 import inspect
 import os
+import subprocess
 import sys
 from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
@@ -9,7 +10,11 @@ from typing import Any, Generic, Optional, TypeVar, Union
 
 import joblib
 
+from lammps_utils.logging import get_child_logger
+
 T = TypeVar("T")
+
+logger = get_child_logger(__name__)
 
 
 def is_installed(package_name: str) -> bool:
@@ -293,3 +298,42 @@ def in_directory(dirpath: Union[os.PathLike, str]):
         yield
     finally:
         os.chdir(original_dir)
+
+
+def run_executable(
+    commands: list[str],
+) -> "subprocess.CompletedProcess[bytes]":
+    """Run an executable with subprocess.run.
+    This function runs an executable with subprocess.run and returns the result.
+    If the command exits with a non-zero status, it raises a subprocess.CalledProcessError.
+
+    Parameters
+    ----------
+    commands : list[str]
+        The list of commands to run.
+
+    Returns
+    -------
+    subprocess.CompletedProcess[bytes]
+        The result of the command execution.
+
+    Raises
+    ------
+    subprocess.CalledProcessError
+        If the command exits with a non-zero status.
+    """
+    result = subprocess.run(
+        commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    logger.debug(f"Running executable: {' '.join(commands)}")
+    if result.returncode != 0:
+        logger.error(f"Failed to run executable: {' '.join(commands)}")
+        logger.error(f"Standard output: {result.stdout.decode()}")
+        logger.error(f"Standard error: {result.stderr.decode()}")
+        raise subprocess.CalledProcessError(
+            result.returncode,
+            commands,
+            output=result.stdout,
+            stderr=result.stderr,
+        )
+    return result
