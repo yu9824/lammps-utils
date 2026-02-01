@@ -5,7 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import Any, Generic, Optional, TypeVar, Union
 
@@ -323,7 +323,7 @@ def is_executable(executable: str) -> bool:
 
 
 def run_executable(
-    commands: list[str],
+    commands: Sequence[str],
 ) -> "subprocess.CompletedProcess[bytes]":
     """Run an executable with subprocess.run.
     This function runs an executable with subprocess.run and returns the result.
@@ -331,8 +331,8 @@ def run_executable(
 
     Parameters
     ----------
-    commands : list[str]
-        The list of commands to run.
+    commands : Sequence[str]
+        The sequence of commands to run.
 
     Returns
     -------
@@ -351,6 +351,8 @@ def run_executable(
         commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     logger.debug(f"Running executable: {' '.join(commands)}")
+    logger.debug(f"Standard output: {result.stdout.decode()}")
+    logger.debug(f"Standard error: {result.stderr.decode()}")
     if result.returncode != 0:
         logger.error(f"Failed to run executable: {' '.join(commands)}")
         logger.error(f"Standard output: {result.stdout.decode()}")

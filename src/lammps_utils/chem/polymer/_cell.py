@@ -2,7 +2,6 @@
 
 import os
 import shutil
-import subprocess
 import tempfile
 from collections.abc import Sequence
 from pathlib import Path
@@ -11,6 +10,7 @@ from typing import Optional
 from rdkit import Chem
 
 from lammps_utils.constants import AVOGADRO
+from lammps_utils.helpers import run_executable
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -200,19 +200,7 @@ def generate_amorphous_cell(
 
         # Execute packmol
         list_commands = [BIN_PACKMOL, "-i", str(filepath_packmol_input)]
-        result_packmol = subprocess.run(
-            list_commands,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if result_packmol.returncode != 0:
-            logger.error("Packmol execution failed")
-            logger.error(" ".join(list_commands))
-            logger.error(result_packmol.stdout.decode())
-            logger.error(result_packmol.stderr.decode())
-            raise subprocess.CalledProcessError(
-                result_packmol.returncode, list_commands
-            )
+        run_executable(list_commands)
 
         # Read the generated cell
         mol_ac = Chem.MolFromPDBFile(

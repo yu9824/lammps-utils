@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-import subprocess
 import tempfile
 from collections.abc import Sequence
 from pathlib import Path
@@ -9,7 +8,7 @@ from typing import Literal, Optional, Union
 
 from rdkit import Chem
 
-from lammps_utils.helpers import check_encoding, in_directory
+from lammps_utils.helpers import check_encoding, in_directory, run_executable
 from lammps_utils.logging import get_child_logger
 
 logger = get_child_logger(__name__)
@@ -100,22 +99,7 @@ def _mol_to_mol2_block_antechamber(
                 list_commands.extend(
                     ["-c", "rc", "-cf", str(filepath_charges)]
                 )
-            logger.debug(f"Running antechamber: {' '.join(list_commands)}")
-            result_antechamber = subprocess.run(
-                list_commands,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            logger.debug(result_antechamber.stdout.decode(encoding))
-            logger.debug(result_antechamber.stderr.decode(encoding))
-            if result_antechamber.returncode != 0:
-                raise RuntimeError(
-                    "Failed to run antechamber: {}\n\n{}\n\n{}".format(
-                        " ".join(list_commands),
-                        result_antechamber.stdout.decode(encoding),
-                        result_antechamber.stderr.decode(encoding),
-                    )
-                )
+            run_executable(list_commands)
             return filepath_mol2.read_text(encoding=encoding)
 
     if work_in_cwd:
@@ -182,19 +166,14 @@ def _mol_to_mol2_block_obabel(
 
     encoding = check_encoding(encoding)
 
-    result_obabel = subprocess.run(
-        [
-            BIN_OBABEL,
-            "-ipdb",
-            "--partialcharge",
-            partial_charge_option,
-            "-omol2",
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        input=Chem.MolToPDBBlock(mol).encode(encoding),
-        check=True,
-    )
+    list_commands = [
+        BIN_OBABEL,
+        "-ipdb",
+        "--partialcharge",
+        partial_charge_option,
+        "-omol2",
+    ]
+    result_obabel = run_executable(list_commands)
 
     flag_read = False
     atom_index: int = 1  # 1-based index

@@ -6,7 +6,6 @@ and to create LAMMPS data and input files from molecular structures.
 
 import importlib
 import os
-import subprocess
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal, Optional, Union
@@ -17,6 +16,7 @@ from lammps_utils.chem.polymer import (
     calculate_box_length,
     generate_amorphous_cell,
 )
+from lammps_utils.helpers import run_executable
 from lammps_utils.io.mol import MolToMol2File
 from lammps_utils.logging import get_child_logger
 from lammps_utils.types import CellBounds
@@ -68,27 +68,20 @@ def mol22lt(
         Path(moltemplate_module.__file__).parent / "force_fields" / "gaff2.lt"
     )
 
-    result = subprocess.run(
-        [
-            "mol22lt.py",
-            "-i",
-            str(filepath_mol2),
-            "-o",
-            str(filepath_lt),
-            "-name",
-            name,
-            "--ff",
-            forcefield,
-            "--ff-file",
-            str(filepath_forcefield),
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=True,
-    )
-
-    logger.debug(result.stdout.decode())
-    logger.debug(result.stderr.decode())
+    list_commands = [
+        "mol22lt.py",
+        "-i",
+        str(filepath_mol2),
+        "-o",
+        str(filepath_lt),
+        "-name",
+        name,
+        "--ff",
+        forcefield,
+        "--ff-file",
+        str(filepath_forcefield),
+    ]
+    run_executable(list_commands)
 
 
 def parse_mol_spec(mol_spec: MolSpec) -> tuple[str, Path, int]:
@@ -246,16 +239,4 @@ def write_lammps_input(
         str(filepath_system_pdb),
         str(filepath_system_lt),
     ]
-    logger.debug(" ".join(list_commands_moltemplate))
-    result_moltemplate = subprocess.run(
-        list_commands_moltemplate,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    logger.debug(result_moltemplate.stdout.decode())
-    logger.debug(result_moltemplate.stderr.decode())
-
-    if result_moltemplate.returncode != 0:
-        raise RuntimeError(
-            f"Failed to run moltemplate: {result_moltemplate.stderr.decode()}"
-        )
+    run_executable(list_commands_moltemplate)
