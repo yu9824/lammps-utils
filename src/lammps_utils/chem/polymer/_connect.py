@@ -1,6 +1,7 @@
 """Module for connecting molecules to build polymer structures."""
 
-from typing import Literal, Optional
+from array import array
+from typing import Literal, Optional, overload
 
 import numpy as np
 from rdkit import Chem
@@ -13,14 +14,129 @@ from lammps_utils.logging import get_child_logger
 logger = get_child_logger(__name__)
 
 
-def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
-    """
-    Identify the head and tail atoms in an RDKit molecule for polymerization.
+def has_tritium(mol: Chem.rdchem.Mol) -> bool:
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        if atom.GetAtomicNum() == 1 and atom.GetIsotope() == 3:
+            return True
+    return False
+
+
+def has_asterisk(mol: Chem.rdchem.Mol) -> bool:
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        if atom.GetAtomicNum() == 0:
+            return True
+    return False
+
+
+def replace_to_tritium_marker(
+    mol: Chem.rdchem.Mol, check_no_tritium: bool = True
+) -> Chem.rdchem.Mol:
+    if check_no_tritium and has_tritium(mol):
+        raise ValueError("Tritium atom found")
+    mol = Chem.Mol(mol)
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        if atom.GetAtomicNum() == 0:
+            atom.SetAtomicNum(1)
+            atom.SetIsotope(3)
+    return mol
+
+
+@overload
+def get_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[True] = True,
+    raise_no_head_or_tail: Literal[True] = True,
+) -> tuple[tuple[int], tuple[int]]: ...
+
+
+@overload
+def get_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[False] = False,
+    raise_no_head_or_tail: bool = True,
+) -> tuple[tuple[int, ...], tuple[int, ...]]: ...
+
+
+def get_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: bool = True,
+    raise_no_head_or_tail: bool = True,
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Get the head and tail atoms in an RDKit molecule.
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
         An RDKit Mol object representing the molecule to analyze.
+    raise_not_unique : bool, optional
+        If True, raise a ValueError if more than one atom is found with a "head" or "tail" marker.
+    raise_no_head_or_tail : bool, optional
+        If True, raise a ValueError if the head or tail atom cannot be identified.
+
+    Returns
+    -------
+    tuple[tuple[int, ...], tuple[int, ...]]
+        A tuple (head_idx, tail_idx) containing the atom indices of the detected head and tail.
+    """
+
+    arr_head_indexes: "array[int]" = array("I")
+    arr_tail_indexes: "array[int]" = array("I")
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        props = atom.GetPropsAsDict()
+        if props.get("head", False):
+            if len(arr_head_indexes) > 1 and raise_not_unique:
+                raise ValueError("Multiple atoms marked as head")
+            arr_head_indexes.append(atom.GetIdx())
+        elif props.get("tail", False):
+            if len(arr_tail_indexes) > 1 and raise_not_unique:
+                raise ValueError("Multiple atoms marked as tail")
+            arr_tail_indexes.append(atom.GetIdx())
+    if len(arr_head_indexes) == 0 and raise_no_head_or_tail:
+        raise ValueError("No head atom found")
+    elif len(arr_tail_indexes) == 0 and raise_no_head_or_tail:
+        raise ValueError("No tail atom found")
+
+    return tuple(arr_head_indexes), tuple(arr_tail_indexes)
+
+
+@overload
+def detect_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[True] = True,
+) -> tuple[tuple[int], tuple[int]]: ...
+
+
+@overload
+def detect_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[False] = False,
+) -> tuple[tuple[int, ...], tuple[int, ...]]: ...
+
+
+def detect_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: bool = True,
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """
+    Identify the head and tail atoms in an RDKit molecule for polymerization.
+
+    If there are exactly two labeled atoms, the atom with the lower index is assigned as the head,
+    and the one with the higher index as the tail.
+
+    Otherwise, all are considered both heads and tails.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        An RDKit Mol object representing the molecule to analyze.
+    raise_not_unique : bool, optional
+        If True, raise a ValueError if more than one atom is found with a "head" or "tail" marker.
+    raise_no_head_or_tail : bool, optional
+        If True, raise a ValueError if the head or tail atom cannot be identified.
 
     Returns
     -------
@@ -51,45 +167,30 @@ def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
     >>> mol = Chem.MolFromSmiles("[3H]CC(c1ccccc1)[3H]")
     >>> head_idx, tail_idx = detect_head_and_tail(mol)
     """
-    head_idx: int = -1
-    tail_idx: int = -1
-    for atom in mol.GetAtoms():
-        assert isinstance(atom, Chem.rdchem.Atom)
-        props = atom.GetPropsAsDict()
-        if props.get("head", False):
-            if head_idx >= 0:
-                raise ValueError("Multiple atoms marked as head")
-            head_idx = atom.GetIdx()
-        elif props.get("tail", False):
-            if tail_idx >= 0:
-                raise ValueError("Multiple atoms marked as tail")
-            tail_idx = atom.GetIdx()
-
-    if head_idx >= 0 and tail_idx >= 0:
-        return head_idx, tail_idx
-
+    arr_indexes: "array[int]" = array("I")
     for atom in mol.GetAtoms():
         assert isinstance(atom, Chem.rdchem.Atom)
         if atom.GetAtomicNum() == 1 and atom.GetIsotope() == 3:
-            if head_idx < 0:
-                head_idx = atom.GetIdx()
-                atom.SetBoolProp("head", True)
-            else:
-                tail_idx = atom.GetIdx()
-                atom.SetBoolProp("tail", True)
-                break
+            arr_indexes.append(atom.GetIdx())
+    if len(arr_indexes) == 2:
+        head_idx = arr_indexes[0]
+        tail_idx = arr_indexes[1]
+        mol.GetAtomWithIdx(head_idx).SetBoolProp("head", True)
+        mol.GetAtomWithIdx(tail_idx).SetBoolProp("tail", True)
+        return ((head_idx,), (tail_idx,))
+    elif raise_not_unique:
+        if len(arr_indexes) == 0:
+            raise ValueError("No head or tail atom found")
+        elif len(arr_indexes) == 1:
+            raise ValueError("Only one head or tail atom found")
+        else:
+            raise ValueError("Multiple head or tail atoms found")
     else:
-        if head_idx >= 0 and tail_idx < 0:
-            logger.warning(
-                "Only head_idx found and not tail_idx. "
-                "Setting tail_idx to head_idx. "
-                "Please check the atom properties for 'tail' marker."
-            )
-            tail_idx = head_idx
-
-    assert head_idx >= 0, "head_idx not found"
-    assert tail_idx >= 0, "tail_idx not found"
-    return head_idx, tail_idx
+        # logger.warning("")
+        for idx in arr_indexes:
+            mol.GetAtomWithIdx(idx).SetBoolProp("head", True)
+            mol.GetAtomWithIdx(idx).SetBoolProp("tail", True)
+        return tuple(arr_indexes), tuple(arr_indexes)
 
 
 # TODO: 結合角の指定

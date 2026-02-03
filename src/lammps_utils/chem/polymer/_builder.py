@@ -9,6 +9,7 @@ from lammps_utils.chem.conformer._generate import minimize_conformer
 from lammps_utils.chem.polymer._connect import (
     connect_mols,
     detect_head_and_tail,
+    get_head_and_tail,
 )
 
 
@@ -74,12 +75,21 @@ def polymerize_linear(
     for i in range(1, n):
         mol2 = selected_mols[i]
 
-        head_idx, tail_idx = detect_head_and_tail(mol)
-        head_idx2, tail_idx2 = detect_head_and_tail(mol2)
+        head_indexes, tail_indexes = get_head_and_tail(
+            mol, raise_no_head_or_tail=False
+        )
+        head_indexes2, tail_indexes2 = get_head_and_tail(
+            mol2, raise_no_head_or_tail=False
+        )
+        if not (head_indexes or tail_indexes):
+            head_indexes, tail_indexes = detect_head_and_tail(mol)
+            head_indexes2, tail_indexes2 = detect_head_and_tail(mol2)
 
         # Connect tail of current polymer to head of next monomer
         # Skip minimization during intermediate steps for efficiency
-        mol = connect_mols(mol, mol2, tail_idx, head_idx2, forcefield=None)
+        mol = connect_mols(
+            mol, mol2, tail_indexes[0], head_indexes2[0], forcefield=None
+        )
 
     # Final minimization of the complete polymer
     if forcefield:
@@ -134,21 +144,39 @@ def attach_terminal_groups(
 
     mol = Chem.Mol(polymer)
 
-    head_idx_terminal, tail_idx_terminal = detect_head_and_tail(terminal)
-    head_idx_polymer, tail_idx_polymer = detect_head_and_tail(mol)
+    head_indexes_terminal, tail_indexes_terminal = get_head_and_tail(
+        terminal, raise_no_head_or_tail=False, raise_not_unique=False
+    )
+    head_indexes_polymer, tail_indexes_polymer = get_head_and_tail(
+        mol, raise_no_head_or_tail=False, raise_not_unique=False
+    )
+    if not (head_indexes_terminal or tail_indexes_terminal):
+        head_indexes_terminal, tail_indexes_terminal = detect_head_and_tail(
+            terminal, raise_not_unique=False
+        )
+    if not (head_indexes_polymer or tail_indexes_polymer):
+        head_indexes_polymer, tail_indexes_polymer = detect_head_and_tail(
+            mol, raise_not_unique=False
+        )
 
     # Attach terminal group to tail end
-    mol = connect_mols(
-        mol, terminal, tail_idx_polymer, head_idx_terminal, forcefield=None
-    )
+    for tail_index_polymer in tail_indexes_polymer:
+        mol = connect_mols(
+            mol,
+            terminal,
+            tail_index_polymer,
+            head_indexes_terminal[0],
+            forcefield=None,
+        )
 
-    # Update indices after first connection
-    head_idx_polymer, _ = detect_head_and_tail(mol)
-
-    # Attach terminal group to head end
-    mol = connect_mols(
-        mol, terminal, head_idx_polymer, tail_idx_terminal, forcefield=None
-    )
+    for head_index_polymer in head_indexes_polymer:
+        mol = connect_mols(
+            mol,
+            terminal,
+            head_index_polymer,
+            tail_indexes_terminal[0],
+            forcefield=None,
+        )
 
     # Final minimization of the complete structure
     if forcefield:
