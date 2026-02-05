@@ -91,7 +91,7 @@ def get_head_and_tail(
             if len(arr_head_indexes) > 1 and raise_not_unique:
                 raise ValueError("Multiple atoms marked as head")
             arr_head_indexes.append(atom.GetIdx())
-        elif props.get("tail", False):
+        if props.get("tail", False):
             if len(arr_tail_indexes) > 1 and raise_not_unique:
                 raise ValueError("Multiple atoms marked as tail")
             arr_tail_indexes.append(atom.GetIdx())
@@ -193,6 +193,91 @@ def detect_head_and_tail(
         return tuple(arr_indexes), tuple(arr_indexes)
 
 
+def rotation_matrix_from_vectors(
+    source_vector: np.ndarray,
+    reference_vector: np.ndarray,
+    prefer_angle: Literal[0, 180] = 0,
+    eps: float = 1e-8,
+) -> np.ndarray:
+    """
+    Compute a 3x3 rotation matrix that rotates a source vector to either
+    a parallel or anti-parallel direction of a reference vector.
+
+    This function uses Rodrigues' rotation formula:
+
+        R = I + sin(theta) * K + (1 - cos(theta)) * K^2
+
+    where K is the skew-symmetric matrix of the rotation axis.
+
+    Parameters
+    ----------
+    source_vector : np.ndarray
+        Vector to be rotated, shape (3,).
+    reference_vector : np.ndarray
+        Reference direction vector, shape (3,).
+    prefer_angle : Literal[0, 180]
+        0   -> align with reference_vector
+        180 -> align with -reference_vector
+    eps : float
+        Numerical tolerance.
+
+    Returns
+    -------
+    np.ndarray
+        Proper rotation matrix (3, 3) with det(R)=+1.
+    """
+    source_unit = np.asarray(source_vector, dtype=float)
+    reference_unit = np.asarray(reference_vector, dtype=float)
+
+    source_unit /= np.linalg.norm(source_unit)
+    reference_unit /= np.linalg.norm(reference_unit)
+
+    target_unit = reference_unit if prefer_angle == 0 else -reference_unit
+
+    cos_theta = np.dot(source_unit, target_unit)
+
+    if cos_theta > 1.0 - eps:
+        return np.eye(3)
+
+    if cos_theta < -1.0 + eps:
+        # 180-degree rotation
+        fallback_axis = np.array([1.0, 0.0, 0.0])
+        if abs(np.dot(source_unit, fallback_axis)) > 0.9:
+            fallback_axis = np.array([0.0, 1.0, 0.0])
+
+        rotation_axis = np.cross(source_unit, fallback_axis)
+        rotation_axis /= np.linalg.norm(rotation_axis)
+
+        K = np.array(
+            [
+                [0.0, -rotation_axis[2], rotation_axis[1]],
+                [rotation_axis[2], 0.0, -rotation_axis[0]],
+                [-rotation_axis[1], rotation_axis[0], 0.0],
+            ]
+        )
+
+        return np.eye(3) + 2.0 * (K @ K)
+
+    # General Rodrigues rotation
+    rotation_axis = np.cross(source_unit, target_unit)
+    sin_theta = np.linalg.norm(rotation_axis)
+    rotation_axis /= sin_theta
+
+    K = np.array(
+        [
+            [0.0, -rotation_axis[2], rotation_axis[1]],
+            [rotation_axis[2], 0.0, -rotation_axis[0]],
+            [-rotation_axis[1], rotation_axis[0], 0.0],
+        ]
+    )
+
+    return (
+        np.eye(3)
+        + np.sin(np.arccos(cos_theta)) * K
+        + (1.0 - cos_theta) * (K @ K)
+    )
+
+
 # TODO: 結合角の指定
 def connect_mols(
     mol1: Chem.rdchem.Mol,
@@ -201,114 +286,88 @@ def connect_mols(
     idx2: int,
     bond_length: float = 1.5,
     bond_type: Chem.BondType = Chem.BondType.SINGLE,
-    angle: Optional[float] = None,
+    angle: Optional[float] = 0.0,
+    forcefield: Optional[Literal["MMFF", "UFF"]] = None,
     seed: Optional[int] = None,
-    forcefield: Optional[Literal["MMFF", "UFF"]] = "MMFF",
 ) -> Chem.rdchem.Mol:
     """
-    Connect two molecules by forming a bond between specified atoms.
+    Connect two molecules by removing dummy atoms (idx1, idx2) and forming
+    a bond between their respective neighbor atoms with a well-defined
+    geometric alignment.
 
-    Parameters
-    ----------
-    mol1 : Chem.rdchem.Mol
-        First molecule to connect.
-    mol2 : Chem.rdchem.Mol
-        Second molecule to connect.
-    idx1 : int
-        Index of the atom in mol1 to connect (must have exactly one neighbor).
-    idx2 : int
-        Index of the atom in mol2 to connect (must have exactly one neighbor).
-    bond_length : float, optional
-        Desired bond length in Angstroms. Default is 1.5.
-    bond_type : Chem.BondType, optional
-        Type of bond to form. Default is Chem.BondType.SINGLE.
-    angle : Optional[float], optional
-        Rotation angle in radians around the bond. If None, a random angle is used.
-        Default is None.
-    seed : Optional[int], optional
-        Random seed for generating random rotation angle and vector. Default is None.
-    forcefield : Optional[Literal["MMFF", "UFF"]], optional
-        Force field to use for energy minimization after connection.
-        If None, no minimization is performed. Default is "MMFF".
+    Geometry rule
+    -------------
+    Let:
 
-    Returns
-    -------
-    Chem.rdchem.Mol
-        The connected molecule with sanitized structure.
+        vec1 = idx1 -> target_idx1   (mol1 side)
+        vec2 = idx2 -> target_idx2   (mol2 side)
 
-    Raises
-    ------
-    AssertionError
-        If idx1 or idx2 atoms do not have exactly one neighbor.
+    Then mol2 is rigidly transformed so that:
+
+        vec2 aligns with -vec1
+
+    and target_idx2 is placed at:
+
+        target_idx1 + vec1 * bond_length
 
     Notes
     -----
-    This function:
-    1. Creates copies of the input molecules
-    2. Positions mol2 relative to mol1 using a random vector
-    3. Optionally rotates mol2 around the bond axis
-    4. Combines the molecules and forms a bond between the target atoms
-    5. Removes the connecting atoms (idx1 and idx2)
-    6. Sanitizes the resulting molecule
-    7. Optionally minimizes the conformer energy
-
+    - idx1 and idx2 are assumed to be dummy atoms (e.g. Tritium).
+    - Both idx1 and idx2 must have exactly one neighbor.
+    - rotate_around_bond is intentionally NOT applied here.
     """
-    rng = np.random.default_rng(seed=seed)
-
     mol1 = Chem.Mol(mol1)
     mol2 = Chem.Mol(mol2)
-
-    rand_vec = rng.normal(size=3)
-    rand_vec = rand_vec / np.linalg.norm(rand_vec) * bond_length
 
     conf1 = mol1.GetConformer()
     conf2 = mol2.GetConformer()
 
     atom1 = mol1.GetAtomWithIdx(idx1)
-    assert len(atom1.GetNeighbors()) == 1
-
     atom2 = mol2.GetAtomWithIdx(idx2)
-    assert len(atom2.GetNeighbors()) == 1
 
-    target_atom1 = atom1.GetNeighbors()[0]
-    target_atom2 = atom2.GetNeighbors()[0]
-    assert isinstance(target_atom1, Chem.rdchem.Atom)
-    assert isinstance(target_atom2, Chem.rdchem.Atom)
+    assert atom1.GetDegree() == 1
+    assert atom2.GetDegree() == 1
 
-    target_idx1 = target_atom1.GetIdx()
-    target_idx2 = target_atom2.GetIdx()
+    target_idx1 = atom1.GetNeighbors()[0].GetIdx()
+    target_idx2 = atom2.GetNeighbors()[0].GetIdx()
 
-    set_positions(
-        conf1,
-        conf1.GetPositions()
-        - np.asarray(conf1.GetAtomPosition(target_idx1))
-        + rand_vec,
-    )
+    # --- direction vectors ---
+    origin1 = np.asarray(conf1.GetAtomPosition(target_idx1))
+    vec1 = np.asarray(conf1.GetAtomPosition(idx1)) - origin1
+    vec1 /= np.linalg.norm(vec1)
 
-    set_positions(
-        conf2,
-        conf2.GetPositions() - np.asarray(conf2.GetAtomPosition(target_idx2)),
-    )
+    origin2 = np.asarray(conf2.GetAtomPosition(target_idx2))
+    vec2 = np.asarray(conf2.GetAtomPosition(idx2)) - origin2
+    vec2 /= np.linalg.norm(vec2)
 
-    if angle is None:
-        angle = rng.uniform(0, 2 * np.pi)
+    # --- rotate mol2 so vec2 -> -vec1 ---
+    R = rotation_matrix_from_vectors(vec2, -vec1)
 
-    set_positions(
-        conf2,
-        rotate_around_bond(conf2.GetPositions(), idx2, target_idx2, angle),
-    )
+    pos2 = conf2.GetPositions()
+    pos2_rot = (R @ (pos2 - origin2).T).T + origin2
 
+    # --- translate mol2 to satisfy bond length ---
+    shift = origin1 - origin2 + bond_length * vec1
+    pos2_final = pos2_rot + shift
+
+    # write back coordinates
+    set_positions(conf2, pos2_final)
+
+    # --- combine molecules ---
     combo = Chem.CombineMols(mol1, mol2)
-
     rw = Chem.RWMol(combo)
+
     offset = mol1.GetNumAtoms()
     rw.AddBond(target_idx1, target_idx2 + offset, bond_type)
+
+    # remove dummy atoms
     rw.RemoveAtom(idx2 + offset)
     rw.RemoveAtom(idx1)
 
-    connected_mol = rw.GetMol()
-    Chem.SanitizeMol(connected_mol)
+    connected = rw.GetMol()
+    Chem.SanitizeMol(connected)
 
-    if forcefield:
-        minimize_conformer(connected_mol, forcefield=forcefield)
-    return connected_mol
+    if forcefield is not None:
+        minimize_conformer(connected, forcefield=forcefield)
+
+    return connected

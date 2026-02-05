@@ -88,7 +88,13 @@ def polymerize_linear(
         # Connect tail of current polymer to head of next monomer
         # Skip minimization during intermediate steps for efficiency
         mol = connect_mols(
-            mol, mol2, tail_indexes[0], head_indexes2[0], forcefield=None
+            mol,
+            mol2,
+            tail_indexes[0],
+            head_indexes2[0],
+            forcefield=None,
+            angle=0.0,
+            seed=seed,
         )
 
     # Final minimization of the complete polymer
@@ -167,6 +173,7 @@ def attach_terminal_groups(
             tail_index_polymer,
             head_indexes_terminal[0],
             forcefield=None,
+            angle=0.0,
         )
 
     for head_index_polymer in head_indexes_polymer:
@@ -176,6 +183,7 @@ def attach_terminal_groups(
             head_index_polymer,
             tail_indexes_terminal[0],
             forcefield=None,
+            angle=0.0,
         )
 
     # Final minimization of the complete structure
