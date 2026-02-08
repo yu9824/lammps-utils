@@ -196,12 +196,11 @@ def detect_head_and_tail(
 def rotation_matrix_from_vectors(
     source_vector: np.ndarray,
     reference_vector: np.ndarray,
-    prefer_angle: Literal[0, 180] = 0,
     eps: float = 1e-8,
 ) -> np.ndarray:
     """
     Compute a 3x3 rotation matrix that rotates a source vector to either
-    a parallel or anti-parallel direction of a reference vector.
+    a parallel direction of a reference vector.
 
     This function uses Rodrigues' rotation formula:
 
@@ -215,9 +214,6 @@ def rotation_matrix_from_vectors(
         Vector to be rotated, shape (3,).
     reference_vector : np.ndarray
         Reference direction vector, shape (3,).
-    prefer_angle : Literal[0, 180]
-        0   -> align with reference_vector
-        180 -> align with -reference_vector
     eps : float
         Numerical tolerance.
 
@@ -227,12 +223,10 @@ def rotation_matrix_from_vectors(
         Proper rotation matrix (3, 3) with det(R)=+1.
     """
     source_unit = np.asarray(source_vector, dtype=float)
-    reference_unit = np.asarray(reference_vector, dtype=float)
+    target_unit = np.asarray(reference_vector, dtype=float)
 
     source_unit /= np.linalg.norm(source_unit)
-    reference_unit /= np.linalg.norm(reference_unit)
-
-    target_unit = reference_unit if prefer_angle == 0 else -reference_unit
+    target_unit /= np.linalg.norm(target_unit)
 
     cos_theta = np.dot(source_unit, target_unit)
 
@@ -286,7 +280,9 @@ def connect_mols(
     idx2: int,
     bond_length: float = 1.5,
     bond_type: Chem.BondType = Chem.BondType.SINGLE,
-    angle: Optional[float] = 0.0,
+    random_walk: bool = False,
+    torsion_angle: Optional[float] = None,
+    align_conformer: bool = True,
     forcefield: Optional[Literal["MMFF", "UFF"]] = None,
     seed: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
@@ -316,6 +312,8 @@ def connect_mols(
     - Both idx1 and idx2 must have exactly one neighbor.
     - rotate_around_bond is intentionally NOT applied here.
     """
+    rng = np.random.default_rng(seed)
+
     mol1 = Chem.Mol(mol1)
     mol2 = Chem.Mol(mol2)
 
@@ -333,24 +331,35 @@ def connect_mols(
 
     # --- direction vectors ---
     origin1 = np.asarray(conf1.GetAtomPosition(target_idx1))
+    origin2 = np.asarray(conf2.GetAtomPosition(target_idx2))
+
     vec1 = np.asarray(conf1.GetAtomPosition(idx1)) - origin1
     vec1 /= np.linalg.norm(vec1)
-
-    origin2 = np.asarray(conf2.GetAtomPosition(target_idx2))
     vec2 = np.asarray(conf2.GetAtomPosition(idx2)) - origin2
     vec2 /= np.linalg.norm(vec2)
 
-    # --- rotate mol2 so vec2 -> -vec1 ---
-    R = rotation_matrix_from_vectors(vec2, -vec1)
+    if random_walk:
+        walk_vec = rng.uniform(-1.0, 1.0, 3)
+        walk_vec /= np.linalg.norm(walk_vec)
+    else:
+        walk_vec = vec1
 
-    pos2 = conf2.GetPositions()
-    pos2_rot = (R @ (pos2 - origin2).T).T + origin2
+    if align_conformer:
+        # R = rotation_matrix_from_vectors(vec2, -vec1)
+        R = rotation_matrix_from_vectors(vec2, -walk_vec)
+    else:
+        R = np.eye(3)
+    pos2_rot = (R @ (conf2.GetPositions() - origin2).T).T + origin2
 
     # --- translate mol2 to satisfy bond length ---
-    shift = origin1 - origin2 + bond_length * vec1
+    shift = origin1 - origin2 + bond_length * walk_vec
     pos2_final = pos2_rot + shift
 
     # write back coordinates
+    if torsion_angle is not None:
+        pos2_final = rotate_around_bond(
+            pos2_final, target_idx2, idx2, torsion_angle
+        )
     set_positions(conf2, pos2_final)
 
     # --- combine molecules ---
