@@ -310,7 +310,9 @@ def connect_mols(
     -----
     - idx1 and idx2 are assumed to be dummy atoms (e.g. Tritium).
     - Both idx1 and idx2 must have exactly one neighbor.
-    - rotate_around_bond is intentionally NOT applied here.
+    - When torsion_angle is given, rotation is applied in mol2's local frame
+      (around bond target_idx2 -> idx2) before alignment/translation, so mol2's
+      geometry is preserved and no distortion occurs.
     """
     rng = np.random.default_rng(seed)
 
