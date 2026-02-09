@@ -187,41 +187,34 @@ def infer_head_and_tail(
         return tuple(arr_indexes), tuple(arr_indexes)
 
 
-def resolve_head_and_tail_for_pair(
+def resolve_head_and_tail(
     mol: Chem.rdchem.Mol,
-    mol2: Chem.rdchem.Mol,
-) -> tuple[
-    tuple[int, ...], tuple[int, ...], tuple[int, ...], tuple[int, ...]
-]:
-    """Resolve head and tail indices for a pair of molecules, with fallback to inference.
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """
+    Resolve head and tail atom indices for a molecule, using atom properties if available,
+    otherwise falling back to inference.
 
-    Tries to read head/tail from atom properties for both molecules. If the first
-    molecule has no head/tail set, infers head/tail for both molecules (e.g. from
-    [3H] markers) and returns the resulting indices. Useful when connecting two
-    molecules and either or both may already have props set.
+    This function attempts to retrieve "head" and "tail" atom indices from the molecule's
+    atom boolean properties. If neither is set, it infers the indices (typically from [3H]
+    marker hydrogens) and returns those. This is useful when connecting molecules where
+    head/tail may or may not already be assigned.
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
-        First molecule.
-    mol2 : Chem.rdchem.Mol
-        Second molecule.
+        Molecule whose head and tail indices are to be resolved.
 
     Returns
     -------
-    tuple[tuple[int, ...], tuple[int, ...], tuple[int, ...], tuple[int, ...]]
-        (head_indexes, tail_indexes, head_indexes2, tail_indexes2) for mol and mol2.
+    tuple[tuple[int, ...], tuple[int, ...]]
+        A tuple of head atom indices and tail atom indices (head_indexes, tail_indexes).
     """
     head_indexes, tail_indexes = get_head_and_tail_from_props(
         mol, raise_no_head_or_tail=False
     )
-    head_indexes2, tail_indexes2 = get_head_and_tail_from_props(
-        mol2, raise_no_head_or_tail=False
-    )
     if not (head_indexes or tail_indexes):
         head_indexes, tail_indexes = infer_head_and_tail(mol)
-        head_indexes2, tail_indexes2 = infer_head_and_tail(mol2)
-    return head_indexes, tail_indexes, head_indexes2, tail_indexes2
+    return head_indexes, tail_indexes
 
 
 def rotation_matrix_from_vectors(
