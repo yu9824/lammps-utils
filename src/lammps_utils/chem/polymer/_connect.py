@@ -45,7 +45,7 @@ def replace_to_tritium_marker(
 
 
 @overload
-def get_head_and_tail(
+def get_head_and_tail_from_props(
     mol: Chem.rdchem.Mol,
     raise_not_unique: Literal[True] = True,
     raise_no_head_or_tail: Literal[True] = True,
@@ -53,33 +53,36 @@ def get_head_and_tail(
 
 
 @overload
-def get_head_and_tail(
+def get_head_and_tail_from_props(
     mol: Chem.rdchem.Mol,
     raise_not_unique: Literal[False] = False,
     raise_no_head_or_tail: bool = True,
 ) -> tuple[tuple[int, ...], tuple[int, ...]]: ...
 
 
-def get_head_and_tail(
+def get_head_and_tail_from_props(
     mol: Chem.rdchem.Mol,
     raise_not_unique: bool = True,
     raise_no_head_or_tail: bool = True,
 ) -> tuple[tuple[int, ...], tuple[int, ...]]:
-    """Get the head and tail atoms in an RDKit molecule.
+    """Get head and tail atom indices from the molecule's atom properties.
+
+    Reads the boolean properties "head" and "tail" on atoms. Use this when
+    the molecule has already been annotated (e.g. by infer_head_and_tail).
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
         An RDKit Mol object representing the molecule to analyze.
     raise_not_unique : bool, optional
-        If True, raise a ValueError if more than one atom is found with a "head" or "tail" marker.
+        If True, raise a ValueError if more than one atom has "head" or "tail" set.
     raise_no_head_or_tail : bool, optional
-        If True, raise a ValueError if the head or tail atom cannot be identified.
+        If True, raise a ValueError if no head or tail atom is found.
 
     Returns
     -------
     tuple[tuple[int, ...], tuple[int, ...]]
-        A tuple (head_idx, tail_idx) containing the atom indices of the detected head and tail.
+        A tuple (head_indexes, tail_indexes) of atom index tuples.
     """
 
     arr_head_indexes: "array[int]" = array("I")
@@ -104,68 +107,59 @@ def get_head_and_tail(
 
 
 @overload
-def detect_head_and_tail(
+def infer_head_and_tail(
     mol: Chem.rdchem.Mol,
     raise_not_unique: Literal[True] = True,
 ) -> tuple[tuple[int], tuple[int]]: ...
 
 
 @overload
-def detect_head_and_tail(
+def infer_head_and_tail(
     mol: Chem.rdchem.Mol,
     raise_not_unique: Literal[False] = False,
 ) -> tuple[tuple[int, ...], tuple[int, ...]]: ...
 
 
-def detect_head_and_tail(
+def infer_head_and_tail(
     mol: Chem.rdchem.Mol,
     raise_not_unique: bool = True,
 ) -> tuple[tuple[int, ...], tuple[int, ...]]:
-    """
-    Identify the head and tail atoms in an RDKit molecule for polymerization.
+    """Infer head and tail atoms from structure (e.g. [3H] markers) and set atom properties.
 
-    If there are exactly two labeled atoms, the atom with the lower index is assigned as the head,
-    and the one with the higher index as the tail.
-
-    Otherwise, all are considered both heads and tails.
+    Use this when the molecule has no "head"/"tail" properties yet. It looks for
+    tritium ([3H]) or existing "head"/"tail" props, then sets the props on the
+    molecule. If exactly two [3H] atoms exist, the lower index is head and the
+    higher is tail; otherwise all such atoms are treated as both head and tail.
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
         An RDKit Mol object representing the molecule to analyze.
     raise_not_unique : bool, optional
-        If True, raise a ValueError if more than one atom is found with a "head" or "tail" marker.
-    raise_no_head_or_tail : bool, optional
-        If True, raise a ValueError if the head or tail atom cannot be identified.
+        If True, raise ValueError when zero, one, or more than two [3H] atoms
+        are found (when props are not already set).
 
     Returns
     -------
-    tuple[int, int]
-        A tuple (head_idx, tail_idx) containing the atom indices of the detected head and tail.
+    tuple[tuple[int, ...], tuple[int, ...]]
+        A tuple (head_indexes, tail_indexes) of atom index tuples.
 
     Raises
     ------
     ValueError
-        If more than one atom is found with a "head" or "tail" marker.
-    AssertionError
-        If either the head or tail atom cannot be identified.
+        If raise_not_unique is True and head/tail cannot be uniquely determined.
 
     Notes
     -----
-    - This function first inspects all atoms in the molecule for boolean properties "head" and "tail".
-      If both are found, those indices are returned.
-    - If such properties are not set, the function looks for hydrogen atoms with isotope 3 ([3H]):
-        * The first [3H] atom encountered is assigned as the head, and its "head" property is set to True.
-        * The second [3H] atom encountered is assigned as the tail, and its "tail" property is set to True.
-    - If only one labeled ([3H]) atom is present, both head and tail are set to the same atom,
-      and a warning is issued.
-    - This detection mechanism supports both property-based and isotope-based conventions.
+    - First checks for existing boolean atom properties "head" and "tail".
+    - If not set, finds hydrogens with isotope 3 ([3H]), assigns head/tail,
+      and sets the "head"/"tail" properties on the molecule.
 
     Examples
     --------
     >>> from rdkit import Chem
     >>> mol = Chem.MolFromSmiles("[3H]CC(c1ccccc1)[3H]")
-    >>> head_idx, tail_idx = detect_head_and_tail(mol)
+    >>> head_idx, tail_idx = infer_head_and_tail(mol)
     """
     arr_indexes: "array[int]" = array("I")
     for atom in mol.GetAtoms():
@@ -191,6 +185,43 @@ def detect_head_and_tail(
             mol.GetAtomWithIdx(idx).SetBoolProp("head", True)
             mol.GetAtomWithIdx(idx).SetBoolProp("tail", True)
         return tuple(arr_indexes), tuple(arr_indexes)
+
+
+def resolve_head_and_tail_for_pair(
+    mol: Chem.rdchem.Mol,
+    mol2: Chem.rdchem.Mol,
+) -> tuple[
+    tuple[int, ...], tuple[int, ...], tuple[int, ...], tuple[int, ...]
+]:
+    """Resolve head and tail indices for a pair of molecules, with fallback to inference.
+
+    Tries to read head/tail from atom properties for both molecules. If the first
+    molecule has no head/tail set, infers head/tail for both molecules (e.g. from
+    [3H] markers) and returns the resulting indices. Useful when connecting two
+    molecules and either or both may already have props set.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        First molecule.
+    mol2 : Chem.rdchem.Mol
+        Second molecule.
+
+    Returns
+    -------
+    tuple[tuple[int, ...], tuple[int, ...], tuple[int, ...], tuple[int, ...]]
+        (head_indexes, tail_indexes, head_indexes2, tail_indexes2) for mol and mol2.
+    """
+    head_indexes, tail_indexes = get_head_and_tail_from_props(
+        mol, raise_no_head_or_tail=False
+    )
+    head_indexes2, tail_indexes2 = get_head_and_tail_from_props(
+        mol2, raise_no_head_or_tail=False
+    )
+    if not (head_indexes or tail_indexes):
+        head_indexes, tail_indexes = infer_head_and_tail(mol)
+        head_indexes2, tail_indexes2 = infer_head_and_tail(mol2)
+    return head_indexes, tail_indexes, head_indexes2, tail_indexes2
 
 
 def rotation_matrix_from_vectors(

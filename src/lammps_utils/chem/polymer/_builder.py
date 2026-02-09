@@ -8,8 +8,9 @@ from rdkit import Chem
 from lammps_utils.chem.conformer._generate import minimize_conformer
 from lammps_utils.chem.polymer._connect import (
     connect_mols,
-    detect_head_and_tail,
-    get_head_and_tail,
+    get_head_and_tail_from_props,
+    infer_head_and_tail,
+    resolve_head_and_tail_for_pair,
 )
 
 
@@ -59,7 +60,7 @@ def polymerize_linear(
     This function:
     1. Randomly selects n monomers from the input set according to the ratio
     2. Connects them sequentially: tail of previous -> head of next
-    3. Uses detect_head_and_tail to find connection points automatically
+    3. Uses infer_head_and_tail / resolve_head_and_tail_for_pair to find connection points automatically
     4. Optionally minimizes the final polymer structure
 
     Examples
@@ -78,15 +79,9 @@ def polymerize_linear(
     for i in range(1, n):
         mol2 = selected_mols[i]
 
-        head_indexes, tail_indexes = get_head_and_tail(
-            mol, raise_no_head_or_tail=False
+        head_indexes, tail_indexes, head_indexes2, tail_indexes2 = (
+            resolve_head_and_tail_for_pair(mol, mol2)
         )
-        head_indexes2, tail_indexes2 = get_head_and_tail(
-            mol2, raise_no_head_or_tail=False
-        )
-        if not (head_indexes or tail_indexes):
-            head_indexes, tail_indexes = detect_head_and_tail(mol)
-            head_indexes2, tail_indexes2 = detect_head_and_tail(mol2)
 
         # Connect tail of current polymer to head of next monomer
         # Skip minimization during intermediate steps for efficiency
@@ -141,8 +136,8 @@ def attach_terminal_groups(
     3. Connects another terminal group to the head end of the polymer
     4. Optionally minimizes the final structure
 
-    The head and tail atoms are detected automatically using detect_head_and_tail,
-    which looks for [3H] markers or atom properties.
+    The head and tail atoms are resolved using get_head_and_tail_from_props
+    and infer_head_and_tail (e.g. [3H] markers or atom properties).
 
     Examples
     --------
@@ -155,18 +150,20 @@ def attach_terminal_groups(
 
     mol = Chem.Mol(polymer)
 
-    head_indexes_terminal, tail_indexes_terminal = get_head_and_tail(
-        terminal, raise_no_head_or_tail=False, raise_not_unique=False
+    head_indexes_terminal, tail_indexes_terminal = (
+        get_head_and_tail_from_props(
+            terminal, raise_no_head_or_tail=False, raise_not_unique=False
+        )
     )
-    head_indexes_polymer, tail_indexes_polymer = get_head_and_tail(
+    head_indexes_polymer, tail_indexes_polymer = get_head_and_tail_from_props(
         mol, raise_no_head_or_tail=False, raise_not_unique=False
     )
     if not (head_indexes_terminal or tail_indexes_terminal):
-        head_indexes_terminal, tail_indexes_terminal = detect_head_and_tail(
+        head_indexes_terminal, tail_indexes_terminal = infer_head_and_tail(
             terminal, raise_not_unique=False
         )
     if not (head_indexes_polymer or tail_indexes_polymer):
-        head_indexes_polymer, tail_indexes_polymer = detect_head_and_tail(
+        head_indexes_polymer, tail_indexes_polymer = infer_head_and_tail(
             mol, raise_not_unique=False
         )
 
