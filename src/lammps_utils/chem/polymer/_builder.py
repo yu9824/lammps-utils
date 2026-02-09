@@ -1,6 +1,6 @@
 """Module for building polymer structures from monomers."""
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 from rdkit import Chem
@@ -18,6 +18,9 @@ def polymerize_linear(
     ratio: tuple[float, ...] = (1.0,),
     n: int = 10,
     forcefield: Optional[Literal["MMFF", "UFF"]] = "MMFF",
+    random_walk: bool = False,
+    torsion_angle: Union[float, Literal["random"]] = "random",
+    align_conformer: bool = True,
     seed: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
     """
@@ -93,7 +96,9 @@ def polymerize_linear(
             tail_indexes[0],
             head_indexes2[0],
             forcefield=None,
-            angle=0.0,
+            random_walk=random_walk,
+            torsion_angle=torsion_angle,
+            align_conformer=align_conformer,
             seed=seed,
         )
 
@@ -173,7 +178,9 @@ def attach_terminal_groups(
             tail_index_polymer,
             head_indexes_terminal[0],
             forcefield=None,
-            angle=0.0,
+            torsion_angle="random",
+            align_conformer=True,
+            random_walk=False,
         )
 
     for head_index_polymer in head_indexes_polymer:
@@ -183,7 +190,9 @@ def attach_terminal_groups(
             head_index_polymer,
             tail_indexes_terminal[0],
             forcefield=None,
-            angle=0.0,
+            torsion_angle="random",
+            align_conformer=True,
+            random_walk=False,
         )
 
     # Final minimization of the complete structure

@@ -1,7 +1,7 @@
 """Module for connecting molecules to build polymer structures."""
 
 from array import array
-from typing import Literal, Optional, overload
+from typing import Literal, Optional, Union, overload
 
 import numpy as np
 from rdkit import Chem
@@ -272,7 +272,6 @@ def rotation_matrix_from_vectors(
     )
 
 
-# TODO: 結合角の指定
 def connect_mols(
     mol1: Chem.rdchem.Mol,
     mol2: Chem.rdchem.Mol,
@@ -281,7 +280,7 @@ def connect_mols(
     bond_length: float = 1.5,
     bond_type: Chem.BondType = Chem.BondType.SINGLE,
     random_walk: bool = False,
-    torsion_angle: Optional[float] = None,
+    torsion_angle: Union[float, Literal["random"]] = "random",
     align_conformer: bool = True,
     forcefield: Optional[Literal["MMFF", "UFF"]] = None,
     seed: Optional[int] = None,
@@ -358,10 +357,15 @@ def connect_mols(
     pos2_final = pos2_rot + shift
 
     # write back coordinates
-    if torsion_angle is not None:
-        pos2_final = rotate_around_bond(
-            pos2_final, target_idx2, idx2, torsion_angle
-        )
+    if torsion_angle == "random":
+        torsion_angle = rng.uniform(-2 * np.pi, 2 * np.pi)
+
+    pos2_final = rotate_around_bond(
+        pos2_final,
+        target_idx2,
+        idx2,
+        angle=torsion_angle,
+    )
     set_positions(conf2, pos2_final)
 
     # --- combine molecules ---
