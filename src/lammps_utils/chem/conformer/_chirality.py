@@ -9,7 +9,6 @@ from rdkit import Chem
 
 from lammps_utils.io.mol import set_positions
 
-
 _DEFAULT_CONF_ID: Final[int] = -1
 
 
@@ -96,9 +95,8 @@ def invert_chirality(
     mol_inv = Chem.Mol(mol)
 
     conf_id = conf_old.GetId()
-    if 0 <= conf_id < mol_inv.GetNumConformers():
-        # Remove conformer with the same ID if it exists on the copy
-        mol_inv.RemoveConformer(conf_id)
+    # Remove conformer with the same ID
+    mol_inv.RemoveConformer(conf_id)
 
     coords = conf_old.GetPositions()
     inverted = invert_chirality_coords(coords)
@@ -114,5 +112,8 @@ def invert_chirality(
     # Recalculate chirality from coordinates
     Chem.AssignAtomChiralTagsFromStructure(mol_inv, replaceExistingTags=True)
 
-    return mol_inv
+    assert mol_inv.GetNumConformers() == mol.GetNumConformers(), (
+        f"Number of conformers changed from {mol.GetNumConformers()} to {mol_inv.GetNumConformers()}"
+    )
 
+    return mol_inv
