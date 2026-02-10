@@ -1,17 +1,22 @@
 """Module for building polymer structures from monomers."""
 
+from itertools import cycle, islice
 from typing import Literal, Optional, Union
 
 import numpy as np
 from rdkit import Chem
 
+from lammps_utils.chem.conformer._chirality import invert_chirality
 from lammps_utils.chem.conformer._generate import minimize_conformer
 from lammps_utils.chem.polymer._connect import (
     connect_mols,
     get_head_and_tail_from_props,
     infer_head_and_tail,
-    resolve_head_and_tail_for_pair,
+    resolve_head_and_tail,
 )
+from lammps_utils.logging import get_child_logger
+
+logger = get_child_logger(__name__)
 
 
 def polymerize_linear(
@@ -22,6 +27,7 @@ def polymerize_linear(
     random_walk: bool = False,
     torsion_angle: Union[float, Literal["random"]] = "random",
     align_conformer: bool = True,
+    tacticity: Literal["isotactic", "syndiotactic", "atactic"] = "isotactic",
     seed: Optional[int] = None,
 ) -> Chem.rdchem.Mol:
     """
@@ -60,7 +66,7 @@ def polymerize_linear(
     This function:
     1. Randomly selects n monomers from the input set according to the ratio
     2. Connects them sequentially: tail of previous -> head of next
-    3. Uses infer_head_and_tail / resolve_head_and_tail_for_pair to find connection points automatically
+    3. Uses detect_head_and_tail to find connection points automatically
     4. Optionally minimizes the final polymer structure
 
     Examples
@@ -72,16 +78,78 @@ def polymerize_linear(
     """
     assert len(mols) == len(ratio), "Length of mols and ratio must match"
 
+    for mol in mols:
+        if mol.GetNumConformers() == 0:
+            raise ValueError("No conformers found in the molecule.")
+
+    if len(mols) != 1:
+        tacticity = "isotactic"
+        logger.warning(
+            "'tacticity' is ignored when multiple monomers are provided."
+        )
+    elif tacticity in {"atactic", "syndiotactic"}:
+        assert len(mols) == 1
+        mol = mols[0]
+
+        Chem.AssignAtomChiralTagsFromStructure(mol, replaceExistingTags=True)
+        indexes_head, indexes_tail = resolve_head_and_tail(mol)
+        assert len(indexes_head) == 1
+        assert len(indexes_tail) == 1
+        indexes_main_chain: set[int] = set(
+            Chem.GetShortestPath(mol, indexes_tail[0], indexes_head[0])
+        )
+
+        n_chiral_centers = 0
+        for chiral_center, _ in Chem.FindMolChiralCenters(
+            mol, includeUnassigned=False
+        ):
+            if chiral_center in indexes_main_chain:
+                n_chiral_centers += 1
+        if n_chiral_centers == 0:
+            logger.warning(
+                "No chiral centers found in the main chain. "
+                "Turning off chiral tagging."
+            )
+            tacticity = "isotactic"
+        elif n_chiral_centers > 2:
+            logger.warning(
+                "More than 2 chiral centers found in the main chain. "
+                "Turning off chiral tagging."
+            )
+            tacticity = "isotactic"
+        else:
+            mol_inv = invert_chirality(mol)
+            Chem.AssignAtomChiralTagsFromStructure(
+                mol_inv, replaceExistingTags=True
+            )
+
+            mols = (mol, mol_inv)
+            ratio = (ratio[0] / 2, ratio[0] / 2)
+
     rng = np.random.default_rng(seed)
-    selected_mols = rng.choice(mols, size=n, replace=True, p=ratio).tolist()
+
+    selected_mols: tuple[Chem.Mol, ...]
+    if tacticity in {"atactic", "isotactic"}:
+        selected_mols = tuple(
+            rng.choice(mols, size=n, replace=True, p=ratio).tolist()
+        )
+        if tacticity == "atactic":
+            assert len(mols) == 2
+            assert len(ratio) == 2
+
+    elif tacticity == "syndiotactic":
+        assert len(mols) == 2
+        assert len(ratio) == 2
+        selected_mols = tuple(islice(cycle(mols), n))
+    else:
+        raise ValueError(f"{tacticity}")
 
     mol = selected_mols[0]
     for i in range(1, n):
         mol2 = selected_mols[i]
 
-        head_indexes, tail_indexes, head_indexes2, tail_indexes2 = (
-            resolve_head_and_tail_for_pair(mol, mol2)
-        )
+        head_indexes, tail_indexes = resolve_head_and_tail(mol)
+        head_indexes2, tail_indexes2 = resolve_head_and_tail(mol2)
 
         # Connect tail of current polymer to head of next monomer
         # Skip minimization during intermediate steps for efficiency
