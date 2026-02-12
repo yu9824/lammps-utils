@@ -14,6 +14,7 @@ from lammps_utils.chem.polymer._connect import (
     infer_head_and_tail,
     resolve_head_and_tail,
 )
+from lammps_utils.chem.polymer._errors import TacticityError
 from lammps_utils.chem.polymer._handedness import compute_main_chain_handedness
 from lammps_utils.logging import get_child_logger
 
@@ -85,12 +86,13 @@ def polymerize_linear(
     Raises
     ------
     ValueError
-        If mols/ratio length mismatch, no conformers in a monomer,
-        syndiotactic with forcefield minimization, tacticity with
-        random_walk, or (when tacticity is set) tacticity check fails
-        after building.
+        If mols/ratio length mismatch or no conformers in a monomer.
+    TacticityError
+        If syndiotactic with forcefield minimization, tacticity with
+        random_walk, invalid tacticity value, or (when tacticity is set)
+        post-build handedness does not match the expected pattern.
     AssertionError
-        If head/tail resolution or internal tacticity assumptions fail.
+        If head/tail resolution or internal assumptions fail.
 
     Notes
     -----
@@ -114,12 +116,11 @@ def polymerize_linear(
 
     # raise errors when not supported combinations are used
     if tacticity == "syndiotactic" and forcefield is not None:
-        # FIXME: forcefield minimizationすると tacticlityが崩れてしまう
-        raise ValueError(
+        raise TacticityError(
             "Syndiotactic tacticity is not supported with forcefield minimization."
         )
     if tacticity is not None and random_walk:
-        raise ValueError("Tacticity is not supported with random walk.")
+        raise TacticityError("Tacticity is not supported with random walk.")
 
     # raise errors when no conformers are found
     for mol in mols:
@@ -161,7 +162,7 @@ def polymerize_linear(
                 "Turning off chiral tagging."
             )
             tacticity = None
-        else:
+        elif tacticity in {"atactic", "syndiotactic"}:
             mol_inv = invert_chirality(mol)
 
             mols = (mol, mol_inv)
@@ -177,13 +178,16 @@ def polymerize_linear(
         if tacticity == "atactic":
             assert len(mols) == 2
             assert len(ratio) == 2
+        elif tacticity == "isotactic":
+            assert len(mols) == 1
+            assert len(ratio) == 1
 
     elif tacticity == "syndiotactic":
         assert len(mols) == 2
         assert len(ratio) == 2
         selected_mols = tuple(islice(cycle(mols), n))
     else:
-        raise ValueError(f"{tacticity}")
+        raise TacticityError(f"Invalid tacticity: {tacticity!r}")
 
     mol = selected_mols[0]
     for i in range(1, n):
@@ -212,19 +216,43 @@ def polymerize_linear(
 
     if tacticity is not None:
         handedness = compute_main_chain_handedness(mol)
-        assert handedness, "tacticity is broken"
+        if not handedness:
+            raise TacticityError(
+                "No main-chain chiral centers found; tacticity check failed.",
+                expected_tacticity=tacticity,
+                handedness=handedness,
+            )
         if tacticity == "syndiotactic":
             handedness_odd = handedness[::2]
             handedness_even = handedness[1::2]
-            assert len(set(handedness_odd)) == 1, "tacticity is broken"
-            assert len(set(handedness_even)) == 1, "tacticity is broken"
-            assert handedness_odd[0] != handedness_even[0], (
-                "tacticity is broken"
-            )
+            if len(set(handedness_odd)) != 1 or len(set(handedness_even)) != 1:
+                raise TacticityError(
+                    "Syndiotactic requires alternating handedness; "
+                    f"got odd={handedness_odd}, even={handedness_even}.",
+                    expected_tacticity=tacticity,
+                    handedness=handedness,
+                )
+            if handedness_odd[0] == handedness_even[0]:
+                raise TacticityError(
+                    "Syndiotactic requires opposite handedness at odd/even "
+                    f"positions; got {handedness}.",
+                    expected_tacticity=tacticity,
+                    handedness=handedness,
+                )
         elif tacticity == "isotactic":
-            assert len(set(handedness)) == 1, "tacticity is broken"
+            if len(set(handedness)) != 1:
+                raise TacticityError(
+                    f"Isotactic requires a single handedness; got {handedness}.",
+                    expected_tacticity=tacticity,
+                    handedness=handedness,
+                )
         elif tacticity == "atactic":
-            assert len(set(handedness)) == 2, "tacticity is broken"
+            if len(set(handedness)) != 2:
+                raise TacticityError(
+                    f"Atactic requires both +1 and -1 handedness; got {handedness}.",
+                    expected_tacticity=tacticity,
+                    handedness=handedness,
+                )
 
     return mol
 

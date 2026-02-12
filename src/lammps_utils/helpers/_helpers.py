@@ -370,13 +370,19 @@ def run_executable(
         input=input,
         cwd=cwd,
     )
+    str_stdout = result.stdout.decode()
+    str_stderr = result.stderr.decode()
     logger.debug(f"Running executable: {' '.join(commands)}")
-    logger.debug(f"Standard output: {result.stdout.decode()}")
-    logger.debug(f"Standard error: {result.stderr.decode()}")
+    if str_stdout:
+        logger.debug(f"Standard output: {str_stdout}")
+    if str_stderr:
+        logger.debug(f"Standard error: {str_stderr}")
     if result.returncode != 0:
         logger.error(f"Failed to run executable: {' '.join(commands)}")
-        logger.error(f"Standard output: {result.stdout.decode()}")
-        logger.error(f"Standard error: {result.stderr.decode()}")
+        if str_stdout:
+            logger.error(f"Standard output: {str_stdout}")
+        if str_stderr:
+            logger.error(f"Standard error: {str_stderr}")
         raise subprocess.CalledProcessError(
             result.returncode,
             commands,

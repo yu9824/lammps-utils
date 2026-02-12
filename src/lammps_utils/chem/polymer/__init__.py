@@ -9,12 +9,14 @@ from ._connect import (
     replace_to_tritium_marker,
     resolve_head_and_tail,
 )
+from ._errors import TacticityError
 from ._handedness import compute_main_chain_handedness, improper_handedness
 from ._polymer import find_main_chains
 
 __all__ = (
     "attach_terminal_groups",
     "calculate_box_length",
+    "TacticityError",
     "connect_mols",
     "get_head_and_tail_from_props",
     "infer_head_and_tail",
