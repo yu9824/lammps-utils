@@ -78,7 +78,7 @@ def generate_minimized_conformer(
             best_conf_id = conf_id
 
     # 最小エネルギーの conformer だけ残す
-    all_conf_ids = array("I", [conf.GetId() for conf in mol.GetConformers()])
+    all_conf_ids = tuple(conf.GetId() for conf in mol.GetConformers())
     for cid in all_conf_ids:
         if cid != best_conf_id:
             mol.RemoveConformer(cid)
