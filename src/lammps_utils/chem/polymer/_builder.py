@@ -119,9 +119,6 @@ def polymerize_linear(
             tacticity = "isotactic"
         else:
             mol_inv = invert_chirality(mol)
-            Chem.AssignAtomChiralTagsFromStructure(
-                mol_inv, replaceExistingTags=True
-            )
 
             mols = (mol, mol_inv)
             ratio = (ratio[0] / 2, ratio[0] / 2)
