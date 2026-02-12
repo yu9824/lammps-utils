@@ -334,6 +334,7 @@ def is_executable(executable: str) -> bool:
 def run_executable(
     commands: Sequence[str],
     *,
+    input: Optional[Any] = None,
     cwd: Optional[Union[str, os.PathLike]] = None,
 ) -> "subprocess.CompletedProcess[bytes]":
     """Run an executable with subprocess.run.
@@ -344,6 +345,8 @@ def run_executable(
     ----------
     commands : Sequence[str]
         The sequence of commands to run.
+    input : Any, optional
+        The input to pass to the command.
     cwd : path-like, optional
         If given, run the command in this directory.
 
@@ -364,15 +367,22 @@ def run_executable(
         commands,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        input=input,
         cwd=cwd,
     )
+    str_stdout = result.stdout.decode()
+    str_stderr = result.stderr.decode()
     logger.debug(f"Running executable: {' '.join(commands)}")
-    logger.debug(f"Standard output: {result.stdout.decode()}")
-    logger.debug(f"Standard error: {result.stderr.decode()}")
+    if str_stdout:
+        logger.debug(f"Standard output: {str_stdout}")
+    if str_stderr:
+        logger.debug(f"Standard error: {str_stderr}")
     if result.returncode != 0:
         logger.error(f"Failed to run executable: {' '.join(commands)}")
-        logger.error(f"Standard output: {result.stdout.decode()}")
-        logger.error(f"Standard error: {result.stderr.decode()}")
+        if str_stdout:
+            logger.error(f"Standard output: {str_stdout}")
+        if str_stderr:
+            logger.error(f"Standard error: {str_stderr}")
         raise subprocess.CalledProcessError(
             result.returncode,
             commands,

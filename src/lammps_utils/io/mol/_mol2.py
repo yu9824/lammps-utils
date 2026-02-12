@@ -163,7 +163,9 @@ def _mol_to_mol2_block_obabel(
         partial_charge_option,
         "-omol2",
     ]
-    result_obabel = run_executable(list_commands)
+    result_obabel = run_executable(
+        list_commands, input=Chem.MolToPDBBlock(mol).encode(encoding)
+    )
 
     flag_read = False
     atom_index: int = 1  # 1-based index

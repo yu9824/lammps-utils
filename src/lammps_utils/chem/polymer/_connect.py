@@ -1,6 +1,7 @@
 """Module for connecting molecules to build polymer structures."""
 
-from typing import Literal, Optional
+from array import array
+from typing import Literal, Optional, Union, overload
 
 import numpy as np
 from rdkit import Chem
@@ -13,86 +14,288 @@ from lammps_utils.logging import get_child_logger
 logger = get_child_logger(__name__)
 
 
-def detect_head_and_tail(mol: Chem.rdchem.Mol) -> tuple[int, int]:
-    """
-    Identify the head and tail atoms in an RDKit molecule for polymerization.
+def has_tritium(mol: Chem.rdchem.Mol) -> bool:
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        if atom.GetAtomicNum() == 1 and atom.GetIsotope() == 3:
+            return True
+    return False
+
+
+def has_asterisk(mol: Chem.rdchem.Mol) -> bool:
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        if atom.GetAtomicNum() == 0:
+            return True
+    return False
+
+
+def replace_to_tritium_marker(
+    mol: Chem.rdchem.Mol, check_no_tritium: bool = True
+) -> Chem.rdchem.Mol:
+    if check_no_tritium and has_tritium(mol):
+        raise ValueError("Tritium atom found")
+    mol = Chem.Mol(mol)
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        if atom.GetAtomicNum() == 0:
+            atom.SetAtomicNum(1)
+            atom.SetIsotope(3)
+    return mol
+
+
+@overload
+def get_head_and_tail_from_props(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[True] = True,
+    raise_no_head_or_tail: Literal[True] = True,
+) -> tuple[tuple[int], tuple[int]]: ...
+
+
+@overload
+def get_head_and_tail_from_props(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[False] = False,
+    raise_no_head_or_tail: bool = True,
+) -> tuple[tuple[int, ...], tuple[int, ...]]: ...
+
+
+def get_head_and_tail_from_props(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: bool = True,
+    raise_no_head_or_tail: bool = True,
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Get head and tail atom indices from the molecule's atom properties.
+
+    Reads the boolean properties "head" and "tail" on atoms. Use this when
+    the molecule has already been annotated (e.g. by infer_head_and_tail).
 
     Parameters
     ----------
     mol : Chem.rdchem.Mol
         An RDKit Mol object representing the molecule to analyze.
+    raise_not_unique : bool, optional
+        If True, raise a ValueError if more than one atom has "head" or "tail" set.
+    raise_no_head_or_tail : bool, optional
+        If True, raise a ValueError if no head or tail atom is found.
 
     Returns
     -------
-    tuple[int, int]
-        A tuple (head_idx, tail_idx) containing the atom indices of the detected head and tail.
+    tuple[tuple[int, ...], tuple[int, ...]]
+        A tuple (head_indexes, tail_indexes) of atom index tuples.
+    """
+
+    arr_head_indexes: "array[int]" = array("I")
+    arr_tail_indexes: "array[int]" = array("I")
+    for atom in mol.GetAtoms():
+        assert isinstance(atom, Chem.rdchem.Atom)
+        props = atom.GetPropsAsDict()
+        if props.get("head", False):
+            if len(arr_head_indexes) > 1 and raise_not_unique:
+                raise ValueError("Multiple atoms marked as head")
+            arr_head_indexes.append(atom.GetIdx())
+        if props.get("tail", False):
+            if len(arr_tail_indexes) > 1 and raise_not_unique:
+                raise ValueError("Multiple atoms marked as tail")
+            arr_tail_indexes.append(atom.GetIdx())
+    if len(arr_head_indexes) == 0 and raise_no_head_or_tail:
+        raise ValueError("No head atom found")
+    elif len(arr_tail_indexes) == 0 and raise_no_head_or_tail:
+        raise ValueError("No tail atom found")
+
+    return tuple(arr_head_indexes), tuple(arr_tail_indexes)
+
+
+@overload
+def infer_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[True] = True,
+) -> tuple[tuple[int], tuple[int]]: ...
+
+
+@overload
+def infer_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: Literal[False] = False,
+) -> tuple[tuple[int, ...], tuple[int, ...]]: ...
+
+
+def infer_head_and_tail(
+    mol: Chem.rdchem.Mol,
+    raise_not_unique: bool = True,
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Infer head and tail atoms from structure (e.g. [3H] markers) and set atom properties.
+
+    Use this when the molecule has no "head"/"tail" properties yet. It looks for
+    tritium ([3H]) or existing "head"/"tail" props, then sets the props on the
+    molecule. If exactly two [3H] atoms exist, the lower index is head and the
+    higher is tail; otherwise all such atoms are treated as both head and tail.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        An RDKit Mol object representing the molecule to analyze.
+    raise_not_unique : bool, optional
+        If True, raise ValueError when zero, one, or more than two [3H] atoms
+        are found (when props are not already set).
+
+    Returns
+    -------
+    tuple[tuple[int, ...], tuple[int, ...]]
+        A tuple (head_indexes, tail_indexes) of atom index tuples.
 
     Raises
     ------
     ValueError
-        If more than one atom is found with a "head" or "tail" marker.
-    AssertionError
-        If either the head or tail atom cannot be identified.
+        If raise_not_unique is True and head/tail cannot be uniquely determined.
 
     Notes
     -----
-    - This function first inspects all atoms in the molecule for boolean properties "head" and "tail".
-      If both are found, those indices are returned.
-    - If such properties are not set, the function looks for hydrogen atoms with isotope 3 ([3H]):
-        * The first [3H] atom encountered is assigned as the head, and its "head" property is set to True.
-        * The second [3H] atom encountered is assigned as the tail, and its "tail" property is set to True.
-    - If only one labeled ([3H]) atom is present, both head and tail are set to the same atom,
-      and a warning is issued.
-    - This detection mechanism supports both property-based and isotope-based conventions.
+    - First checks for existing boolean atom properties "head" and "tail".
+    - If not set, finds hydrogens with isotope 3 ([3H]), assigns head/tail,
+      and sets the "head"/"tail" properties on the molecule.
 
     Examples
     --------
     >>> from rdkit import Chem
     >>> mol = Chem.MolFromSmiles("[3H]CC(c1ccccc1)[3H]")
-    >>> head_idx, tail_idx = detect_head_and_tail(mol)
+    >>> head_idx, tail_idx = infer_head_and_tail(mol)
     """
-    head_idx: int = -1
-    tail_idx: int = -1
-    for atom in mol.GetAtoms():
-        assert isinstance(atom, Chem.rdchem.Atom)
-        props = atom.GetPropsAsDict()
-        if props.get("head", False):
-            if head_idx >= 0:
-                raise ValueError("Multiple atoms marked as head")
-            head_idx = atom.GetIdx()
-        elif props.get("tail", False):
-            if tail_idx >= 0:
-                raise ValueError("Multiple atoms marked as tail")
-            tail_idx = atom.GetIdx()
-
-    if head_idx >= 0 and tail_idx >= 0:
-        return head_idx, tail_idx
-
+    arr_indexes: "array[int]" = array("I")
     for atom in mol.GetAtoms():
         assert isinstance(atom, Chem.rdchem.Atom)
         if atom.GetAtomicNum() == 1 and atom.GetIsotope() == 3:
-            if head_idx < 0:
-                head_idx = atom.GetIdx()
-                atom.SetBoolProp("head", True)
-            else:
-                tail_idx = atom.GetIdx()
-                atom.SetBoolProp("tail", True)
-                break
+            arr_indexes.append(atom.GetIdx())
+    if len(arr_indexes) == 2:
+        head_idx = arr_indexes[0]
+        tail_idx = arr_indexes[1]
+        mol.GetAtomWithIdx(head_idx).SetBoolProp("head", True)
+        mol.GetAtomWithIdx(tail_idx).SetBoolProp("tail", True)
+        return ((head_idx,), (tail_idx,))
+    elif raise_not_unique:
+        if len(arr_indexes) == 0:
+            raise ValueError("No head or tail atom found")
+        elif len(arr_indexes) == 1:
+            raise ValueError("Only one head or tail atom found")
+        else:
+            raise ValueError("Multiple head or tail atoms found")
     else:
-        if head_idx >= 0 and tail_idx < 0:
-            logger.warning(
-                "Only head_idx found and not tail_idx. "
-                "Setting tail_idx to head_idx. "
-                "Please check the atom properties for 'tail' marker."
-            )
-            tail_idx = head_idx
-
-    assert head_idx >= 0, "head_idx not found"
-    assert tail_idx >= 0, "tail_idx not found"
-    return head_idx, tail_idx
+        # logger.warning("")
+        for idx in arr_indexes:
+            mol.GetAtomWithIdx(idx).SetBoolProp("head", True)
+            mol.GetAtomWithIdx(idx).SetBoolProp("tail", True)
+        return tuple(arr_indexes), tuple(arr_indexes)
 
 
-# TODO: 結合角の指定
+def resolve_head_and_tail(
+    mol: Chem.rdchem.Mol,
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """
+    Resolve head and tail atom indices for a molecule, using atom properties if available,
+    otherwise falling back to inference.
+
+    This function attempts to retrieve "head" and "tail" atom indices from the molecule's
+    atom boolean properties. If neither is set, it infers the indices (typically from [3H]
+    marker hydrogens) and returns those. This is useful when connecting molecules where
+    head/tail may or may not already be assigned.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        Molecule whose head and tail indices are to be resolved.
+
+    Returns
+    -------
+    tuple[tuple[int, ...], tuple[int, ...]]
+        A tuple of head atom indices and tail atom indices (head_indexes, tail_indexes).
+    """
+    head_indexes, tail_indexes = get_head_and_tail_from_props(
+        mol, raise_no_head_or_tail=False
+    )
+    if not (head_indexes or tail_indexes):
+        head_indexes, tail_indexes = infer_head_and_tail(mol)
+    return head_indexes, tail_indexes
+
+
+def rotation_matrix_from_vectors(
+    source_vector: np.ndarray,
+    reference_vector: np.ndarray,
+    eps: float = 1e-8,
+) -> np.ndarray:
+    """
+    Compute a 3x3 rotation matrix that rotates a source vector to either
+    a parallel direction of a reference vector.
+
+    This function uses Rodrigues' rotation formula:
+
+        R = I + sin(theta) * K + (1 - cos(theta)) * K^2
+
+    where K is the skew-symmetric matrix of the rotation axis.
+
+    Parameters
+    ----------
+    source_vector : np.ndarray
+        Vector to be rotated, shape (3,).
+    reference_vector : np.ndarray
+        Reference direction vector, shape (3,).
+    eps : float
+        Numerical tolerance.
+
+    Returns
+    -------
+    np.ndarray
+        Proper rotation matrix (3, 3) with det(R)=+1.
+    """
+    source_unit = np.asarray(source_vector, dtype=float)
+    target_unit = np.asarray(reference_vector, dtype=float)
+
+    source_unit /= np.linalg.norm(source_unit)
+    target_unit /= np.linalg.norm(target_unit)
+
+    cos_theta = np.dot(source_unit, target_unit)
+
+    if cos_theta > 1.0 - eps:
+        return np.eye(3)
+
+    if cos_theta < -1.0 + eps:
+        # 180-degree rotation
+        fallback_axis = np.array([1.0, 0.0, 0.0])
+        if abs(np.dot(source_unit, fallback_axis)) > 0.9:
+            fallback_axis = np.array([0.0, 1.0, 0.0])
+
+        rotation_axis = np.cross(source_unit, fallback_axis)
+        rotation_axis /= np.linalg.norm(rotation_axis)
+
+        K = np.array(
+            [
+                [0.0, -rotation_axis[2], rotation_axis[1]],
+                [rotation_axis[2], 0.0, -rotation_axis[0]],
+                [-rotation_axis[1], rotation_axis[0], 0.0],
+            ]
+        )
+
+        return np.eye(3) + 2.0 * (K @ K)
+
+    # General Rodrigues rotation
+    rotation_axis = np.cross(source_unit, target_unit)
+    sin_theta = np.linalg.norm(rotation_axis)
+    rotation_axis /= sin_theta
+
+    K = np.array(
+        [
+            [0.0, -rotation_axis[2], rotation_axis[1]],
+            [rotation_axis[2], 0.0, -rotation_axis[0]],
+            [-rotation_axis[1], rotation_axis[0], 0.0],
+        ]
+    )
+
+    return (
+        np.eye(3)
+        + np.sin(np.arccos(cos_theta)) * K
+        + (1.0 - cos_theta) * (K @ K)
+    )
+
+
 def connect_mols(
     mol1: Chem.rdchem.Mol,
     mol2: Chem.rdchem.Mol,
@@ -100,114 +303,110 @@ def connect_mols(
     idx2: int,
     bond_length: float = 1.5,
     bond_type: Chem.BondType = Chem.BondType.SINGLE,
-    angle: Optional[float] = None,
+    random_walk: bool = False,
+    torsion_angle: Union[float, Literal["random"]] = "random",
+    align_conformer: bool = True,
+    forcefield: Optional[Literal["MMFF", "UFF"]] = None,
     seed: Optional[int] = None,
-    forcefield: Optional[Literal["MMFF", "UFF"]] = "MMFF",
 ) -> Chem.rdchem.Mol:
     """
-    Connect two molecules by forming a bond between specified atoms.
+    Connect two molecules by removing dummy atoms (idx1, idx2) and forming
+    a bond between their respective neighbor atoms with a well-defined
+    geometric alignment.
 
-    Parameters
-    ----------
-    mol1 : Chem.rdchem.Mol
-        First molecule to connect.
-    mol2 : Chem.rdchem.Mol
-        Second molecule to connect.
-    idx1 : int
-        Index of the atom in mol1 to connect (must have exactly one neighbor).
-    idx2 : int
-        Index of the atom in mol2 to connect (must have exactly one neighbor).
-    bond_length : float, optional
-        Desired bond length in Angstroms. Default is 1.5.
-    bond_type : Chem.BondType, optional
-        Type of bond to form. Default is Chem.BondType.SINGLE.
-    angle : Optional[float], optional
-        Rotation angle in radians around the bond. If None, a random angle is used.
-        Default is None.
-    seed : Optional[int], optional
-        Random seed for generating random rotation angle and vector. Default is None.
-    forcefield : Optional[Literal["MMFF", "UFF"]], optional
-        Force field to use for energy minimization after connection.
-        If None, no minimization is performed. Default is "MMFF".
+    Geometry rule
+    -------------
+    Let:
 
-    Returns
-    -------
-    Chem.rdchem.Mol
-        The connected molecule with sanitized structure.
+        vec1 = idx1 -> target_idx1   (mol1 side)
+        vec2 = idx2 -> target_idx2   (mol2 side)
 
-    Raises
-    ------
-    AssertionError
-        If idx1 or idx2 atoms do not have exactly one neighbor.
+    Then mol2 is rigidly transformed so that:
+
+        vec2 aligns with -vec1
+
+    and target_idx2 is placed at:
+
+        target_idx1 + vec1 * bond_length
 
     Notes
     -----
-    This function:
-    1. Creates copies of the input molecules
-    2. Positions mol2 relative to mol1 using a random vector
-    3. Optionally rotates mol2 around the bond axis
-    4. Combines the molecules and forms a bond between the target atoms
-    5. Removes the connecting atoms (idx1 and idx2)
-    6. Sanitizes the resulting molecule
-    7. Optionally minimizes the conformer energy
-
+    - idx1 and idx2 are assumed to be dummy atoms (e.g. Tritium).
+    - Both idx1 and idx2 must have exactly one neighbor.
+    - When torsion_angle is given, rotation is applied in mol2's local frame
+      (around bond target_idx2 -> idx2) before alignment/translation, so mol2's
+      geometry is preserved and no distortion occurs.
     """
-    rng = np.random.default_rng(seed=seed)
+    rng = np.random.default_rng(seed)
 
     mol1 = Chem.Mol(mol1)
     mol2 = Chem.Mol(mol2)
-
-    rand_vec = rng.normal(size=3)
-    rand_vec = rand_vec / np.linalg.norm(rand_vec) * bond_length
 
     conf1 = mol1.GetConformer()
     conf2 = mol2.GetConformer()
 
     atom1 = mol1.GetAtomWithIdx(idx1)
-    assert len(atom1.GetNeighbors()) == 1
-
     atom2 = mol2.GetAtomWithIdx(idx2)
-    assert len(atom2.GetNeighbors()) == 1
 
-    target_atom1 = atom1.GetNeighbors()[0]
-    target_atom2 = atom2.GetNeighbors()[0]
-    assert isinstance(target_atom1, Chem.rdchem.Atom)
-    assert isinstance(target_atom2, Chem.rdchem.Atom)
+    assert atom1.GetDegree() == 1
+    assert atom2.GetDegree() == 1
 
-    target_idx1 = target_atom1.GetIdx()
-    target_idx2 = target_atom2.GetIdx()
+    target_idx1 = atom1.GetNeighbors()[0].GetIdx()
+    target_idx2 = atom2.GetNeighbors()[0].GetIdx()
 
-    set_positions(
-        conf1,
-        conf1.GetPositions()
-        - np.asarray(conf1.GetAtomPosition(target_idx1))
-        + rand_vec,
+    # --- direction vectors ---
+    origin1 = np.asarray(conf1.GetAtomPosition(target_idx1))
+    origin2 = np.asarray(conf2.GetAtomPosition(target_idx2))
+
+    vec1 = np.asarray(conf1.GetAtomPosition(idx1)) - origin1
+    vec1 /= np.linalg.norm(vec1)
+    vec2 = np.asarray(conf2.GetAtomPosition(idx2)) - origin2
+    vec2 /= np.linalg.norm(vec2)
+
+    if random_walk:
+        walk_vec = rng.uniform(-1.0, 1.0, 3)
+        walk_vec /= np.linalg.norm(walk_vec)
+    else:
+        walk_vec = vec1
+
+    if align_conformer:
+        # R = rotation_matrix_from_vectors(vec2, -vec1)
+        R = rotation_matrix_from_vectors(vec2, -walk_vec)
+    else:
+        R = np.eye(3)
+    pos2_rot = (R @ (conf2.GetPositions() - origin2).T).T + origin2
+
+    # --- translate mol2 to satisfy bond length ---
+    shift = origin1 - origin2 + bond_length * walk_vec
+    pos2_final = pos2_rot + shift
+
+    # write back coordinates
+    if torsion_angle == "random":
+        torsion_angle = rng.uniform(-2 * np.pi, 2 * np.pi)
+
+    pos2_final = rotate_around_bond(
+        pos2_final,
+        target_idx2,
+        idx2,
+        angle=torsion_angle,
     )
+    set_positions(conf2, pos2_final)
 
-    set_positions(
-        conf2,
-        conf2.GetPositions() - np.asarray(conf2.GetAtomPosition(target_idx2)),
-    )
-
-    if angle is None:
-        angle = rng.uniform(0, 2 * np.pi)
-
-    set_positions(
-        conf2,
-        rotate_around_bond(conf2.GetPositions(), idx2, target_idx2, angle),
-    )
-
+    # --- combine molecules ---
     combo = Chem.CombineMols(mol1, mol2)
-
     rw = Chem.RWMol(combo)
+
     offset = mol1.GetNumAtoms()
     rw.AddBond(target_idx1, target_idx2 + offset, bond_type)
+
+    # remove dummy atoms
     rw.RemoveAtom(idx2 + offset)
     rw.RemoveAtom(idx1)
 
-    connected_mol = rw.GetMol()
-    Chem.SanitizeMol(connected_mol)
+    connected = rw.GetMol()
+    Chem.SanitizeMol(connected)
 
-    if forcefield:
-        minimize_conformer(connected_mol, forcefield=forcefield)
-    return connected_mol
+    if forcefield is not None:
+        minimize_conformer(connected, forcefield=forcefield)
+
+    return connected
