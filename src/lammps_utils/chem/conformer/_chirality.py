@@ -8,6 +8,9 @@ import numpy as np
 from rdkit import Chem
 
 from lammps_utils.io.mol import set_positions
+from lammps_utils.logging import get_child_logger
+
+logger = get_child_logger(__name__)
 
 _DEFAULT_CONF_ID: Final[int] = -1
 
@@ -84,12 +87,10 @@ def invert_chirality(
     if mol.GetNumConformers() == 0:
         raise ValueError("Input molecule has no conformers to invert.")
 
-    try:
-        conf_old = mol.GetConformer(conf_id)
-    except ValueError as e:  # RDKit raises ValueError on invalid ID
-        raise ValueError(
-            f"Conformer with ID {conf_id} does not exist in the molecule."
-        ) from e
+    conf_old = mol.GetConformer(conf_id)
+    Chem.AssignAtomChiralTagsFromStructure(
+        mol, confId=conf_id, replaceExistingTags=True
+    )
 
     # Work on a copy so that the original molecule is not modified
     mol_inv = Chem.Mol(mol)
@@ -110,7 +111,29 @@ def invert_chirality(
     mol_inv.AddConformer(conf_new)
 
     # Recalculate chirality from coordinates
-    Chem.AssignAtomChiralTagsFromStructure(mol_inv, replaceExistingTags=True)
+    Chem.RemoveStereochemistry(mol_inv)
+    Chem.CleanupChirality(mol_inv)
+    Chem.AssignAtomChiralTagsFromStructure(
+        mol_inv, confId=conf_id, replaceExistingTags=True
+    )
+
+    chiral_centers = Chem.FindMolChiralCenters(
+        mol, force=True, includeUnassigned=True, includeCIP=True
+    )
+    chiral_centers_inv = Chem.FindMolChiralCenters(
+        mol_inv, force=True, includeUnassigned=True, includeCIP=True
+    )
+    logger.debug(f"Chiral centers: {chiral_centers}")
+    logger.debug(f"Chiral centers inv: {chiral_centers_inv}")
+    for chiral_center, chiral_center_inv in zip(
+        chiral_centers, chiral_centers_inv
+    ):
+        if {chiral_center[1], chiral_center_inv[1]} == {"R", "S"}:
+            continue
+        else:
+            raise ValueError(
+                f"Chiral center did not change from {chiral_center} to {chiral_center_inv}"
+            )
 
     assert mol_inv.GetNumConformers() == mol.GetNumConformers(), (
         f"Number of conformers changed from {mol.GetNumConformers()} to {mol_inv.GetNumConformers()}"
