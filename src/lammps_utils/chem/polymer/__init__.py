@@ -9,6 +9,7 @@ from ._connect import (
     replace_to_tritium_marker,
     resolve_head_and_tail,
 )
+from ._handedness import compute_main_chain_handedness, improper_handedness
 from ._polymer import find_main_chains
 
 __all__ = (
@@ -17,11 +18,13 @@ __all__ = (
     "connect_mols",
     "get_head_and_tail_from_props",
     "infer_head_and_tail",
+    "compute_main_chain_handedness",
+    "improper_handedness",
     "resolve_head_and_tail",
-    "has_tritium",
-    "has_asterisk",
-    "replace_to_tritium_marker",
-    "find_main_chains",
     "generate_amorphous_cell",
     "polymerize_linear",
+    "has_tritium",
+    "has_asterisk",
+    "find_main_chains",
+    "replace_to_tritium_marker",
 )
