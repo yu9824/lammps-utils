@@ -88,9 +88,11 @@ def invert_chirality(
         raise ValueError("Input molecule has no conformers to invert.")
 
     conf_old = mol.GetConformer(conf_id)
-    Chem.AssignAtomChiralTagsFromStructure(
-        mol, confId=conf_id, replaceExistingTags=True
-    )
+    # Chem.AssignAtomChiralTagsFromStructure(
+    #     mol, confId=conf_id, replaceExistingTags=True
+    # )
+    # Chem.AssignStereochemistry(mol, cleanIt=True)
+    Chem.AssignStereochemistryFrom3D(mol, replaceExistingTags=True)
 
     # Work on a copy so that the original molecule is not modified
     mol_inv = Chem.Mol(mol)
@@ -113,9 +115,11 @@ def invert_chirality(
     # Recalculate chirality from coordinates
     Chem.RemoveStereochemistry(mol_inv)
     Chem.CleanupChirality(mol_inv)
-    Chem.AssignAtomChiralTagsFromStructure(
-        mol_inv, confId=conf_id, replaceExistingTags=True
-    )
+    # Chem.AssignStereochemistry(mol_inv, cleanIt=True)
+    # Chem.AssignAtomChiralTagsFromStructure(
+    #     mol_inv, confId=conf_id, replaceExistingTags=True
+    # )
+    Chem.AssignStereochemistryFrom3D(mol_inv, replaceExistingTags=True)
 
     chiral_centers = Chem.FindMolChiralCenters(
         mol, force=True, includeUnassigned=True, includeCIP=True

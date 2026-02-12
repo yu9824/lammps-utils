@@ -136,7 +136,9 @@ def polymerize_linear(
         assert len(mols) == 1
         mol = mols[0]
 
-        Chem.AssignAtomChiralTagsFromStructure(mol, replaceExistingTags=True)
+        # Chem.AssignAtomChiralTagsFromStructure(mol, replaceExistingTags=True)
+        Chem.AssignStereochemistryFrom3D(mol, replaceExistingTags=True)
+        # Chem.AssignStereochemistry(mol, cleanIt=True)
         indexes_head, indexes_tail = resolve_head_and_tail(mol)
         assert len(indexes_head) == 1
         assert len(indexes_tail) == 1
