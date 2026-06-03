@@ -5,6 +5,7 @@ examples/*.xtc
 examples/*.rst
 !examples/eq3.xtc
 temp/*
+_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

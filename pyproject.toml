@@ -1,6 +1,6 @@
 # https://packaging.python.org/ja/latest/guides/writing-pyproject-toml/
 [build-system]
-requires = ["setuptools>=77.0.3"]
+requires = ["setuptools>=77.0.3", "setuptools-scm[toml]>=7"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -65,11 +65,11 @@ Tracker = "https://github.com/yu9824/lammps-utils/issues"
 [tool.setuptools]
 package-dir = { "" = "src" }
 
-[tool.setuptools.dynamic]
-version = { attr = "lammps_utils.__version__" }
-
 [tool.setuptools.packages.find]
 where = ["src/"]
+
+[tool.setuptools_scm]
+version_file = "src/lammps_utils/_version.py"
 
 [tool.ruff]
 line-length = 79
