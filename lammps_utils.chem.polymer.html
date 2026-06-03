@@ -1,0 +1,950 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>lammps_utils.chem.polymer package &#8212; lammps-utils 0.5.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=5f152624"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lammps_utils.chem.polymer';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="lammps_utils.graph package" href="lammps_utils.graph.html" />
+    <link rel="prev" title="lammps_utils.chem.conformer package" href="lammps_utils.chem.conformer.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">lammps-utils 0.5.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="modules.html">lammps_utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="lammps_utils.html">lammps_utils package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.analysis.html">lammps_utils.analysis package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.density.html">lammps_utils.analysis.density package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.dynamics.html">lammps_utils.analysis.dynamics package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.ffv.html">lammps_utils.analysis.ffv package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.rg.html">lammps_utils.analysis.rg package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="lammps_utils.chem.html">lammps_utils.chem package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.bond.html">lammps_utils.chem.bond package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.charge.html">lammps_utils.chem.charge package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html">lammps_utils.chem.conformer package</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">lammps_utils.chem.polymer package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.graph.html">lammps_utils.graph package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.pbc.html">lammps_utils.graph.pbc package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.topology.html">lammps_utils.graph.topology package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.helpers.html">lammps_utils.helpers package</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.io.html">lammps_utils.io package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.convert.html">lammps_utils.io.convert package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html">lammps_utils.io.dataframe package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html">lammps_utils.io.mol package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html">lammps_utils.io.moltemplate package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.parsing.html">lammps_utils.io.parsing package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.logging.html">lammps_utils.logging package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.smooth.html">lammps_utils.smooth package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.visualize.html">lammps_utils.visualize package</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lammps_utils.chem.polymer.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>lammps_utils.chem.polymer package</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.TacticityError"><code class="docutils literal notranslate"><span class="pre">TacticityError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.attach_terminal_groups"><code class="docutils literal notranslate"><span class="pre">attach_terminal_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.calculate_box_length"><code class="docutils literal notranslate"><span class="pre">calculate_box_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.compute_main_chain_handedness"><code class="docutils literal notranslate"><span class="pre">compute_main_chain_handedness()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.connect_mols"><code class="docutils literal notranslate"><span class="pre">connect_mols()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.find_main_chains"><code class="docutils literal notranslate"><span class="pre">find_main_chains()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.generate_amorphous_cell"><code class="docutils literal notranslate"><span class="pre">generate_amorphous_cell()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.get_head_and_tail_from_props"><code class="docutils literal notranslate"><span class="pre">get_head_and_tail_from_props()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.has_asterisk"><code class="docutils literal notranslate"><span class="pre">has_asterisk()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.has_tritium"><code class="docutils literal notranslate"><span class="pre">has_tritium()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.improper_handedness"><code class="docutils literal notranslate"><span class="pre">improper_handedness()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.infer_head_and_tail"><code class="docutils literal notranslate"><span class="pre">infer_head_and_tail()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.polymerize_linear"><code class="docutils literal notranslate"><span class="pre">polymerize_linear()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.replace_to_tritium_marker"><code class="docutils literal notranslate"><span class="pre">replace_to_tritium_marker()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.resolve_head_and_tail"><code class="docutils literal notranslate"><span class="pre">resolve_head_and_tail()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-lammps_utils.chem.polymer">
+<span id="lammps-utils-chem-polymer-package"></span><h1>lammps_utils.chem.polymer package<a class="headerlink" href="#module-lammps_utils.chem.polymer" title="Link to this heading">#</a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.TacticityError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">TacticityError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_tacticity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handedness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lammps_utils.chem.polymer.TacticityError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when tacticity (stereoregularity) is invalid or validation fails.</p>
+<p>This includes:
+- Unsupported combination (e.g. syndiotactic with forcefield minimization,</p>
+<blockquote>
+<div><p>or tacticity with random_walk).</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Invalid tacticity value.</p></li>
+<li><p>Post-build validation failure: main-chain handedness does not match
+the expected pattern for the requested tacticity (isotactic, syndiotactic,
+or atactic).</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.attach_terminal_groups">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">attach_terminal_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefield</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'MMFF'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'UFF'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MMFF'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.attach_terminal_groups" title="Link to this definition">#</a></dt>
+<dd><p>Attach terminal groups to both ends of a linear polymer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>polymer</strong> (<em>Chem.rdchem.Mol</em>) – The polymer molecule to which terminal groups will be attached.
+Must have detectable head and tail atoms (e.g., [3H] markers).</p></li>
+<li><p><strong>terminal</strong> (<em>Chem.rdchem.Mol</em>) – The terminal group molecule (e.g., CH3) to attach at both ends.
+Must have detectable head and tail atoms.</p></li>
+<li><p><strong>forcefield</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>&quot;MMFF&quot;</em><em>, </em><em>&quot;UFF&quot;</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Force field to use for energy minimization after attachment.
+If None, no minimization is performed. Default is “MMFF”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The polymer molecule with terminal groups attached at both ends.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Chem.rdchem.Mol</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function:
+1. Detects head and tail atoms of both polymer and terminal group
+2. Connects terminal group to the tail end of the polymer
+3. Connects another terminal group to the head end of the polymer
+4. Optionally minimizes the final structure</p>
+<p>The head and tail atoms are resolved using get_head_and_tail_from_props
+and infer_head_and_tail (e.g. [3H] markers or atom properties).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">lammps_utils.chem.conformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_minimized_conformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polymer</span> <span class="o">=</span> <span class="n">generate_minimized_conformer</span><span class="p">(</span><span class="s2">&quot;[3H]CC(c1ccccc1)[3H]&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">terminal</span> <span class="o">=</span> <span class="n">generate_minimized_conformer</span><span class="p">(</span><span class="s2">&quot;[3H]C[3H]&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">capped</span> <span class="o">=</span> <span class="n">attach_terminal_groups</span><span class="p">(</span><span class="n">polymer</span><span class="p">,</span> <span class="n">terminal</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.calculate_box_length">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">calculate_box_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.calculate_box_length" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the box length for a simulation cell from total mass and density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>total_mass</strong> (<em>float</em>) – Total mass of the system in g/mol.</p></li>
+<li><p><strong>density</strong> (<em>float</em>) – Target density in g/cm³.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Box length in Angstroms (Å) for a cubic simulation cell.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function calculates the edge length of a cubic simulation cell
+that would contain the specified mass at the given density.</p>
+<p>The calculation:
+1. Converts mass from g/mol to grams using Avogadro’s number
+2. Calculates volume from mass and density
+3. Takes the cube root to get the edge length
+4. Converts from meters to Angstroms (1 m = 1e10 Å)</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calculate_box_length</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># 100 g/mol at 1 g/cm³</span>
+<span class="go">25.4...  # Angstroms</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.compute_main_chain_handedness">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">compute_main_chain_handedness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.compute_main_chain_handedness" title="Link to this definition">#</a></dt>
+<dd><p>Get the handedness of each tetrahedral chiral center along the main chain.</p>
+<p>The main chain is taken as the shortest path between head and tail atoms
+(see <code class="xref py py-func docutils literal notranslate"><span class="pre">lammps_utils.chem.polymer._connect.resolve_head_and_tail()</span></code>).
+For each chiral center on the chain (excluding endpoints), the 3D handedness
+is computed from the improper dihedral (backbone–center–forward, sidechain)
+via <a class="reference internal" href="#lammps_utils.chem.polymer.improper_handedness" title="lammps_utils.chem.polymer.improper_handedness"><code class="xref py py-func docutils literal notranslate"><span class="pre">improper_handedness()</span></code></a>. When a center has multiple sidechain atoms,
+the one with the largest mass is used as the reference; ties raise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol_poly</strong> (<em>Chem.rdchem.Mol</em>) – RDKit molecule (polymer) with at least one conformer.</p></li>
+<li><p><strong>conf_id</strong> (<em>int</em><em>, </em><em>optional</em>) – Conformer ID used for 3D coordinates. Default is -1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Handedness for each chiral center in main-chain order. Each element is
++1 (counterclockwise), -1 (clockwise), or 0 (coplanar); see
+<a class="reference internal" href="#lammps_utils.chem.polymer.improper_handedness" title="lammps_utils.chem.polymer.improper_handedness"><code class="xref py py-func docutils literal notranslate"><span class="pre">improper_handedness()</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, …]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a chiral center has two sidechain atoms with the same mass, so the
+    reference sidechain cannot be chosen uniquely.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.connect_mols">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">connect_mols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BondType</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">rdkit.Chem.rdchem.BondType.SINGLE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_walk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torsion_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'random'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_conformer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefield</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'MMFF'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'UFF'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.connect_mols" title="Link to this definition">#</a></dt>
+<dd><p>Connect two molecules by removing dummy atoms (idx1, idx2) and forming
+a bond between their respective neighbor atoms with a well-defined
+geometric alignment.</p>
+<section id="geometry-rule">
+<h2>Geometry rule<a class="headerlink" href="#geometry-rule" title="Link to this heading">#</a></h2>
+<p>Let:</p>
+<blockquote>
+<div><p>vec1 = idx1 -&gt; target_idx1   (mol1 side)
+vec2 = idx2 -&gt; target_idx2   (mol2 side)</p>
+</div></blockquote>
+<p>Then mol2 is rigidly transformed so that:</p>
+<blockquote>
+<div><p>vec2 aligns with -vec1</p>
+</div></blockquote>
+<p>and target_idx2 is placed at:</p>
+<blockquote>
+<div><p>target_idx1 + vec1 * bond_length</p>
+</div></blockquote>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>idx1 and idx2 are assumed to be dummy atoms (e.g. Tritium).</p></li>
+<li><p>Both idx1 and idx2 must have exactly one neighbor.</p></li>
+<li><p>When torsion_angle is given, rotation is applied in mol2’s local frame
+(around bond target_idx2 -&gt; idx2) before alignment/translation, so mol2’s
+geometry is preserved and no distortion occurs.</p></li>
+</ul>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.find_main_chains">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">find_main_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">Mol</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.find_main_chains" title="Link to this definition">#</a></dt>
+<dd><p>Extracts and yields the longest linear (main chain) fragments from a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – An RDKit Mol object representing the molecular structure.</p>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Chem.rdchem.Mol</em> – A fragment corresponding to the main chain (as a substructure) for each connected component.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – If the input is not an RDKit Mol object.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function identifies the longest acyclic paths (main chains) within each connected component
+of the input molecule.</p>
+<ul class="simple">
+<li><p>Hydrogen atoms are removed prior to analysis.</p></li>
+<li><p>An undirected graph is constructed from the molecule using the adjacency matrix.</p></li>
+<li><p>Cyclic atoms are ignored when determining the main chain endpoints.</p></li>
+<li><p>The longest path between two non-cyclic atoms is obtained via a breadth-first search,
+followed by a shortest path search in the graph.</p></li>
+<li><p>The corresponding substructure (bond path) is returned as an RDKit Mol fragment.</p></li>
+</ul>
+<p>This method is useful for isolating backbone structures or linear scaffolds in a molecule.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.generate_amorphous_cell">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">generate_amorphous_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_and_numchains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mol</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nloop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.generate_amorphous_cell" title="Link to this definition">#</a></dt>
+<dd><p>Generate an amorphous cell using packmol.</p>
+<p>This function creates a periodic simulation cell containing multiple
+polymer chains at the specified density using the packmol program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol_and_numchains</strong> (<em>Sequence</em><em>[</em><em>tuple</em><em>[</em><em>Chem.rdchem.Mol</em><em>, </em><em>int</em><em>]</em><em>]</em>) – Tuple of (molecule, number_of_chains) pairs. Each molecule represents
+a polymer chain to be placed in the cell.</p></li>
+<li><p><strong>density</strong> (<em>float</em><em>, </em><em>optional</em>) – Target density in g/cm³. Default is 0.3.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance tolerance for packmol in Angstroms. Default is 2.0.</p></li>
+<li><p><strong>nloop</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of loops for packmol optimization. Default is 50.</p></li>
+<li><p><strong>maxit</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of iterations for packmol. Default is 20.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Seed for the random number generator. Default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generated amorphous cell as an RDKit molecule with all chains
+and their atom properties preserved.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Chem.rdchem.Mol</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>subprocess.CalledProcessError</strong> – If packmol execution fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If packmol executable is not found.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function:
+1. Calculates the box size from total mass and density
+2. Creates temporary PDB files for each polymer type
+3. Generates a packmol input file
+4. Executes packmol to pack molecules into the cell
+5. Reads the output and preserves atom properties</p>
+<p>The function uses a cubic periodic boundary condition (PBC) box.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">lammps_utils.chem.polymer</span><span class="w"> </span><span class="kn">import</span> <span class="n">polymerize_linear</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polymer</span> <span class="o">=</span> <span class="n">polymerize_linear</span><span class="p">((</span><span class="n">monomer</span><span class="p">,),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">generate_amorphous_cell</span><span class="p">(((</span><span class="n">polymer</span><span class="p">,</span> <span class="mi">5</span><span class="p">),),</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.get_head_and_tail_from_props">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">get_head_and_tail_from_props</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_not_unique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_no_head_or_tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.get_head_and_tail_from_props" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">get_head_and_tail_from_props</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_not_unique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_no_head_or_tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Get head and tail atom indices from the molecule’s atom properties.</p>
+<p>Reads the boolean properties “head” and “tail” on atoms. Use this when
+the molecule has already been annotated (e.g. by infer_head_and_tail).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – An RDKit Mol object representing the molecule to analyze.</p></li>
+<li><p><strong>raise_not_unique</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, raise a ValueError if more than one atom has “head” or “tail” set.</p></li>
+<li><p><strong>raise_no_head_or_tail</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, raise a ValueError if no head or tail atom is found.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple (head_indexes, tail_indexes) of atom index tuples.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[tuple[int, …], tuple[int, …]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.has_asterisk">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">has_asterisk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.has_asterisk" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.has_tritium">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">has_tritium</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.has_tritium" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.improper_handedness">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">improper_handedness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_prev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_next</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_substituent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.improper_handedness" title="Link to this definition">#</a></dt>
+<dd><p>Compute the handedness (chirality sign) of a tetrahedral center
+using an improper dihedral defined by four atoms.</p>
+<p>The handedness is determined from the scalar triple product:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>sign = ( (r_next - r_center) × (r_prev - r_center) )</dt><dd><p>· (r_substituent - r_center)</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>where:</dt><dd><ul class="simple">
+<li><p>atom_center      : central (chiral) atom</p></li>
+<li><p>atom_prev        : one backbone neighbor (e.g., previous in main chain)</p></li>
+<li><p>atom_next        : the other backbone neighbor (e.g., next in main chain)</p></li>
+<li><p>atom_substituent : side-chain atom attached to the center</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.Mol</em>) – RDKit molecule containing a 3D conformer.</p></li>
+<li><p><strong>atom_prev</strong> (<em>int</em>) – Atom index of the previous backbone atom.</p></li>
+<li><p><strong>atom_center</strong> (<em>int</em>) – Atom index of the chiral center.</p></li>
+<li><p><strong>atom_next</strong> (<em>int</em>) – Atom index of the next backbone atom.</p></li>
+<li><p><strong>atom_substituent</strong> (<em>int</em>) – Atom index of the side-chain atom.</p></li>
+<li><p><strong>conf_id</strong> (<em>int</em><em>, </em><em>optional</em>) – Conformer ID to use. Default is -1 (last conformer).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="option-list">
+<dt><kbd><span class="option">+1</span></kbd></dt>
+<dd><p>: right-handed orientation</p>
+</dd>
+<dt><kbd><span class="option">-1</span></kbd></dt>
+<dd><p>: left-handed orientation
+0  : nearly planar (degenerate case, <a href="#id1"><span class="problematic" id="id2">|value|</span></a> &lt; 1e-8)</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The sign depends on the order of (atom_next, atom_prev).
+Swapping them flips the result.</p></li>
+<li><p>This function does NOT depend on RDKit’s CIP R/S assignment.
+It purely evaluates 3D geometry.</p></li>
+<li><p>Suitable for tacticity evaluation in polymers when the
+backbone direction is consistently defined.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.infer_head_and_tail">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">infer_head_and_tail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_not_unique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.infer_head_and_tail" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">infer_head_and_tail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_not_unique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Infer head and tail atoms from structure (e.g. [3H] markers) and set atom properties.</p>
+<p>Use this when the molecule has no “head”/”tail” properties yet. It looks for
+tritium ([3H]) or existing “head”/”tail” props, then sets the props on the
+molecule. If exactly two [3H] atoms exist, the lower index is head and the
+higher is tail; otherwise all such atoms are treated as both head and tail.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – An RDKit Mol object representing the molecule to analyze.</p></li>
+<li><p><strong>raise_not_unique</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, raise ValueError when zero, one, or more than two [3H] atoms
+are found (when props are not already set).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple (head_indexes, tail_indexes) of atom index tuples.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[tuple[int, …], tuple[int, …]]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If raise_not_unique is True and head/tail cannot be uniquely determined.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>First checks for existing boolean atom properties “head” and “tail”.</p></li>
+<li><p>If not set, finds hydrogens with isotope 3 ([3H]), assigns head/tail,
+and sets the “head”/”tail” properties on the molecule.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;[3H]CC(c1ccccc1)[3H]&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">head_idx</span><span class="p">,</span> <span class="n">tail_idx</span> <span class="o">=</span> <span class="n">infer_head_and_tail</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.polymerize_linear">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">polymerize_linear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mol</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1.0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcefield</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'MMFF'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'UFF'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MMFF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_walk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torsion_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'random'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_conformer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tacticity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'isotactic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'syndiotactic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'atactic'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.polymerize_linear" title="Link to this definition">#</a></dt>
+<dd><p>Create a linear polymer by connecting monomer molecules head-to-tail.</p>
+<p>Monomers are selected according to <code class="docutils literal notranslate"><span class="pre">ratio</span></code>, connected in sequence
+(tail of current -&gt; head of next), and the final structure is
+optionally minimized. When <code class="docutils literal notranslate"><span class="pre">tacticity</span></code> is set, main-chain handedness
+is checked after building (and after minimization if applicable).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mols</strong> (<em>tuple</em><em>[</em><em>Chem.rdchem.Mol</em><em>, </em><em>...</em><em>]</em>) – Monomer molecules to polymerize. Each must have detectable head
+and tail atoms (e.g., [3H] markers) and at least one conformer.</p></li>
+<li><p><strong>ratio</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>]</em><em>, </em><em>optional</em>) – Relative ratio for selecting each monomer type. Length must match
+<code class="docutils literal notranslate"><span class="pre">mols</span></code>. Default is (1.0,) for a single monomer type.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of monomer units in the chain. Default is 10.</p></li>
+<li><p><strong>forcefield</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>&quot;MMFF&quot;</em><em>, </em><em>&quot;UFF&quot;</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Force field for energy minimization of the final polymer. If None,
+no minimization is performed. Default is “MMFF”.</p></li>
+<li><p><strong>random_walk</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, use random-walk placement when connecting monomers.
+Incompatible with <code class="docutils literal notranslate"><span class="pre">tacticity</span></code>. Default is False.</p></li>
+<li><p><strong>torsion_angle</strong> (<em>float</em><em> or </em><em>&quot;random&quot;</em><em>, </em><em>optional</em>) – Torsion angle (degrees) at the new bond, or “random” to sample
+randomly. Default is “random”.</p></li>
+<li><p><strong>align_conformer</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, align the incoming monomer to the growing chain before
+connection. Default is True.</p></li>
+<li><p><strong>tacticity</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[</em><em>&quot;isotactic&quot;</em><em>, </em><em>&quot;syndiotactic&quot;</em><em>, </em><em>&quot;atactic&quot;</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – <p>Stereoregularity of the main-chain chiral centers. Only supported
+for a single monomer type (len(mols) == 1) with 1 or 2 chiral
+centers on the main chain. Ignored when multiple monomer types
+are given. Definitions:
+- isotactic: all chiral centers same handedness (+1 or -1).
+- syndiotactic: alternating handedness (+1, -1, +1, -1, …).</p>
+<blockquote>
+<div><p>Not allowed with forcefield minimization.</p>
+</div></blockquote>
+<ul>
+<li><p>atactic: random mix of +1 and -1.</p></li>
+</ul>
+<p>Default is None (no tacticity control or check).</p>
+</p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – Random seed for monomer selection and connection angles.
+Default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Linear polymer molecule with one conformer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Chem.rdchem.Mol</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If mols/ratio length mismatch or no conformers in a monomer.</p></li>
+<li><p><a class="reference internal" href="#lammps_utils.chem.polymer.TacticityError" title="lammps_utils.chem.polymer.TacticityError"><strong>TacticityError</strong></a> – If syndiotactic with forcefield minimization, tacticity with
+    random_walk, invalid tacticity value, or (when tacticity is set)
+    post-build handedness does not match the expected pattern.</p></li>
+<li><p><strong>AssertionError</strong> – If head/tail resolution or internal assumptions fail.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ol class="arabic simple">
+<li><p>Monomers are chosen according to <code class="docutils literal notranslate"><span class="pre">ratio</span></code> (random for isotactic/atactic/None,
+alternating for syndiotactic).</p></li>
+<li><p>Chains are built by repeated tail-&gt;head connection via <code class="docutils literal notranslate"><span class="pre">connect_mols</span></code>
+without intermediate minimization.</p></li>
+<li><p>Optional final minimization is applied to the full polymer.</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">tacticity</span></code> is not None, main-chain handedness is computed and
+asserted (isotactic: one unique value; syndiotactic: alternating odd/even;
+atactic: two values).</p></li>
+</ol>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">lammps_utils.chem.conformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_minimized_conformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monomer</span> <span class="o">=</span> <span class="n">generate_minimized_conformer</span><span class="p">(</span><span class="s2">&quot;[3H]CC(c1ccccc1)[3H]&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polymer</span> <span class="o">=</span> <span class="n">polymerize_linear</span><span class="p">((</span><span class="n">monomer</span><span class="p">,),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polymer</span> <span class="o">=</span> <span class="n">polymerize_linear</span><span class="p">((</span><span class="n">monomer</span><span class="p">,),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tacticity</span><span class="o">=</span><span class="s2">&quot;isotactic&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.replace_to_tritium_marker">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">replace_to_tritium_marker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_no_tritium</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mol</span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.replace_to_tritium_marker" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lammps_utils.chem.polymer.resolve_head_and_tail">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.chem.polymer.</span></span><span class="sig-name descname"><span class="pre">resolve_head_and_tail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lammps_utils.chem.polymer.resolve_head_and_tail" title="Link to this definition">#</a></dt>
+<dd><p>Resolve head and tail atom indices for a molecule, using atom properties if available,
+otherwise falling back to inference.</p>
+<p>This function attempts to retrieve “head” and “tail” atom indices from the molecule’s
+atom boolean properties. If neither is set, it infers the indices (typically from [3H]
+marker hydrogens) and returns those. This is useful when connecting molecules where
+head/tail may or may not already be assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<em>Chem.rdchem.Mol</em>) – Molecule whose head and tail indices are to be resolved.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of head atom indices and tail atom indices (head_indexes, tail_indexes).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[tuple[int, …], tuple[int, …]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lammps_utils.chem.conformer.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">lammps_utils.chem.conformer package</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lammps_utils.graph.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">lammps_utils.graph package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.TacticityError"><code class="docutils literal notranslate"><span class="pre">TacticityError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.attach_terminal_groups"><code class="docutils literal notranslate"><span class="pre">attach_terminal_groups()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.calculate_box_length"><code class="docutils literal notranslate"><span class="pre">calculate_box_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.compute_main_chain_handedness"><code class="docutils literal notranslate"><span class="pre">compute_main_chain_handedness()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.connect_mols"><code class="docutils literal notranslate"><span class="pre">connect_mols()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.find_main_chains"><code class="docutils literal notranslate"><span class="pre">find_main_chains()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.generate_amorphous_cell"><code class="docutils literal notranslate"><span class="pre">generate_amorphous_cell()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.get_head_and_tail_from_props"><code class="docutils literal notranslate"><span class="pre">get_head_and_tail_from_props()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.has_asterisk"><code class="docutils literal notranslate"><span class="pre">has_asterisk()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.has_tritium"><code class="docutils literal notranslate"><span class="pre">has_tritium()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.improper_handedness"><code class="docutils literal notranslate"><span class="pre">improper_handedness()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.infer_head_and_tail"><code class="docutils literal notranslate"><span class="pre">infer_head_and_tail()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.polymerize_linear"><code class="docutils literal notranslate"><span class="pre">polymerize_linear()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.replace_to_tritium_marker"><code class="docutils literal notranslate"><span class="pre">replace_to_tritium_marker()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.chem.polymer.resolve_head_and_tail"><code class="docutils literal notranslate"><span class="pre">resolve_head_and_tail()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By yu9824
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, yu9824.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,712 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>lammps_utils package &#8212; lammps-utils 0.5.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=5f152624"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lammps_utils';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="lammps_utils.analysis package" href="lammps_utils.analysis.html" />
+    <link rel="prev" title="lammps_utils" href="modules.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">lammps-utils 0.5.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="modules.html">lammps_utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">lammps_utils package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.analysis.html">lammps_utils.analysis package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.density.html">lammps_utils.analysis.density package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.dynamics.html">lammps_utils.analysis.dynamics package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.ffv.html">lammps_utils.analysis.ffv package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.rg.html">lammps_utils.analysis.rg package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.chem.html">lammps_utils.chem package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.bond.html">lammps_utils.chem.bond package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.charge.html">lammps_utils.chem.charge package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html">lammps_utils.chem.conformer package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html">lammps_utils.chem.polymer package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.graph.html">lammps_utils.graph package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.pbc.html">lammps_utils.graph.pbc package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.topology.html">lammps_utils.graph.topology package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.helpers.html">lammps_utils.helpers package</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.io.html">lammps_utils.io package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.convert.html">lammps_utils.io.convert package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html">lammps_utils.io.dataframe package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html">lammps_utils.io.mol package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html">lammps_utils.io.moltemplate package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.parsing.html">lammps_utils.io.parsing package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.logging.html">lammps_utils.logging package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.smooth.html">lammps_utils.smooth package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.visualize.html">lammps_utils.visualize package</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lammps_utils.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>lammps_utils package</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps-utilities">LAMMPS Utilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-lammps_utils.constants">lammps_utils.constants module</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.AVOGADRO"><code class="docutils literal notranslate"><span class="pre">AVOGADRO</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.COLS_ATOMS_LAMMPS_DATA_DTYPE"><code class="docutils literal notranslate"><span class="pre">COLS_ATOMS_LAMMPS_DATA_DTYPE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.COLS_BONDS_LAMMPS_DATA_DTYPE"><code class="docutils literal notranslate"><span class="pre">COLS_BONDS_LAMMPS_DATA_DTYPE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.COLS_XYZ"><code class="docutils literal notranslate"><span class="pre">COLS_XYZ</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.MAP_ELEMENT_MASSES"><code class="docutils literal notranslate"><span class="pre">MAP_ELEMENT_MASSES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.MAP_VDW_RADIUS"><code class="docutils literal notranslate"><span class="pre">MAP_VDW_RADIUS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.N_ELEMENTS"><code class="docutils literal notranslate"><span class="pre">N_ELEMENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-lammps_utils.types">lammps_utils.types module</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.types.CellBounds"><code class="docutils literal notranslate"><span class="pre">CellBounds</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-lammps_utils">
+<span id="lammps-utils-package"></span><h1>lammps_utils package<a class="headerlink" href="#module-lammps_utils" title="Link to this heading">#</a></h1>
+<section id="lammps-utilities">
+<h2>LAMMPS Utilities<a class="headerlink" href="#lammps-utilities" title="Link to this heading">#</a></h2>
+<p>lammps_utils is a Python package for LAMMPS (Large-scale Atomic/Molecular Massively Parallel Simulator)
+that provides utilities for data manipulation, analysis, and visualization.</p>
+</section>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.analysis.html">lammps_utils.analysis package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.analysis.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.analysis.density.html">lammps_utils.analysis.density package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.density.html#lammps_utils.analysis.density.compute_density"><code class="docutils literal notranslate"><span class="pre">compute_density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.analysis.dynamics.html">lammps_utils.analysis.dynamics package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.dynamics.html#lammps_utils.analysis.dynamics.compute_fs"><code class="docutils literal notranslate"><span class="pre">compute_fs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.dynamics.html#lammps_utils.analysis.dynamics.compute_gs"><code class="docutils literal notranslate"><span class="pre">compute_gs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.dynamics.html#lammps_utils.analysis.dynamics.compute_msd"><code class="docutils literal notranslate"><span class="pre">compute_msd()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.analysis.ffv.html">lammps_utils.analysis.ffv package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.ffv.html#lammps_utils.analysis.ffv.compute_ffv"><code class="docutils literal notranslate"><span class="pre">compute_ffv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.analysis.rg.html">lammps_utils.analysis.rg package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.rg.html#lammps_utils.analysis.rg.compute_rg"><code class="docutils literal notranslate"><span class="pre">compute_rg()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.chem.html">lammps_utils.chem package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.chem.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.chem.bond.html">lammps_utils.chem.bond package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.bond.html#lammps_utils.chem.bond.get_bond_order"><code class="docutils literal notranslate"><span class="pre">get_bond_order()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.chem.charge.html">lammps_utils.chem.charge package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.charge.html#lammps_utils.chem.charge.compute_gasteiger_charges"><code class="docutils literal notranslate"><span class="pre">compute_gasteiger_charges()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.chem.conformer.html">lammps_utils.chem.conformer package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.generate_conformers_from_smiles"><code class="docutils literal notranslate"><span class="pre">generate_conformers_from_smiles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.generate_minimized_conformer"><code class="docutils literal notranslate"><span class="pre">generate_minimized_conformer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.invert_chirality"><code class="docutils literal notranslate"><span class="pre">invert_chirality()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.invert_chirality_coords"><code class="docutils literal notranslate"><span class="pre">invert_chirality_coords()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.minimize_conformer"><code class="docutils literal notranslate"><span class="pre">minimize_conformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.chem.polymer.html">lammps_utils.chem.polymer package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.TacticityError"><code class="docutils literal notranslate"><span class="pre">TacticityError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.attach_terminal_groups"><code class="docutils literal notranslate"><span class="pre">attach_terminal_groups()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.calculate_box_length"><code class="docutils literal notranslate"><span class="pre">calculate_box_length()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.compute_main_chain_handedness"><code class="docutils literal notranslate"><span class="pre">compute_main_chain_handedness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.connect_mols"><code class="docutils literal notranslate"><span class="pre">connect_mols()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.find_main_chains"><code class="docutils literal notranslate"><span class="pre">find_main_chains()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.generate_amorphous_cell"><code class="docutils literal notranslate"><span class="pre">generate_amorphous_cell()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.get_head_and_tail_from_props"><code class="docutils literal notranslate"><span class="pre">get_head_and_tail_from_props()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.has_asterisk"><code class="docutils literal notranslate"><span class="pre">has_asterisk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.has_tritium"><code class="docutils literal notranslate"><span class="pre">has_tritium()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.improper_handedness"><code class="docutils literal notranslate"><span class="pre">improper_handedness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.infer_head_and_tail"><code class="docutils literal notranslate"><span class="pre">infer_head_and_tail()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.polymerize_linear"><code class="docutils literal notranslate"><span class="pre">polymerize_linear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.replace_to_tritium_marker"><code class="docutils literal notranslate"><span class="pre">replace_to_tritium_marker()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.resolve_head_and_tail"><code class="docutils literal notranslate"><span class="pre">resolve_head_and_tail()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.graph.html">lammps_utils.graph package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.graph.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.graph.pbc.html">lammps_utils.graph.pbc package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.pbc.html#lammps_utils.graph.pbc.unwrap_positions_under_pbc"><code class="docutils literal notranslate"><span class="pre">unwrap_positions_under_pbc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.pbc.html#lammps_utils.graph.pbc.wrap_positions_into_cell"><code class="docutils literal notranslate"><span class="pre">wrap_positions_into_cell()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.graph.topology.html">lammps_utils.graph.topology package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.topology.html#lammps_utils.graph.topology.farthest_node_pair"><code class="docutils literal notranslate"><span class="pre">farthest_node_pair()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.topology.html#lammps_utils.graph.topology.nodes_in_cycles"><code class="docutils literal notranslate"><span class="pre">nodes_in_cycles()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.helpers.html">lammps_utils.helpers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.check_encoding"><code class="docutils literal notranslate"><span class="pre">check_encoding()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.dummy_tqdm"><code class="docutils literal notranslate"><span class="pre">dummy_tqdm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.dummy_tqdm.__iter__"><code class="docutils literal notranslate"><span class="pre">dummy_tqdm.__iter__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.dummy_tqdm.__getattr__"><code class="docutils literal notranslate"><span class="pre">dummy_tqdm.__getattr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.is_argument"><code class="docutils literal notranslate"><span class="pre">is_argument()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.is_executable"><code class="docutils literal notranslate"><span class="pre">is_executable()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.is_installed"><code class="docutils literal notranslate"><span class="pre">is_installed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.run_executable"><code class="docutils literal notranslate"><span class="pre">run_executable()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.tqdm_joblib"><code class="docutils literal notranslate"><span class="pre">tqdm_joblib</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.helpers.html#lammps_utils.helpers.work_directory"><code class="docutils literal notranslate"><span class="pre">work_directory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.io.html">lammps_utils.io package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.io.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.io.convert.html">lammps_utils.io.convert package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.convert.html#lammps_utils.io.convert.data2gro"><code class="docutils literal notranslate"><span class="pre">data2gro()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.convert.html#lammps_utils.io.convert.data2pdb"><code class="docutils literal notranslate"><span class="pre">data2pdb()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.io.dataframe.html">lammps_utils.io.dataframe package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.load_data"><code class="docutils literal notranslate"><span class="pre">load_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.load_dump"><code class="docutils literal notranslate"><span class="pre">load_dump()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.unwrap_df_positions_under_pbc"><code class="docutils literal notranslate"><span class="pre">unwrap_df_positions_under_pbc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.wrap_df_positions_to_cell"><code class="docutils literal notranslate"><span class="pre">wrap_df_positions_to_cell()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.io.mol.html">lammps_utils.io.mol package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolFromLAMMPSData"><code class="docutils literal notranslate"><span class="pre">MolFromLAMMPSData()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolFromLAMMPSDump"><code class="docutils literal notranslate"><span class="pre">MolFromLAMMPSDump()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolToMol2Block"><code class="docutils literal notranslate"><span class="pre">MolToMol2Block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolToMol2File"><code class="docutils literal notranslate"><span class="pre">MolToMol2File()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.set_positions"><code class="docutils literal notranslate"><span class="pre">set_positions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.unwrap_mol_under_pbc"><code class="docutils literal notranslate"><span class="pre">unwrap_mol_under_pbc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html#lammps_utils.io.mol.wrap_mol_into_cell"><code class="docutils literal notranslate"><span class="pre">wrap_mol_into_cell()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.io.moltemplate.html">lammps_utils.io.moltemplate package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.mol22lt"><code class="docutils literal notranslate"><span class="pre">mol22lt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.parse_mol_spec"><code class="docutils literal notranslate"><span class="pre">parse_mol_spec()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.write_lammps_input"><code class="docutils literal notranslate"><span class="pre">write_lammps_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.write_system_lt"><code class="docutils literal notranslate"><span class="pre">write_system_lt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.io.parsing.html">lammps_utils.io.parsing package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.logging.html">lammps_utils.logging package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.logging.html#lammps_utils.logging.catch_default_handler"><code class="docutils literal notranslate"><span class="pre">catch_default_handler</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.logging.html#lammps_utils.logging.disable_default_handler"><code class="docutils literal notranslate"><span class="pre">disable_default_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.logging.html#lammps_utils.logging.enable_default_handler"><code class="docutils literal notranslate"><span class="pre">enable_default_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.logging.html#lammps_utils.logging.get_child_logger"><code class="docutils literal notranslate"><span class="pre">get_child_logger()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.logging.html#lammps_utils.logging.get_handler"><code class="docutils literal notranslate"><span class="pre">get_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.logging.html#lammps_utils.logging.get_root_logger"><code class="docutils literal notranslate"><span class="pre">get_root_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.smooth.html">lammps_utils.smooth package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.smooth.html#lammps_utils.smooth.savitzky_golay"><code class="docutils literal notranslate"><span class="pre">savitzky_golay()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_utils.visualize.html">lammps_utils.visualize package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_utils.visualize.html#lammps_utils.visualize.view_3d"><code class="docutils literal notranslate"><span class="pre">view_3d()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-lammps_utils.constants">
+<span id="lammps-utils-constants-module"></span><h2>lammps_utils.constants module<a class="headerlink" href="#module-lammps_utils.constants" title="Link to this heading">#</a></h2>
+<p>Constants for working with atomic data and LAMMPS data file formatting.</p>
+<p>This module provides:
+- The number of known chemical elements,
+- A mapping of element symbols to their atomic masses,
+- Data type mappings for parsing atom and bond sections in LAMMPS data files.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.AVOGADRO">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">AVOGADRO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.022e+23</span></span><a class="headerlink" href="#lammps_utils.constants.AVOGADRO" title="Link to this definition">#</a></dt>
+<dd><p>Avogadro’s number (6.022 × 10²³) in units of mol⁻¹.</p>
+<p>This constant represents the number of atoms, molecules, or other particles
+in one mole of a substance. Used for converting between atomic mass units
+and grams, and for density calculations.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.COLS_ATOMS_LAMMPS_DATA_DTYPE">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">COLS_ATOMS_LAMMPS_DATA_DTYPE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'charge':</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">'id':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">'mol':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">'type':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">'x':</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">'y':</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">'z':</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;}</span></span><a class="headerlink" href="#lammps_utils.constants.COLS_ATOMS_LAMMPS_DATA_DTYPE" title="Link to this definition">#</a></dt>
+<dd><p>Column name to data type mapping for atoms in a LAMMPS data file.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.COLS_BONDS_LAMMPS_DATA_DTYPE">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">COLS_BONDS_LAMMPS_DATA_DTYPE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'atom1':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">'atom2':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">'id':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">'type':</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;}</span></span><a class="headerlink" href="#lammps_utils.constants.COLS_BONDS_LAMMPS_DATA_DTYPE" title="Link to this definition">#</a></dt>
+<dd><p>Column name to data type mapping for bonds in a LAMMPS data file.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.COLS_XYZ">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">COLS_XYZ</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['x',</span> <span class="pre">'y',</span> <span class="pre">'z']</span></span><a class="headerlink" href="#lammps_utils.constants.COLS_XYZ" title="Link to this definition">#</a></dt>
+<dd><p>Coordinate column labels</p>
+<p><code class="docutils literal notranslate"><span class="pre">[&quot;x&quot;,</span> <span class="pre">&quot;y&quot;,</span> <span class="pre">&quot;z&quot;]</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.MAP_ELEMENT_MASSES">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">MAP_ELEMENT_MASSES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Ac':</span> <span class="pre">227.0,</span> <span class="pre">'Ag':</span> <span class="pre">107.868,</span> <span class="pre">'Al':</span> <span class="pre">26.982,</span> <span class="pre">'Am':</span> <span class="pre">243.0,</span> <span class="pre">'Ar':</span> <span class="pre">39.948,</span> <span class="pre">'As':</span> <span class="pre">74.922,</span> <span class="pre">'At':</span> <span class="pre">210.0,</span> <span class="pre">'Au':</span> <span class="pre">196.967,</span> <span class="pre">'B':</span> <span class="pre">10.812,</span> <span class="pre">'Ba':</span> <span class="pre">137.328,</span> <span class="pre">'Be':</span> <span class="pre">9.012,</span> <span class="pre">'Bh':</span> <span class="pre">270.0,</span> <span class="pre">'Bi':</span> <span class="pre">208.98,</span> <span class="pre">'Bk':</span> <span class="pre">247.0,</span> <span class="pre">'Br':</span> <span class="pre">79.904,</span> <span class="pre">'C':</span> <span class="pre">12.011,</span> <span class="pre">'Ca':</span> <span class="pre">40.078,</span> <span class="pre">'Cd':</span> <span class="pre">112.412,</span> <span class="pre">'Ce':</span> <span class="pre">140.116,</span> <span class="pre">'Cf':</span> <span class="pre">251.0,</span> <span class="pre">'Cl':</span> <span class="pre">35.453,</span> <span class="pre">'Cm':</span> <span class="pre">247.0,</span> <span class="pre">'Cn':</span> <span class="pre">285.0,</span> <span class="pre">'Co':</span> <span class="pre">58.933,</span> <span class="pre">'Cr':</span> <span class="pre">51.996,</span> <span class="pre">'Cs':</span> <span class="pre">132.905,</span> <span class="pre">'Cu':</span> <span class="pre">63.546,</span> <span class="pre">'Db':</span> <span class="pre">268.0,</span> <span class="pre">'Ds':</span> <span class="pre">281.0,</span> <span class="pre">'Dy':</span> <span class="pre">162.5,</span> <span class="pre">'Er':</span> <span class="pre">167.26,</span> <span class="pre">'Es':</span> <span class="pre">252.0,</span> <span class="pre">'Eu':</span> <span class="pre">151.964,</span> <span class="pre">'F':</span> <span class="pre">18.998,</span> <span class="pre">'Fe':</span> <span class="pre">55.845,</span> <span class="pre">'Fl':</span> <span class="pre">289.0,</span> <span class="pre">'Fm':</span> <span class="pre">257.0,</span> <span class="pre">'Fr':</span> <span class="pre">223.0,</span> <span class="pre">'Ga':</span> <span class="pre">69.723,</span> <span class="pre">'Gd':</span> <span class="pre">157.25,</span> <span class="pre">'Ge':</span> <span class="pre">72.61,</span> <span class="pre">'H':</span> <span class="pre">1.008,</span> <span class="pre">'He':</span> <span class="pre">4.003,</span> <span class="pre">'Hf':</span> <span class="pre">178.49,</span> <span class="pre">'Hg':</span> <span class="pre">200.59,</span> <span class="pre">'Ho':</span> <span class="pre">164.93,</span> <span class="pre">'Hs':</span> <span class="pre">269.0,</span> <span class="pre">'I':</span> <span class="pre">126.904,</span> <span class="pre">'In':</span> <span class="pre">114.818,</span> <span class="pre">'Ir':</span> <span class="pre">192.217,</span> <span class="pre">'K':</span> <span class="pre">39.098,</span> <span class="pre">'Kr':</span> <span class="pre">83.8,</span> <span class="pre">'La':</span> <span class="pre">138.906,</span> <span class="pre">'Li':</span> <span class="pre">6.941,</span> <span class="pre">'Lr':</span> <span class="pre">262.0,</span> <span class="pre">'Lu':</span> <span class="pre">174.967,</span> <span class="pre">'Lv':</span> <span class="pre">293.0,</span> <span class="pre">'Mc':</span> <span class="pre">288.0,</span> <span class="pre">'Md':</span> <span class="pre">258.0,</span> <span class="pre">'Mg':</span> <span class="pre">24.305,</span> <span class="pre">'Mn':</span> <span class="pre">54.938,</span> <span class="pre">'Mo':</span> <span class="pre">95.94,</span> <span class="pre">'Mt':</span> <span class="pre">278.0,</span> <span class="pre">'N':</span> <span class="pre">14.007,</span> <span class="pre">'Na':</span> <span class="pre">22.99,</span> <span class="pre">'Nb':</span> <span class="pre">92.906,</span> <span class="pre">'Nd':</span> <span class="pre">144.24,</span> <span class="pre">'Ne':</span> <span class="pre">20.18,</span> <span class="pre">'Nh':</span> <span class="pre">284.0,</span> <span class="pre">'Ni':</span> <span class="pre">58.693,</span> <span class="pre">'No':</span> <span class="pre">259.0,</span> <span class="pre">'Np':</span> <span class="pre">237.0,</span> <span class="pre">'O':</span> <span class="pre">15.999,</span> <span class="pre">'Og':</span> <span class="pre">294.0,</span> <span class="pre">'Os':</span> <span class="pre">190.23,</span> <span class="pre">'P':</span> <span class="pre">30.974,</span> <span class="pre">'Pa':</span> <span class="pre">231.036,</span> <span class="pre">'Pb':</span> <span class="pre">207.2,</span> <span class="pre">'Pd':</span> <span class="pre">106.42,</span> <span class="pre">'Pm':</span> <span class="pre">145.0,</span> <span class="pre">'Po':</span> <span class="pre">209.0,</span> <span class="pre">'Pr':</span> <span class="pre">140.908,</span> <span class="pre">'Pt':</span> <span class="pre">195.078,</span> <span class="pre">'Pu':</span> <span class="pre">244.0,</span> <span class="pre">'Ra':</span> <span class="pre">226.0,</span> <span class="pre">'Rb':</span> <span class="pre">85.468,</span> <span class="pre">'Re':</span> <span class="pre">186.207,</span> <span class="pre">'Rf':</span> <span class="pre">267.0,</span> <span class="pre">'Rg':</span> <span class="pre">281.0,</span> <span class="pre">'Rh':</span> <span class="pre">102.906,</span> <span class="pre">'Rn':</span> <span class="pre">222.0,</span> <span class="pre">'Ru':</span> <span class="pre">101.07,</span> <span class="pre">'S':</span> <span class="pre">32.067,</span> <span class="pre">'Sb':</span> <span class="pre">121.76,</span> <span class="pre">'Sc':</span> <span class="pre">44.956,</span> <span class="pre">'Se':</span> <span class="pre">78.96,</span> <span class="pre">'Sg':</span> <span class="pre">269.0,</span> <span class="pre">'Si':</span> <span class="pre">28.086,</span> <span class="pre">'Sm':</span> <span class="pre">150.36,</span> <span class="pre">'Sn':</span> <span class="pre">118.711,</span> <span class="pre">'Sr':</span> <span class="pre">87.62,</span> <span class="pre">'Ta':</span> <span class="pre">180.948,</span> <span class="pre">'Tb':</span> <span class="pre">158.925,</span> <span class="pre">'Tc':</span> <span class="pre">98.0,</span> <span class="pre">'Te':</span> <span class="pre">127.6,</span> <span class="pre">'Th':</span> <span class="pre">232.038,</span> <span class="pre">'Ti':</span> <span class="pre">47.867,</span> <span class="pre">'Tl':</span> <span class="pre">204.383,</span> <span class="pre">'Tm':</span> <span class="pre">168.934,</span> <span class="pre">'Ts':</span> <span class="pre">292.0,</span> <span class="pre">'U':</span> <span class="pre">238.029,</span> <span class="pre">'V':</span> <span class="pre">50.944,</span> <span class="pre">'W':</span> <span class="pre">183.84,</span> <span class="pre">'Xe':</span> <span class="pre">131.29,</span> <span class="pre">'Y':</span> <span class="pre">88.906,</span> <span class="pre">'Yb':</span> <span class="pre">173.04,</span> <span class="pre">'Zn':</span> <span class="pre">65.39,</span> <span class="pre">'Zr':</span> <span class="pre">91.224}</span></span><a class="headerlink" href="#lammps_utils.constants.MAP_ELEMENT_MASSES" title="Link to this definition">#</a></dt>
+<dd><p>Mapping from element symbols (e.g., ‘H’, ‘C’, ‘O’) to their atomic masses in atomic mass units (amu or g/mol).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.MAP_VDW_RADIUS">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">MAP_VDW_RADIUS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Br':</span> <span class="pre">1.85,</span> <span class="pre">'C':</span> <span class="pre">1.7,</span> <span class="pre">'Cl':</span> <span class="pre">1.75,</span> <span class="pre">'F':</span> <span class="pre">1.47,</span> <span class="pre">'H':</span> <span class="pre">1.2,</span> <span class="pre">'I':</span> <span class="pre">1.98,</span> <span class="pre">'N':</span> <span class="pre">1.55,</span> <span class="pre">'O':</span> <span class="pre">1.52,</span> <span class="pre">'P':</span> <span class="pre">1.8,</span> <span class="pre">'S':</span> <span class="pre">1.8}</span></span><a class="headerlink" href="#lammps_utils.constants.MAP_VDW_RADIUS" title="Link to this definition">#</a></dt>
+<dd><p>Mapping from atomic symbols to van der Waals radii in angstroms.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.constants.N_ELEMENTS">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.constants.</span></span><span class="sig-name descname"><span class="pre">N_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">118</span></span><a class="headerlink" href="#lammps_utils.constants.N_ELEMENTS" title="Link to this definition">#</a></dt>
+<dd><p>Total number of elements in the periodic table. The 118th element is Oganesson (Og).</p>
+</dd></dl>
+
+</section>
+<section id="module-lammps_utils.types">
+<span id="lammps-utils-types-module"></span><h2>lammps_utils.types module<a class="headerlink" href="#module-lammps_utils.types" title="Link to this heading">#</a></h2>
+<p>Type definitions for lammps-utils.</p>
+<p>This module provides type aliases and type definitions used throughout
+the lammps-utils package.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="lammps_utils.types.CellBounds">
+<span class="sig-prename descclassname"><span class="pre">lammps_utils.types.</span></span><span class="sig-name descname"><span class="pre">CellBounds</span></span><a class="headerlink" href="#lammps_utils.types.CellBounds" title="Link to this definition">#</a></dt>
+<dd><p>Type alias for periodic cell bounds.</p>
+<p>A tuple of three (lo, hi) tuples representing the lower and upper bounds
+for each axis (x, y, z) in a periodic simulation cell.</p>
+<p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="modules.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">lammps_utils</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lammps_utils.analysis.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">lammps_utils.analysis package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps-utilities">LAMMPS Utilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-lammps_utils.constants">lammps_utils.constants module</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.AVOGADRO"><code class="docutils literal notranslate"><span class="pre">AVOGADRO</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.COLS_ATOMS_LAMMPS_DATA_DTYPE"><code class="docutils literal notranslate"><span class="pre">COLS_ATOMS_LAMMPS_DATA_DTYPE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.COLS_BONDS_LAMMPS_DATA_DTYPE"><code class="docutils literal notranslate"><span class="pre">COLS_BONDS_LAMMPS_DATA_DTYPE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.COLS_XYZ"><code class="docutils literal notranslate"><span class="pre">COLS_XYZ</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.MAP_ELEMENT_MASSES"><code class="docutils literal notranslate"><span class="pre">MAP_ELEMENT_MASSES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.MAP_VDW_RADIUS"><code class="docutils literal notranslate"><span class="pre">MAP_VDW_RADIUS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.constants.N_ELEMENTS"><code class="docutils literal notranslate"><span class="pre">N_ELEMENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-lammps_utils.types">lammps_utils.types module</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lammps_utils.types.CellBounds"><code class="docutils literal notranslate"><span class="pre">CellBounds</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By yu9824
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, yu9824.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

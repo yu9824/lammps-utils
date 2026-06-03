@@ -1,0 +1,913 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; lammps-utils 0.5.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=5f152624"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">lammps-utils 0.5.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">lammps_utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="lammps_utils.html">lammps_utils package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.analysis.html">lammps_utils.analysis package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.density.html">lammps_utils.analysis.density package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.dynamics.html">lammps_utils.analysis.dynamics package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.ffv.html">lammps_utils.analysis.ffv package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.analysis.rg.html">lammps_utils.analysis.rg package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.chem.html">lammps_utils.chem package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.bond.html">lammps_utils.chem.bond package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.charge.html">lammps_utils.chem.charge package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.conformer.html">lammps_utils.chem.conformer package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.chem.polymer.html">lammps_utils.chem.polymer package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.graph.html">lammps_utils.graph package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.pbc.html">lammps_utils.graph.pbc package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.graph.topology.html">lammps_utils.graph.topology package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.helpers.html">lammps_utils.helpers package</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="lammps_utils.io.html">lammps_utils.io package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.convert.html">lammps_utils.io.convert package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.dataframe.html">lammps_utils.io.dataframe package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.mol.html">lammps_utils.io.mol package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.moltemplate.html">lammps_utils.io.moltemplate package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lammps_utils.io.parsing.html">lammps_utils.io.parsing package</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.logging.html">lammps_utils.logging package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.smooth.html">lammps_utils.smooth package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lammps_utils.visualize.html">lammps_utils.visualize package</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.dummy_tqdm.__getattr__">__getattr__() (lammps_utils.helpers.dummy_tqdm method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.dummy_tqdm.__iter__">__iter__() (lammps_utils.helpers.dummy_tqdm method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.attach_terminal_groups">attach_terminal_groups() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.html#lammps_utils.constants.AVOGADRO">AVOGADRO (in module lammps_utils.constants)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.calculate_box_length">calculate_box_length() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.logging.html#lammps_utils.logging.catch_default_handler">catch_default_handler (class in lammps_utils.logging)</a>
+</li>
+      <li><a href="lammps_utils.html#lammps_utils.types.CellBounds">CellBounds (in module lammps_utils.types)</a>
+</li>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.check_encoding">check_encoding() (in module lammps_utils.helpers)</a>
+</li>
+      <li><a href="lammps_utils.html#lammps_utils.constants.COLS_ATOMS_LAMMPS_DATA_DTYPE">COLS_ATOMS_LAMMPS_DATA_DTYPE (in module lammps_utils.constants)</a>
+</li>
+      <li><a href="lammps_utils.html#lammps_utils.constants.COLS_BONDS_LAMMPS_DATA_DTYPE">COLS_BONDS_LAMMPS_DATA_DTYPE (in module lammps_utils.constants)</a>
+</li>
+      <li><a href="lammps_utils.html#lammps_utils.constants.COLS_XYZ">COLS_XYZ (in module lammps_utils.constants)</a>
+</li>
+      <li><a href="lammps_utils.analysis.density.html#lammps_utils.analysis.density.compute_density">compute_density() (in module lammps_utils.analysis.density)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.analysis.ffv.html#lammps_utils.analysis.ffv.compute_ffv">compute_ffv() (in module lammps_utils.analysis.ffv)</a>
+</li>
+      <li><a href="lammps_utils.analysis.dynamics.html#lammps_utils.analysis.dynamics.compute_fs">compute_fs() (in module lammps_utils.analysis.dynamics)</a>
+</li>
+      <li><a href="lammps_utils.chem.charge.html#lammps_utils.chem.charge.compute_gasteiger_charges">compute_gasteiger_charges() (in module lammps_utils.chem.charge)</a>
+</li>
+      <li><a href="lammps_utils.analysis.dynamics.html#lammps_utils.analysis.dynamics.compute_gs">compute_gs() (in module lammps_utils.analysis.dynamics)</a>
+</li>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.compute_main_chain_handedness">compute_main_chain_handedness() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.analysis.dynamics.html#lammps_utils.analysis.dynamics.compute_msd">compute_msd() (in module lammps_utils.analysis.dynamics)</a>
+</li>
+      <li><a href="lammps_utils.analysis.rg.html#lammps_utils.analysis.rg.compute_rg">compute_rg() (in module lammps_utils.analysis.rg)</a>
+</li>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.connect_mols">connect_mols() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.io.convert.html#lammps_utils.io.convert.data2gro">data2gro() (in module lammps_utils.io.convert)</a>
+</li>
+      <li><a href="lammps_utils.io.convert.html#lammps_utils.io.convert.data2pdb">data2pdb() (in module lammps_utils.io.convert)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.logging.html#lammps_utils.logging.disable_default_handler">disable_default_handler() (in module lammps_utils.logging)</a>
+</li>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.dummy_tqdm">dummy_tqdm (class in lammps_utils.helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.logging.html#lammps_utils.logging.enable_default_handler">enable_default_handler() (in module lammps_utils.logging)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.graph.topology.html#lammps_utils.graph.topology.farthest_node_pair">farthest_node_pair() (in module lammps_utils.graph.topology)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.find_main_chains">find_main_chains() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.generate_amorphous_cell">generate_amorphous_cell() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.generate_conformers_from_smiles">generate_conformers_from_smiles() (in module lammps_utils.chem.conformer)</a>
+</li>
+      <li><a href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.generate_minimized_conformer">generate_minimized_conformer() (in module lammps_utils.chem.conformer)</a>
+</li>
+      <li><a href="lammps_utils.chem.bond.html#lammps_utils.chem.bond.get_bond_order">get_bond_order() (in module lammps_utils.chem.bond)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.logging.html#lammps_utils.logging.get_child_logger">get_child_logger() (in module lammps_utils.logging)</a>
+</li>
+      <li><a href="lammps_utils.logging.html#lammps_utils.logging.get_handler">get_handler() (in module lammps_utils.logging)</a>
+</li>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.get_head_and_tail_from_props">get_head_and_tail_from_props() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.logging.html#lammps_utils.logging.get_root_logger">get_root_logger() (in module lammps_utils.logging)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.has_asterisk">has_asterisk() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.has_tritium">has_tritium() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.improper_handedness">improper_handedness() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.infer_head_and_tail">infer_head_and_tail() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.invert_chirality">invert_chirality() (in module lammps_utils.chem.conformer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.invert_chirality_coords">invert_chirality_coords() (in module lammps_utils.chem.conformer)</a>
+</li>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.is_argument">is_argument() (in module lammps_utils.helpers)</a>
+</li>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.is_executable">is_executable() (in module lammps_utils.helpers)</a>
+</li>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.is_installed">is_installed() (in module lammps_utils.helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    lammps_utils
+
+      <ul>
+        <li><a href="lammps_utils.html#module-lammps_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.analysis
+
+      <ul>
+        <li><a href="lammps_utils.analysis.html#module-lammps_utils.analysis">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.analysis.density
+
+      <ul>
+        <li><a href="lammps_utils.analysis.density.html#module-lammps_utils.analysis.density">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.analysis.dynamics
+
+      <ul>
+        <li><a href="lammps_utils.analysis.dynamics.html#module-lammps_utils.analysis.dynamics">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.analysis.ffv
+
+      <ul>
+        <li><a href="lammps_utils.analysis.ffv.html#module-lammps_utils.analysis.ffv">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.analysis.rg
+
+      <ul>
+        <li><a href="lammps_utils.analysis.rg.html#module-lammps_utils.analysis.rg">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.chem
+
+      <ul>
+        <li><a href="lammps_utils.chem.html#module-lammps_utils.chem">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.chem.bond
+
+      <ul>
+        <li><a href="lammps_utils.chem.bond.html#module-lammps_utils.chem.bond">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.chem.charge
+
+      <ul>
+        <li><a href="lammps_utils.chem.charge.html#module-lammps_utils.chem.charge">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.chem.conformer
+
+      <ul>
+        <li><a href="lammps_utils.chem.conformer.html#module-lammps_utils.chem.conformer">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.chem.polymer
+
+      <ul>
+        <li><a href="lammps_utils.chem.polymer.html#module-lammps_utils.chem.polymer">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.constants
+
+      <ul>
+        <li><a href="lammps_utils.html#module-lammps_utils.constants">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.graph
+
+      <ul>
+        <li><a href="lammps_utils.graph.html#module-lammps_utils.graph">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.graph.pbc
+
+      <ul>
+        <li><a href="lammps_utils.graph.pbc.html#module-lammps_utils.graph.pbc">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    lammps_utils.graph.topology
+
+      <ul>
+        <li><a href="lammps_utils.graph.topology.html#module-lammps_utils.graph.topology">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.helpers
+
+      <ul>
+        <li><a href="lammps_utils.helpers.html#module-lammps_utils.helpers">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.io
+
+      <ul>
+        <li><a href="lammps_utils.io.html#module-lammps_utils.io">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.io.convert
+
+      <ul>
+        <li><a href="lammps_utils.io.convert.html#module-lammps_utils.io.convert">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.io.dataframe
+
+      <ul>
+        <li><a href="lammps_utils.io.dataframe.html#module-lammps_utils.io.dataframe">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.io.mol
+
+      <ul>
+        <li><a href="lammps_utils.io.mol.html#module-lammps_utils.io.mol">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.io.moltemplate
+
+      <ul>
+        <li><a href="lammps_utils.io.moltemplate.html#module-lammps_utils.io.moltemplate">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.io.parsing
+
+      <ul>
+        <li><a href="lammps_utils.io.parsing.html#module-lammps_utils.io.parsing">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.logging
+
+      <ul>
+        <li><a href="lammps_utils.logging.html#module-lammps_utils.logging">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.smooth
+
+      <ul>
+        <li><a href="lammps_utils.smooth.html#module-lammps_utils.smooth">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.types
+
+      <ul>
+        <li><a href="lammps_utils.html#module-lammps_utils.types">module</a>
+</li>
+      </ul></li>
+      <li>
+    lammps_utils.visualize
+
+      <ul>
+        <li><a href="lammps_utils.visualize.html#module-lammps_utils.visualize">module</a>
+</li>
+      </ul></li>
+      <li><a href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.load_data">load_data() (in module lammps_utils.io.dataframe)</a>
+</li>
+      <li><a href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.load_dump">load_dump() (in module lammps_utils.io.dataframe)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.html#lammps_utils.constants.MAP_ELEMENT_MASSES">MAP_ELEMENT_MASSES (in module lammps_utils.constants)</a>
+</li>
+      <li><a href="lammps_utils.html#lammps_utils.constants.MAP_VDW_RADIUS">MAP_VDW_RADIUS (in module lammps_utils.constants)</a>
+</li>
+      <li><a href="lammps_utils.chem.conformer.html#lammps_utils.chem.conformer.minimize_conformer">minimize_conformer() (in module lammps_utils.chem.conformer)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="lammps_utils.html#module-lammps_utils">lammps_utils</a>
+</li>
+        <li><a href="lammps_utils.analysis.html#module-lammps_utils.analysis">lammps_utils.analysis</a>
+</li>
+        <li><a href="lammps_utils.analysis.density.html#module-lammps_utils.analysis.density">lammps_utils.analysis.density</a>
+</li>
+        <li><a href="lammps_utils.analysis.dynamics.html#module-lammps_utils.analysis.dynamics">lammps_utils.analysis.dynamics</a>
+</li>
+        <li><a href="lammps_utils.analysis.ffv.html#module-lammps_utils.analysis.ffv">lammps_utils.analysis.ffv</a>
+</li>
+        <li><a href="lammps_utils.analysis.rg.html#module-lammps_utils.analysis.rg">lammps_utils.analysis.rg</a>
+</li>
+        <li><a href="lammps_utils.chem.html#module-lammps_utils.chem">lammps_utils.chem</a>
+</li>
+        <li><a href="lammps_utils.chem.bond.html#module-lammps_utils.chem.bond">lammps_utils.chem.bond</a>
+</li>
+        <li><a href="lammps_utils.chem.charge.html#module-lammps_utils.chem.charge">lammps_utils.chem.charge</a>
+</li>
+        <li><a href="lammps_utils.chem.conformer.html#module-lammps_utils.chem.conformer">lammps_utils.chem.conformer</a>
+</li>
+        <li><a href="lammps_utils.chem.polymer.html#module-lammps_utils.chem.polymer">lammps_utils.chem.polymer</a>
+</li>
+        <li><a href="lammps_utils.html#module-lammps_utils.constants">lammps_utils.constants</a>
+</li>
+        <li><a href="lammps_utils.graph.html#module-lammps_utils.graph">lammps_utils.graph</a>
+</li>
+        <li><a href="lammps_utils.graph.pbc.html#module-lammps_utils.graph.pbc">lammps_utils.graph.pbc</a>
+</li>
+        <li><a href="lammps_utils.graph.topology.html#module-lammps_utils.graph.topology">lammps_utils.graph.topology</a>
+</li>
+        <li><a href="lammps_utils.helpers.html#module-lammps_utils.helpers">lammps_utils.helpers</a>
+</li>
+        <li><a href="lammps_utils.io.html#module-lammps_utils.io">lammps_utils.io</a>
+</li>
+        <li><a href="lammps_utils.io.convert.html#module-lammps_utils.io.convert">lammps_utils.io.convert</a>
+</li>
+        <li><a href="lammps_utils.io.dataframe.html#module-lammps_utils.io.dataframe">lammps_utils.io.dataframe</a>
+</li>
+        <li><a href="lammps_utils.io.mol.html#module-lammps_utils.io.mol">lammps_utils.io.mol</a>
+</li>
+        <li><a href="lammps_utils.io.moltemplate.html#module-lammps_utils.io.moltemplate">lammps_utils.io.moltemplate</a>
+</li>
+        <li><a href="lammps_utils.io.parsing.html#module-lammps_utils.io.parsing">lammps_utils.io.parsing</a>
+</li>
+        <li><a href="lammps_utils.logging.html#module-lammps_utils.logging">lammps_utils.logging</a>
+</li>
+        <li><a href="lammps_utils.smooth.html#module-lammps_utils.smooth">lammps_utils.smooth</a>
+</li>
+        <li><a href="lammps_utils.html#module-lammps_utils.types">lammps_utils.types</a>
+</li>
+        <li><a href="lammps_utils.visualize.html#module-lammps_utils.visualize">lammps_utils.visualize</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.mol22lt">mol22lt() (in module lammps_utils.io.moltemplate)</a>
+</li>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolFromLAMMPSData">MolFromLAMMPSData() (in module lammps_utils.io.mol)</a>
+</li>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolFromLAMMPSDump">MolFromLAMMPSDump() (in module lammps_utils.io.mol)</a>
+</li>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolToMol2Block">MolToMol2Block() (in module lammps_utils.io.mol)</a>
+</li>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.MolToMol2File">MolToMol2File() (in module lammps_utils.io.mol)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.html#lammps_utils.constants.N_ELEMENTS">N_ELEMENTS (in module lammps_utils.constants)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.graph.topology.html#lammps_utils.graph.topology.nodes_in_cycles">nodes_in_cycles() (in module lammps_utils.graph.topology)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.parse_mol_spec">parse_mol_spec() (in module lammps_utils.io.moltemplate)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.polymerize_linear">polymerize_linear() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.replace_to_tritium_marker">replace_to_tritium_marker() (in module lammps_utils.chem.polymer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.resolve_head_and_tail">resolve_head_and_tail() (in module lammps_utils.chem.polymer)</a>
+</li>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.run_executable">run_executable() (in module lammps_utils.helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.smooth.html#lammps_utils.smooth.savitzky_golay">savitzky_golay() (in module lammps_utils.smooth)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.set_positions">set_positions() (in module lammps_utils.io.mol)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.chem.polymer.html#lammps_utils.chem.polymer.TacticityError">TacticityError</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.tqdm_joblib">tqdm_joblib (class in lammps_utils.helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.unwrap_df_positions_under_pbc">unwrap_df_positions_under_pbc() (in module lammps_utils.io.dataframe)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.unwrap_mol_under_pbc">unwrap_mol_under_pbc() (in module lammps_utils.io.mol)</a>
+</li>
+      <li><a href="lammps_utils.graph.pbc.html#lammps_utils.graph.pbc.unwrap_positions_under_pbc">unwrap_positions_under_pbc() (in module lammps_utils.graph.pbc)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.visualize.html#lammps_utils.visualize.view_3d">view_3d() (in module lammps_utils.visualize)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.helpers.html#lammps_utils.helpers.work_directory">work_directory() (in module lammps_utils.helpers)</a>
+</li>
+      <li><a href="lammps_utils.io.dataframe.html#lammps_utils.io.dataframe.wrap_df_positions_to_cell">wrap_df_positions_to_cell() (in module lammps_utils.io.dataframe)</a>
+</li>
+      <li><a href="lammps_utils.io.mol.html#lammps_utils.io.mol.wrap_mol_into_cell">wrap_mol_into_cell() (in module lammps_utils.io.mol)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="lammps_utils.graph.pbc.html#lammps_utils.graph.pbc.wrap_positions_into_cell">wrap_positions_into_cell() (in module lammps_utils.graph.pbc)</a>
+</li>
+      <li><a href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.write_lammps_input">write_lammps_input() (in module lammps_utils.io.moltemplate)</a>
+</li>
+      <li><a href="lammps_utils.io.moltemplate.html#lammps_utils.io.moltemplate.write_system_lt">write_system_lt() (in module lammps_utils.io.moltemplate)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By yu9824
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, yu9824.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
